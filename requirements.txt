@@ -19,3 +19,4 @@ trl
 bitsandbytes
 datasets
 accelerate
+matplotlib
