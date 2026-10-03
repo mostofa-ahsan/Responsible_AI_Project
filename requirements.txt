@@ -1,0 +1,9 @@
+# CUDA 12.8 build of PyTorch (RTX 3090). For CPU-only machines use
+# https://download.pytorch.org/whl/cpu instead.
+--extra-index-url https://download.pytorch.org/whl/cu128
+torch==2.11.0
+torchvision
+docling==2.132.0
+pymupdf
+pyyaml
+pytest

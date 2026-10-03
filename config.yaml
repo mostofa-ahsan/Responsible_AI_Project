@@ -1,0 +1,50 @@
+# Pipeline configuration. Paths are relative to the repo root.
+# Secrets (API keys) go in .env, never here.
+
+paths:
+  raw_pdfs: data/raw_pdfs
+  inventory: data/inventory.csv
+  inventory_cache: data/cache/inventory
+  parsed: data/parsed
+  docling_cache: data/cache/docling   # raw Docling JSON, so cleaning can be re-run without re-parsing
+  chunks: data/chunks
+  qa_pairs: data/qa_pairs
+  splits: data/splits
+  logs: logs
+
+inventory:
+  min_text_chars: 50          # non-whitespace chars for a page to count as having text
+  text_yes_ratio: 0.90        # >= this share of text pages -> "yes"
+  text_no_ratio: 0.10         # <= this share -> "no" (needs OCR); in between -> "partial"
+  title_similarity: 0.90      # fuzzy title match threshold (reported, not proof of duplication)
+  shingle_words: 8
+  shingle_sample_mod: 8       # keep 1/N shingle hashes (consistent sampling) to bound cache size
+  containment_threshold: 0.60 # share of a doc's text found in another doc -> duplicate
+
+parse:
+  device: cuda               # cuda | cpu | auto
+  do_table_structure: true
+  ocr_for_text_layer: [no, partial]   # inventory text_layer values that get OCR
+  article_meta_pages: 2      # first N pages searched for title/authors/year (articles)
+  book_meta_pages: 8         # same, for books
+  header_min_pages: 3        # short text repeated on >= N pages is a running header
+  max_year: 2026             # later years are flagged for review
+
+# LLM roles (used from Phase 3 on). Providers: anthropic | openai_compatible.
+models:
+  density_scorer:
+    provider: anthropic
+    model: claude-haiku-4-5-20251001
+  generator:
+    provider: anthropic
+    model: claude-sonnet-5-5
+  judge:
+    # TODO: a non-Anthropic judge (GPT/Gemini) is preferred to avoid self-preference
+    # with the Claude generator; if kept, calibrate against human labels.
+    provider: anthropic
+    model: claude-opus-5-5
+  closed_book_baseline:
+    # TODO: the local open base model to be fine-tuned, served via vLLM/Ollama.
+    provider: openai_compatible
+    base_url: TODO
+    model: TODO
