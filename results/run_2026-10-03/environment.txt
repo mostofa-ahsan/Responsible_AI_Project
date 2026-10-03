@@ -1,0 +1,30 @@
+python: 3.12.3  platform: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39
+GPU: NVIDIA GeForce RTX 3090, 24576 MiB, 591.86
+git commit: f8e427e69503a58f509731e7d24f79a1c5020ab9 (dirty)
+
+main venv (.venv):
+  accelerate==1.15.0
+  anthropic==1.11.0
+  bitsandbytes==0.50.2
+  datasets==5.0.1
+  numpy==2.5.2
+  peft==0.21.2
+  sentence-transformers==6.1.0
+  torch==2.11.0+cu128
+  transformers==5.18.0
+  trl==1.14.1
+vLLM venv (.venv-vllm):
+  torch==2.13.0
+  transformers==5.18.0
+  vllm==0.30.0
+
+seeds: train.seed=42, split.seed=42, eval subset seed=42, bootstrap seed=0 (2000 resamples)
+decoding: greedy, max_new_tokens=512, thinking disabled (Qwen3)
+judge: claude-opus-5-5 (effort medium), Message Batches API
+
+model revisions (HF cache snapshot):
+  Qwen/Qwen3-8B: b968826d9c46dd6066d109eabc6255188de91218
+  google/gemma-4-E4B-it: ee0ef6023621cff504d758262d4e04895a5af4a2
+  meta-llama/Llama-3.1-8B-Instruct: 0e9e39f249a16976918f6564b8830bc894c89659
+
+training recipe: {"lora_r": 16, "lora_alpha": 32, "lora_dropout": 0.05, "learning_rate": 0.0002, "per_device_batch_size": 4, "grad_accum": 4, "max_seq_length": 1024, "warmup_ratio": 0.03, "seed": 42, "use_paraphrases": true}

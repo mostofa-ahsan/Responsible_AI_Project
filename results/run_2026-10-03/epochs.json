@@ -1,0 +1,9 @@
+{
+  "epochs": 1,
+  "hours_per_epoch": {
+    "Qwen/Qwen3-8B": 1.1,
+    "google/gemma-4-E4B-it": 1.1,
+    "meta-llama/Llama-3.1-8B-Instruct": 1.12
+  },
+  "total_2_epoch_hours": 6.64
+}

@@ -53,9 +53,18 @@ python src/density_llm.py            # Haiku scores the borderline density band 
 python src/judge_compare.py          # candidate judge (Haiku) vs Opus on a run's judged pairs
 python src/full_run.py --run full_v1           # full QA run via Message Batches (run inside tmux)
 python src/full_run.py --run full_v1 --status  # stage, batch status, items, spend, ETA
-python src/split.py --run full_v1              # train/val/test_indomain/test_heldout_docs
+python src/run_report.py --run full_v1         # final dataset report (local files only)
+python src/split.py --run full_v1              # train/val/test splits + leakage/dimension checks (re-seeds up to 5x)
+bash scripts/after_filter.sh                   # post-filter pipeline (report, split, review export, dry run,
+                                               #   smoke test, base eval, READY page); run in tmux
 python src/train_qlora.py --dry-run            # CPU: build + tokenize training data, no model load
+python src/train_qlora.py --max-steps 30 --output models/smoke   # GPU smoke test -> logs/smoke_test_summary.json
 python src/eval_closedbook.py --dry-run --limit 3
+python src/eval_closedbook.py --arm base_closedbook --split test_heldout_docs   # vLLM + Opus batch grading
+python src/write_ready.py --run full_v1        # logs/READY_FOR_TRAINING.md
+bash scripts/model_runs.sh                     # multi-model QLoRA + closed-book eval (tmux; resumable markers)
+bash scripts/seen_facts.sh                     # test_seen_facts follow-up (after model_runs.sh)
+python src/model_runs.py report                # rebuild results/run_2026-10-03/comparison.md from saved outputs
 python -m pytest tests -q            # all tests
 python -m pytest tests/test_parse.py -k bibliography   # single test
 python src/audit_hyphenation.py      # list suspicious line-break joins (logs/hyphenation_audit_report.txt)
@@ -133,4 +142,15 @@ Batch runs (`src/full_run.py`, `llm.BatchRunner`):
 - After `llm.batch_timeout_min` a batch is cancelled. Unfinished, errored, expired, refused or schema-invalid results get one standard-API retry. Billing or spend-limit errors exit with code 3 and the state saved.
 - Refusal fallbacks (`fallbacks: default`) only apply on the standard path; the Batches API rejects that parameter.
 - Two 4B models (embedder and reranker) on the 24 GB GPU at once thrash WSL memory and stall both jobs. Run GPU steps (retrieval study, the filter's dedup, training, eval) one at a time.
+
+Budget, eval and training notes:
+- Spend caps are in `config.yaml` `budget`. `full_run.py` checks the next batch round's estimated cost against `run_max_usd[run]`. If it would exceed the cap, it finalizes with `LLM_OFFLINE=1`: uncached calls raise `Unavailable`, repairs are skipped (`repair_skipped_budget`) and bad paraphrases dropped. `eval_closedbook.py` grades a 50-answer pilot, measures the real cost per answer, and samples (stratified) to stay within `eval_run_max_usd` (per split) and `eval_max_usd`.
+- vLLM lives in a separate venv, `.venv-vllm` (vLLM 0.30 needs torch 2.13; the main venv stays on torch 2.11). `eval_closedbook.py` calls `src/vllm_generate.py` with that interpreter and falls back to HF generate. The machine has the NVIDIA driver but no CUDA toolkit (`nvcc`), so the worker sets `VLLM_USE_FLASHINFER_SAMPLER=0`. Anything that JIT-compiles CUDA code will fail here.
+- `train_qlora.py` (transformers 5 / trl 1.14) uses `warmup_steps` with a float ratio; `warmup_ratio` no longer exists. It saves and evaluates val loss every epoch, keeps the best checkpoint (`load_best_model_at_end`), and runs 2 epochs by default (3 via `--epochs` or config).
+- In scripts, don't `pgrep -f` a command string that also appears in a tmux session's command: the tmux server keeps that argv. Anchor the pattern to the interpreter (`^[^ ]*python[^ ]* src/...`).
+
+Multi-model results (`results/run_2026-10-03/`; read `SUMMARY.md` first):
+- Qwen3-8B, Gemma 4 E4B and Llama 3.1 8B were each QLoRA fine-tuned for 1 epoch with an identical recipe (adapters in `models/<name>/adapter/`). Closed-book fine-tuning raises token F1 and ROUGE-L but LOWERS Opus-judged accuracy on every test split, including `test_seen_facts` (paraphrased training questions). The next experiment is the RAG / RAFT arms.
+- Judge accuracy uses the fixed stratified subset in `data/splits/eval_subset.json` (500 per split, the same for every model and arm). Keep it fixed for new arms so results stay comparable.
+- The Qwen3 embedder and reranker caches were deleted for disk space; re-download them for RAG work.
 

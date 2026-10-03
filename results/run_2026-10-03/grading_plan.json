@@ -1,0 +1,10 @@
+{
+  "subset_k": {
+    "test_indomain": 500,
+    "test_heldout_docs": 500
+  },
+  "cost_per_answer": 0.0028,
+  "items": 6000,
+  "room_usd": 28.02,
+  "need_usd": 16.66
+}
