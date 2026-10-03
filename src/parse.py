@@ -34,7 +34,7 @@ from pathlib import Path
 from inventory import ARTICLE_YEAR, COPYRIGHT_YEAR, clean_stem, unspace
 from utils import Report, get_logger, load_config, repo_path
 
-PARSER_VERSION = 9
+PARSER_VERSION = 13
 
 # --- section-level skip rules (matched against normalized heading text) -----
 SKIP_SECTIONS = [
@@ -223,6 +223,14 @@ def drop_running_headers(items, n_pages, min_pages):
     return kept, headers
 
 
+INDEX_RUN_RX = re.compile(r"[A-Za-z][\w\s,'()/-]{2,60},?\s\d{1,3}(?:\s*[-–]\s*\d{1,3})?(?:,\s*\d{1,3})+")
+
+
+def number_ratio(text):
+    words = text.split()
+    return sum(bool(re.fullmatch(r"\d{1,4}[,;.]?(?:[-–]\d{1,4}[,;.]?)?", w)) for w in words) / max(len(words), 1)
+
+
 def is_meta_line(text):
     return len(text) < META_MAX_CHARS and bool(ARTICLE_META_RX.search(text))
 
@@ -247,25 +255,110 @@ def continuation_target(blocks, max_back=4):
     return None
 
 
-def heading_levels(blocks, is_chapter_file):
-    """Docling gives every heading level 1; infer depth from numbering and style."""
+def is_skip_heading(text):
+    nh = norm_heading(text)
+    return any(rx.match(nh) for _, rx in SKIP_SECTIONS)
+
+
+def numbering(text):
+    m = NUMBERED_RX.match(text)
+    return [int(x) for x in m.group(1).split(".")] if m else None
+
+
+def find_chapter_starts(blocks):
+    """Indices (into blocks) of book chapter-title headings. Three numbering styles:
+
+    - "Chapter N" headings are always chapter starts.
+    - Depth-1 numbers that never restart ("1 Intro", "1.1", "2 Fairness", "2.1"):
+      each depth-1 heading is a chapter.
+    - Depth-1 numbers that restart ("... 8 Conclusion", "1 Introduction"): an
+      edited volume; a chapter starts at each restart.
+    - Otherwise ("X.1", "X.2" under unnumbered chapter titles): a chapter starts at each new X.
+    For the last two, the chapter title is the nearest unnumbered, non-generic
+    heading shortly before the restart (stepping over "Abstract", "Keywords").
+    """
+    heads = [(i, numbering(b["text"])) for i, b in enumerate(blocks) if b["type"] == "heading"]
+    d1 = [n[0] for _, n in heads if n and len(n) == 1]
+    restarts = any(b < a for a, b in zip(d1, d1[1:]))
+    # "X Title" style only if most "X.1" headings follow a depth-1 "X" heading.
+    x1, parented, last_d1 = 0, 0, None
+    for _, n in heads:
+        if n and len(n) == 1:
+            last_d1 = n[0]
+        elif n and len(n) == 2 and n[1] == 1:
+            x1 += 1
+            parented += last_d1 == n[0]
+    xtitle_style = bool(d1) and not restarts and x1 > 0 and parented / x1 >= 0.5
+    starts, prev_d1, prev_lead2 = set(), None, None
+
+    def walk_back(i):
+        for steps, j in enumerate(range(i - 1, -1, -1), 1):
+            if steps > 15:
+                break
+            if j in starts:
+                return j                  # already the chapter's title
+            bj = blocks[j]
+            if bj["type"] != "heading":
+                continue
+            if numbering(bj["text"]) or is_skip_heading(bj["text"]):
+                break
+            if not GENERIC_HEADING_RX.match(norm_heading(bj["text"])):
+                return j
+        return i
+
+    for i, num in heads:
+        if CHAPTER_RX.match(blocks[i]["text"]):
+            starts.add(i)
+            continue
+        if not num:
+            continue
+        if len(num) == 1:
+            if xtitle_style:
+                starts.add(i)
+            elif restarts and (prev_d1 is None or num[0] < prev_d1):
+                starts.add(walk_back(i))
+            prev_d1 = num[0]
+        elif (not xtitle_style and not restarts and len(num) == 2 and num[1] == 1
+              and num[0] != prev_lead2):
+            starts.add(walk_back(i))
+        if len(num) >= 2:
+            prev_lead2 = num[0]
+    return starts
+
+
+def heading_levels(blocks, is_chapter_file, is_book=False):
+    """Docling gives every heading level 1; infer depth from numbering, chapters and style."""
     heads = [b for b in blocks if b["type"] == "heading"]
-    has_chapter = is_chapter_file or any(CHAPTER_RX.match(b["text"]) for b in heads)
-    has_numbered = any(NUMBERED_RX.match(b["text"]) for b in heads)
+    has_numbered = any(numbering(b["text"]) for b in heads)
     has_caps = any(len(re.sub(r"[^A-Za-z]", "", b["text"])) >= 4 and b["text"].isupper()
                    and not re.match(r"^(\w )+\w$", b["text"]) for b in heads)
+    chapters = find_chapter_starts(blocks) if is_book and has_numbered else set()
+    if is_chapter_file and heads:
+        chapters.add(blocks.index(heads[0]))
+    has_chapter = bool(chapters) or any(CHAPTER_RX.match(b["text"]) for b in heads)
     base = 1 if has_chapter else 0
-    for i, b in enumerate(heads):
+    offset, last_num_level = base, None
+    for i, b in enumerate(blocks):
+        if b["type"] != "heading":
+            continue
         t = b["text"]
-        m = NUMBERED_RX.match(t)
-        if CHAPTER_RX.match(t) or (is_chapter_file and i == 0):
+        num = numbering(t)
+        if i in chapters or CHAPTER_RX.match(t):
             b["level"] = 1
-        elif m:
-            b["level"] = base + len(m.group(1).split("."))
+            # sections under a numbered "X Title" chapter are X.1, X.2 -> depth 2 = level 2
+            offset = 0 if (num and len(num) == 1) else base
+            last_num_level = None
+        elif num:
+            b["level"] = max(offset + len(num), base + 1)
+            last_num_level = b["level"]
+        elif is_skip_heading(t) and has_numbered:
+            b["level"] = base + 1   # References, Funding, ... sit at the top of their chapter/article
+        elif last_num_level is not None:
+            b["level"] = last_num_level + 1   # unnumbered sub-heading inside a numbered section
         elif t.isupper() and len(re.sub(r"[^A-Za-z]", "", t)) >= 4:
             b["level"] = base + 1
         elif has_numbered:
-            b["level"] = base + 1   # e.g. "References", "Funding" alongside "1. Introduction"
+            b["level"] = base + 1   # e.g. "ABSTRACT" before "1. Introduction"
         else:
             b["level"] = base + 1 + has_caps
 
@@ -296,7 +389,9 @@ def clean_items(items, row, pcfg, n_pages):
         if typ == "heading":
             text = unspace(text)
             letters = len(re.sub(r"[^A-Za-z]", "", text))
-            if (letters == 0 or text.startswith("[") or re.search(r"https?://|www\.|doi\.org", text)
+            if re.match(r"^(?i:table|figure|fig\.)\s*(\d+|[A-Z]\d*)(\.\d+)*\b", text):
+                typ = "caption"     # "Table 4 (continued)" mislabelled as a heading
+            elif (letters == 0 or text.startswith("[") or re.fullmatch(r"\(.*\d{4}[a-z]?\)\.?", text) or re.search(r"https?://|www\.|doi\.org", text)
                     or (letters < 2 and not re.fullmatch(r"[A-Z]", text) and not NUMBERED_RX.match(text))):
                 typ = "paragraph"   # citation fragments / symbols mislabelled as headings
         elif row["folder"] == "article" and (it["page"] or 99) <= 2 and len(text) >= META_MAX_CHARS:
@@ -312,7 +407,8 @@ def clean_items(items, row, pcfg, n_pages):
         blocks.append({"type": typ, "text": text, "page": it["page"], "page_end": it["page"],
                        "_label": it["label"]})
 
-    heading_levels(blocks, row["in_bulk_download"] == "yes" and "chapter" in row["path"].lower())
+    heading_levels(blocks, row["in_bulk_download"] == "yes" and "chapter" in row["path"].lower(),
+                   is_book=row["folder"] == "book")
 
     is_article = row["folder"] == "article"
     has_abstract = is_article and any(
@@ -338,11 +434,20 @@ def clean_items(items, row, pcfg, n_pages):
             match = next((r for r, rx in SKIP_SECTIONS if rx.match(nh)), None)
             if match:
                 skip_level, skip_reason = lvl, match
-            elif skip_level is not None and lvl <= skip_level and len(nh) > 1:
-                # (single-letter headings like "A", "B" inside an index don't end the skip)
+            elif skip_level is not None and len(nh) > 1 and (
+                    skip_reason in ("references", "back_matter", "front_matter")
+                    or lvl <= skip_level or lvl == 1 or numbering(b["text"])):
+                # References/back/front matter end at the next non-skip heading (appendices,
+                # next chapter); TOC and index regions, whose entries can look like headings,
+                # end at a heading of the same or higher level, a numbered heading or a
+                # chapter. Single-letter index headings ("A", "B") never end a region.
                 skip_level = skip_reason = None
         b["section_path"] = [t for _, t in stack]
 
+        if (skip_level is not None and skip_reason in ("toc", "index") and b["type"] != "heading"
+                and len(b["text"].split()) >= 40 and re.search(r"[.!?]\s", b["text"])
+                and number_ratio(b["text"]) < 0.1):
+            skip_level = skip_reason = None   # prose: TOC/index entries are never this long
         if skip_level is not None:
             reason = skip_reason
         elif b["_label"] in LABEL_SKIP:
@@ -359,8 +464,10 @@ def clean_items(items, row, pcfg, n_pages):
                 reason = "front_matter"
             elif b["page"] and b["page"] <= 30 and TOC_LINE_RX.search(t):
                 reason = "toc"
-            elif b["page"] and b["page"] >= late_page and n_pages > 50 and INDEX_LINE_RX.match(t):
-                reason = "index"
+            elif b["page"] and b["page"] >= late_page and n_pages > 50 and (
+                    INDEX_LINE_RX.match(t)
+                    or (len(INDEX_RUN_RX.findall(t)) >= 3 and number_ratio(t) >= 0.2)):
+                reason = "index"   # merged index columns: "privacy 7, 12, 45-47 pre-processing 129"
         elif is_article and has_abstract and not seen_abstract and b["page"] == 1:
             reason = "front_matter"   # journal name / title / "ARTICLE INFO" headings
         elif b["page"] and b["page"] < front_until:

@@ -27,7 +27,7 @@ from utils import Report, get_logger, load_config, repo_path, slugify
 
 pymupdf.TOOLS.mupdf_display_errors(False)
 
-SCAN_VERSION = 2  # bump when scan logic changes, to invalidate cached scans
+SCAN_VERSION = 3  # bump when scan logic changes, to invalidate cached scans
 
 FIELDS = [
     # spec columns
@@ -69,7 +69,7 @@ def clean_stem(stem):
 def unspace(text):
     """'C H A P T E R 1' -> 'CHAPTER 1', 'C ontents' -> 'Contents'."""
     text = re.sub(r"\b(?:\w ){2,}\w\b", lambda m: m.group(0).replace(" ", ""), text)
-    return re.sub(r"^(\w) (\w+)$", r"\1\2", text)  # whole heading only: "A systematic" stays
+    return re.sub(r"^([A-Za-z]) ([a-z]+)$", r"\1\2", text)  # whole heading only; "2 Fairness" stays
 
 
 def normalize_title(title):

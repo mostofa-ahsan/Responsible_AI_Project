@@ -41,6 +41,9 @@ python src/inventory.py --limit 5    # quick test
 python src/parse.py                  # Phase 2: PDFs -> data/parsed/<doc_id>.json (~20 min GPU for all; resumes)
 python src/parse.py --doc <doc_id>   # one doc
 python src/parse.py --reclean        # re-apply cleaning rules from data/cache/docling (~90s, no re-parse)
+python src/chunk.py                  # Phase 3: data/parsed -> data/chunks/chunks.jsonl (~90s; resumes per doc)
+python src/chunk.py --rescore        # recompute density/topic/mine after changing thresholds in config.yaml
+python src/embed.py                  # Phase 3b: embed all chunks -> data/index/ (FAISS; ~15 min GPU; reuses unchanged)
 python -m pytest tests -q            # all tests
 python -m pytest tests/test_parse.py -k bibliography   # single test
 python src/audit_hyphenation.py      # list suspicious line-break joins (logs/hyphenation_audit_report.txt)
@@ -52,19 +55,23 @@ Tests use synthetic `{label, text, page}` items with `parse.clean_items()`, so t
 
 ## Project status
 
-Phases 1 (inventory) and 2 (parse) are done. Phase 3 (chunking) is next. `closed_book_baseline` in `config.yaml` is still `TODO` (it will be the local base model to be fine-tuned), and `src/llm.py` isn't built yet.
+Phases 1–3 are done (inventory, parse, chunk + embed). Phase 4 (QA mining pilot) is next. `closed_book_baseline` in `config.yaml` is still `TODO`, and `src/llm.py` isn't built yet.
 
 Inventory facts (`data/inventory.csv`):
 - `doc_id` is the stable key for every later stage. It's a slug of the cleaned filename; if two files would get the same slug, a short sha256 suffix is added.
-- 100 PDFs: 39 books (9,138 pages) and 61 articles (1,023 pages). None are corrupt. All have a text layer except `Books_AI/bulk-download/Frontmatter.pdf`, which is partial and gets OCR.
-- No duplicates. The highest pairwise text overlap is about 4%. Similar filenames such as `Artificial Intelligence .pdf` and `Artificial Intelligence.pdf` are different books, so don't merge by filename.
-- `Books_AI/bulk-download/` is one book, *AI Horizons*, split into 10 chapter files. Its files share a `doc_group`, and the train/test split must keep them together.
+- 100 PDFs: 39 books (9,138 pages) and 61 articles (1,023 pages). None are corrupt, and there are no duplicates (the highest pairwise text overlap is about 4%). Similar filenames such as `Artificial Intelligence .pdf` and `Artificial Intelligence.pdf` are different books.
+- `Books_AI/bulk-download/` is one book, *AI Horizons*, split into 10 chapter files that share a `doc_group`. Splits must keep them together.
 
-Parsing (`src/parse.py`, Docling for both books and articles; GROBID was deliberately not used):
-- Docling labels every heading as level 1. `heading_levels()` infers depth from numbering, ALL-CAPS style and "Chapter N" headings, and `section_path` is built from that.
-- Non-content blocks are kept but tagged `skip: true` with a `skip_reason` (references, index, toc, front_matter, back_matter, copyright, footnote). Downstream stages must filter on `skip`. Running headers and footers, and page numbers, are dropped.
-- `data/parsed/metadata.csv` is the metadata to use downstream (title/authors/year with `*_source` columns). Rows that need a human check are in `metadata_review.csv`. Bulk-download chapters get the title "AI Horizons: <chapter>".
-- When you change cleaning rules, bump `PARSER_VERSION` and run `--reclean`.
+Parsing (`src/parse.py`, Docling for books and articles; GROBID was deliberately not used):
+- Docling labels every heading as level 1. `heading_levels()` / `find_chapter_starts()` rebuild the structure. For books, `section_path[0]` is the chapter, detected from "Chapter N" headings, numbering restarts (edited volumes) or a new "X.1" (monographs). For articles, it is the top-level section.
+- Non-content blocks are kept but tagged `skip: true` with a `skip_reason`. Downstream stages must filter on `skip`. References and back matter end at the next non-skip heading; TOC and index regions end at a same-or-higher-level or numbered heading, or at prose.
+- `data/parsed/metadata.csv` is the canonical title/authors/year; uncertain rows are in `metadata_review.csv`.
+- When you change cleaning rules, bump `PARSER_VERSION`, run `--reclean`, run the tests, and compare kept-word totals in the report. A drop usually means a skip region is swallowing content.
+
+Chunking (`src/chunk.py`) and index (`src/embed.py`):
+- Token counts use the `base_model` tokenizer (Qwen/Qwen3-8B). Chunks are 500–1,000 tokens (hard max 1,300) and never cross `section_path[0]` or split a paragraph. Overlap is about 100 tokens of trailing sentences, added only on size-based splits.
+- `mine` = at least 150 tokens, heuristic `density` >= `density_threshold`, and keyword `topic_score` >= `min_topic_score` (the topic gate drops off-domain material such as medical imaging or blockchain internals), and the doc is not in `exclude_from_mining`.
+- The FAISS index (`data/index/chunks.faiss`, IndexFlatIP on normalized Qwen3-Embedding-4B vectors) covers all chunks, not just mineable ones. Row order is in `ids.json`. Queries must be prefixed with `embed.query_instruction`; `embed.search()` does this.
 
 ## Environment
 

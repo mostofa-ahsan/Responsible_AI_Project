@@ -8,6 +8,7 @@ paths:
   parsed: data/parsed
   docling_cache: data/cache/docling   # raw Docling JSON, so cleaning can be re-run without re-parsing
   chunks: data/chunks
+  index: data/index
   qa_pairs: data/qa_pairs
   splits: data/splits
   logs: logs
@@ -30,7 +31,79 @@ parse:
   header_min_pages: 3        # short text repeated on >= N pages is a running header
   max_year: 2026             # later years are flagged for review
 
-# LLM roles (used from Phase 3 on). Providers: anthropic | openai_compatible.
+# Model to fine-tune; its tokenizer is used for all token counts. Used with thinking disabled
+# (enable_thinking=False in the chat template).
+base_model: Qwen/Qwen3-8B
+
+chunk:
+  min_tokens: 500            # target range; a chunk is closed once it reaches min and the next unit won't fit
+  max_tokens: 1000
+  hard_max_tokens: 1300      # a short chunk may grow to this instead of being closed far below min
+  overlap_tokens: 100        # trailing sentences repeated at the start of the next chunk (size-based splits only)
+  table_alone_tokens: 400    # a table that doesn't fit the current chunk and is at least this big gets its own chunk
+  mine_min_tokens: 150
+  density_threshold: 0.35    # mine = not excluded, >= mine_min_tokens, density >= this, topic_score >= min_topic_score
+  min_topic_score: 2.0       # domain-keyword hits per 100 words (0 disables the topic gate)
+  exclude_from_mining: [bulk-download-contents, bulk-download-frontmatter]
+
+# Heuristic density: per signal, hits per 100 words capped at caps[signal], times weights[signal];
+# summed and squashed to 0-1 as 1 - exp(-raw / scale).
+density:
+  scale: 4.0
+  caps: {definition: 2, definition_soft: 2, number: 4, percent_or_stat: 3, finding: 3, recommendation: 3, framework: 3, causal: 3}
+  weights:
+    definition: 3.0
+    definition_soft: 1.0
+    number: 0.5
+    percent_or_stat: 1.5
+    finding: 1.5
+    recommendation: 1.0
+    framework: 1.0
+    causal: 0.5
+  signals:
+    definition: '\b(?:is|are) defined as|\brefers? to\b|\bcan be (?:defined|understood|described) as|\bis known as|\bwe define|\bdefinition of|\bis the (?:process|ability|capacity|extent|degree)|\bencompass(?:es)?\b|\bconsists? of\b|\bi\.e\.,'
+    definition_soft: '\b(?:is|are) (?:a|an|the) (?:[\w-]+ ){0,3}(?:that|which|where|in which|used to|whereby)\b|\bthe term\b|\bknown as\b|\bcalled\b'
+    # numbers, excluding years (citations) and bracketed reference numbers
+    number: '(?<![\w.\[])(?!(?:19|20)\d\d\b)\d+(?:[.,]\d+)?(?![\w.\]])'
+    percent_or_stat: '\d\s?%|\bpercent\b|\b[pnNrRβ]\s?[=<>]|\bSD\b|\bM\s?=|\bCI\b|\bodds ratio\b|\bcorrelat\w*|\bsignificant(?:ly)?\b|\bmean\b'
+    finding: '\b(?:we|study|studies|research|survey|analysis|authors?) (?:found|find|show(?:s|ed)?|reveal(?:s|ed)?|indicate[sd]?|suggest(?:s|ed)?|demonstrate[sd]?|report(?:s|ed)?)\b|\bresults? (?:show|indicate|suggest|reveal|demonstrate)\w*|\bfindings?\b|\bevidence\b|\bassociated with\b|\bpredict(?:s|ed|or)\b'
+    recommendation: '\bshould\b|\bmust\b|\brecommend\w*|\bneed(?:s)? to\b|\bit is (?:essential|important|crucial|critical) (?:to|that)|\bbest practices?\b|\bguidelines?\b|\bpolic(?:y|ies) (?:should|must)'
+    framework: '\bframeworks?\b|\bmodels?\b|\bprinciples?\b|\bdimensions?\b|\bpillars?\b|\btaxonom\w+|\bmaturity\b|\bTAM\b|\bUTAUT\d?\b|\bTPACK\b|\bADDIE\b|\bNIST\b|\bUNESCO\b|\bOECD\b|\bEDUCAUSE\b|\bAI Act\b|\bGDPR\b|\bFERPA\b|\bISO\b'
+    causal: '\bbecause\b|\bleads? to\b|\bresults? in\b|\bdue to\b|\btherefore\b|\bconsequently\b|\bimpacts? on\b|\beffects? of\b|\bthus\b'
+
+# Domain relevance gate: hits per 100 words of these terms (plus all dimension keywords).
+topic:
+  keywords: [responsible ai, ethics, ethical, trustworthy, trust, transparency, transparent, explainab, fairness, bias,
+             accountability, higher education, university, universities, college, student, students, learner, learners,
+             education, educational, academic, generative ai, genai, chatgpt, ai adoption, readiness, artificial intelligence]
+
+# Keyword preview of readiness-dimension coverage (Phase 4 does the real tagging).
+dimensions:
+  min_hits: 2                # keyword occurrences for a chunk to count as touching a dimension
+  keywords:
+    governance: [governance, policy, policies, accountability, accountable, oversight, committee, regulation, regulatory, compliance, guideline, guidelines, code of conduct, ai act, ethics board]
+    leadership_strategy: [leadership, leaders, leader, strategic, strategy, strategies, vision, roadmap, senior management, institutional mission, change management, investment, decision-makers]
+    faculty_readiness: [faculty, teachers, teacher, educators, instructors, lecturers, academic staff, professional development, teacher training, tpack, pre-service, in-service, teacher competence, teaching staff]
+    student_ai_literacy: [ai literacy, literacy, ai competence, ai competency, digital skills, critical thinking, prompt engineering, students' skills, students' understanding, ai skills]
+    teaching_learning: [pedagogy, pedagogical, teaching, curriculum, curricula, course design, learning design, personalized learning, personalised learning, tutoring, classroom, learning outcomes, instruction, instructional]
+    assessment: [assessment, assessments, exam, exams, examination, grading, plagiarism, academic integrity, cheating, rubric, assignment, assignments, ai detection, detectors, misconduct]
+    privacy_security: [privacy, data protection, gdpr, ferpa, personal data, security, cybersecurity, consent, surveillance, confidentiality, data breach, sensitive data]
+    equity_accessibility: [equity, equitable, inclusion, inclusive, accessibility, accessible, digital divide, disability, disabilities, bias, biased, fairness, underrepresented, marginalized, marginalised, unequal access]
+    procurement_technology: [procurement, vendor, vendors, licensing, license, licence, infrastructure, platform, platforms, lms, learning management system, cloud, interoperability, technical support, it department, enterprise tools]
+    monitoring_improvement: [monitoring, monitor, continuous improvement, evaluation, metrics, indicators, kpi, kpis, benchmark, benchmarking, maturity, readiness assessment, audit, auditing, impact assessment, feedback loop]
+
+embed:
+  model: Qwen/Qwen3-Embedding-4B
+  dtype: bfloat16
+  max_seq_length: 2048
+  batch_size: 8
+  include_header: true       # prepend "Title: ...\nSection: ..." to the chunk text before embedding
+  # Qwen3-Embedding is instruction-aware: queries get this prefix, documents get none.
+  query_instruction: "Instruct: Given a question about responsible AI in higher education, retrieve passages that answer it\nQuery: "
+
+# LLM roles. Providers: anthropic | openai_compatible. API keys come from .env.
+# fallbacks: "default" enables Anthropic's server-side refusal fallback (the model that actually
+# served each call is recorded, so a judge fallback is visible in the outputs).
 models:
   density_scorer:
     provider: anthropic
@@ -38,13 +111,54 @@ models:
   generator:
     provider: anthropic
     model: claude-sonnet-5-5
+    effort: medium
+    max_tokens: 16000
+    fallbacks: default
   judge:
     # TODO: a non-Anthropic judge (GPT/Gemini) is preferred to avoid self-preference
     # with the Claude generator; if kept, calibrate against human labels.
     provider: anthropic
     model: claude-opus-5-5
+    effort: medium
+    max_tokens: 8000
+    fallbacks: default
   closed_book_baseline:
-    # TODO: the local open base model to be fine-tuned, served via vLLM/Ollama.
+    # TODO: the local open base model to be fine-tuned (Qwen/Qwen3-8B, thinking disabled), via vLLM/Ollama.
     provider: openai_compatible
     base_url: TODO
     model: TODO
+
+llm:
+  cache_dir: data/cache/llm       # disk cache keyed on (model, settings, system, prompt, schema)
+  usage_log: logs/llm_usage.jsonl # one line per call: stage, model, tokens, cost, cached
+  max_workers: 4                  # concurrent requests
+  min_interval_s: 0.2             # spacing between request starts (simple rate limit)
+  max_retries: 5                  # SDK retries on 429/5xx/connection errors (exponential backoff)
+  validation_retries: 1           # re-ask once if the JSON fails schema validation
+
+# USD per million tokens (Anthropic first-party list prices; thinking tokens bill as output).
+pricing:
+  claude-sonnet-5-5: {input: 2.00, output: 10.00, cache_read: 0.20, cache_write: 2.50}
+  claude-opus-5-5: {input: 4.00, output: 20.00, cache_read: 0.20, cache_write: 5.00}
+  claude-haiku-4-5-20251001: {input: 1.00, output: 5.00, cache_read: 0.10, cache_write: 1.25}
+
+qa:
+  pilot:
+    n_docs: 5
+    n_books: 2                    # the rest are articles
+    chunks_per_doc: 4
+    min_mine_chunks: 8            # candidate docs need at least this many mineable chunks
+    seed: 13
+    exclude_flagged_metadata: true  # skip docs listed in data/parsed/metadata_review.csv
+    # Phase 4a: single-chunk types only (multi-hop/unanswerable wait for the index + retrieval check)
+    q_types: [factual, definition, explanation, application]
+  questions_per_chunk: 5
+  # Spec mix (factual 25, definition 20, explanation 20, comparison 10, multi_hop 10, application 5,
+  # unanswerable 10); only the enabled types are used, renormalized.
+  type_mix: {factual: 25, definition: 20, explanation: 20, comparison: 10, multi_hop: 10, application: 5, unanswerable: 10}
+  units_per_chunk: [3, 8]
+  min_grounding: 4                # judge grounding score (1-5) to keep a pair
+  dedup_cosine: 0.92
+  dimensions: [governance, leadership_strategy, faculty_readiness, student_ai_literacy, teaching_learning,
+               assessment, privacy_security, equity_accessibility, procurement_technology,
+               monitoring_improvement, general]

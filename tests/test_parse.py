@@ -103,3 +103,122 @@ def test_names_only_author_line_detected():
 def test_subtitle_not_mistaken_for_authors():
     raw = [item("text", "Implement Ethical AI Using Python", 2)]
     assert extract_metadata([], raw, BOOK, PCFG)["authors"] == ""
+
+
+def path_of(blocks, text):
+    return next(b["section_path"] for b in blocks if b["text"] == text)
+
+
+def test_edited_volume_chapters_from_numbering_restart():
+    """Contributed chapters each number sections from 1; the unnumbered title before them is the chapter."""
+    items = []
+    for ch, title in ((1, "Digital Universities in Jordan"), (2, "AI Policy in the Gulf")):
+        p = ch * 20
+        items += [item("section_header", title, p),
+                  item("text", f"Author Name {ch}", p),
+                  item("section_header", "Abstract", p),
+                  item("text", f"Abstract text {ch}.", p),
+                  item("section_header", "1 Introduction", p + 1),
+                  item("text", f"Intro text {ch}.", p + 1),
+                  item("section_header", "2 Methods", p + 2),
+                  item("text", f"Methods text {ch}.", p + 2),
+                  item("section_header", "References", p + 5),
+                  item("list_item", f"Ref {ch}.", p + 5)]
+    blocks, _ = clean_items(items, BOOK, PCFG, n_pages=60)
+    assert path_of(blocks, "Methods text 2.") == ["AI Policy in the Gulf", "2 Methods"]
+    assert path_of(blocks, "Abstract text 2.") == ["AI Policy in the Gulf", "Abstract"]
+    assert path_of(blocks, "Intro text 1.") == ["Digital Universities in Jordan", "1 Introduction"]
+
+
+def test_monograph_numbered_chapters_and_unnumbered_subheadings():
+    items = [item("section_header", "Generative AI and Higher Education", 20),
+             item("section_header", "1.1 Introduction", 20),
+             item("text", "Intro.", 20),
+             item("section_header", "1.2 Knowledge Production", 22),
+             item("section_header", "Prompt 1.1: Knowledge creator", 23),
+             item("text", "Prompt text.", 23),
+             item("section_header", "Lesson Preparation", 45),
+             item("section_header", "2.1 Introduction", 45),
+             item("text", "Chapter two intro.", 45)]
+    blocks, _ = clean_items(items, BOOK, PCFG, n_pages=100)
+    assert path_of(blocks, "Prompt text.") == [
+        "Generative AI and Higher Education", "1.2 Knowledge Production", "Prompt 1.1: Knowledge creator"]
+    assert path_of(blocks, "Chapter two intro.") == ["Lesson Preparation", "2.1 Introduction"]
+
+
+def test_numbered_x_title_chapters():
+    items = [item("section_header", "1 Introduction", 10), item("text", "One.", 10),
+             item("section_header", "1.1 Background", 11), item("text", "One one.", 11),
+             item("section_header", "2 Fairness", 20), item("text", "Two.", 20),
+             item("section_header", "2.1 Proxy Features", 21), item("text", "Two one.", 21)]
+    blocks, _ = clean_items(items, BOOK, PCFG, n_pages=40)
+    assert path_of(blocks, "Two one.") == ["2 Fairness", "2.1 Proxy Features"]
+
+
+def test_table_continued_heading_demoted_and_toc_heading_kept():
+    items = [item("section_header", "Table of Contents", 3), item("text", "1 Intro .......... 5", 3),
+             item("section_header", "1. Introduction", 5), item("text", "Body.", 5),
+             item("section_header", "Table 4 (continued)", 6), item("text", "More body.", 6)]
+    blocks, _ = clean_items(items, BOOK, PCFG, n_pages=40)
+    assert next(b for b in blocks if b["text"] == "Table 4 (continued)")["type"] == "caption"
+    assert next(b for b in blocks if b["text"] == "Table of Contents")["skip_reason"] == "toc"
+    assert path_of(blocks, "More body.") == ["1. Introduction"]
+
+
+def test_article_sections_stay_top_level():
+    art = {"folder": "article", "path": "Research Articles_AI/JA_x.pdf", "in_bulk_download": "no"}
+    items = [item("section_header", "ABSTRACT", 1), item("text", "Abstract body.", 1),
+             item("section_header", "1. Introduction", 1), item("text", "Intro body.", 1),
+             item("section_header", "1.1. Scope", 2), item("text", "Scope body.", 2),
+             item("section_header", "2. Methods", 3), item("text", "Methods body.", 3)]
+    blocks, _ = clean_items(items, art, PCFG, n_pages=10)
+    assert path_of(blocks, "Abstract body.") == ["ABSTRACT"]
+    assert path_of(blocks, "Scope body.") == ["1. Introduction", "1.1. Scope"]
+    assert path_of(blocks, "Methods body.") == ["2. Methods"]
+
+
+def test_back_matter_ends_at_appendix_and_references_end_at_next_chapter():
+    art = {"folder": "article", "path": "Research Articles_AI/JA_x.pdf", "in_bulk_download": "no"}
+    items = [item("section_header", "1. Introduction", 1), item("text", "Intro body.", 1),
+             item("section_header", "4.2. Findings detail", 5), item("text", "Findings.", 5),
+             item("section_header", "Acknowledgements", 9), item("text", "We thank X.", 9),
+             item("section_header", "Appendix A. Concept Matrix", 10), item("text", "Matrix rows.", 10),
+             item("section_header", "(Smith, 2024).", 10), item("text", "More matrix.", 10)]
+    blocks, _ = clean_items(items, art, PCFG, n_pages=12)
+    reasons = {b["text"]: b["skip_reason"] for b in blocks}
+    assert reasons["We thank X."] == "back_matter"
+    assert reasons["Matrix rows."] == "" and reasons["More matrix."] == ""
+    assert next(b for b in blocks if b["text"] == "(Smith, 2024).")["type"] == "paragraph"
+
+    # unnumbered chapter titles after a book's References are not swallowed
+    items = [item("section_header", "Introduction", 10), item("text", "Book intro.", 10),
+             item("section_header", "4 Introduction", 13), item("text", "Stray numbered.", 13),
+             item("section_header", "References", 22), item("list_item", "Ref A.", 22),
+             item("section_header", "Capitalist Universities, AI, and Value 2", 23),
+             item("text", "Chapter two body.", 23)]
+    blocks, _ = clean_items(items, BOOK, PCFG, n_pages=80)
+    reasons = {b["text"]: b["skip_reason"] for b in blocks}
+    assert reasons["Ref A."] == "references" and reasons["Chapter two body."] == ""
+
+
+def test_toc_region_ends_at_prose_in_caps_styled_book():
+    items = [item("section_header", "CONTENTS", 5), item("text", "The Rise of AI 1", 5),
+             item("section_header", "List of Tables", 15), item("text", "Table 1.1 Adoption 12", 15),
+             item("section_header", "The Rise of Artificial Intelligence in Latin America", 16),
+             item("text", "However, this social trend about AI appeared in an era of rapid change, "
+                          "when governments across the region began to adopt national strategies. "
+                          "These strategies set out goals for research, talent and ethics, and they "
+                          "were often modelled on European and North American examples.", 17)]
+    blocks, _ = clean_items(items, BOOK, PCFG, n_pages=200)
+    reasons = {b["text"][:20]: b["skip_reason"] for b in blocks}
+    assert reasons["Table 1.1 Adoption 1"] == "toc"
+    assert reasons["However, this social"] == ""
+
+
+def test_merged_index_columns_tagged():
+    filler = [item("text", f"Body paragraph {i} about responsible AI in universities.", i) for i in range(1, 90)]
+    idx = ("Asimov, I. 174 assessment 10, 29-31, 36, 64-65, 69-72, 87-107 Google 44, 135, 177, "
+           "181-182, 184, 187 privacy 7, 12, 45-47, 101 reflection 20, 41, 74-75, 79-80, 84")
+    items = filler + [item("section_header", "Index", 95), item("text", idx, 95)]
+    blocks, _ = clean_items(items, BOOK, PCFG, n_pages=100)
+    assert next(b for b in blocks if b["text"].startswith("Asimov"))["skip_reason"] == "index"
