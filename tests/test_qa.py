@@ -63,3 +63,25 @@ def test_review_csv_keeps_human_verdicts(tmp_path):
 def test_cohen_kappa():
     assert cohen_kappa(10, 0, 0, 10) == 1.0
     assert abs(cohen_kappa(5, 5, 5, 5)) < 1e-9
+
+
+def test_v3_banned_phrases_and_meta_text():
+    import re
+    rx = banned_regex(CFG)
+    for q in ["Why is AI literacy described as essential?", "What example is given of bias in grading?",
+              "Which practices are recommended for course design?", "Which of the following risks apply?",
+              "According to the review, what limits adoption?", "Which barriers are discussed in the chapter?"]:
+        assert rx.search(q), q
+    for q in ["Which practices does UNESCO recommend for course design?",
+              "What practices are recommended by UNESCO for course design?"]:
+        assert not rx.search(q), q
+    meta = re.compile("|".join(f"(?:{x})" for x in CFG["qa"]["meta_text_patterns"]), re.I)
+    assert meta.search("Teachers adapt (the quoted text does not say how).")
+    assert meta.search("As unit u03 states, privacy matters.")
+    assert not meta.search("Unit 3 of the course covers AI ethics.")
+
+
+def test_single_sentence_evidence_relaxes_format():
+    from qa_filter import evidence_sentences
+    assert evidence_sentences("Only one sentence here.") == 1
+    assert evidence_sentences("First span. Second sentence. … Another span.") == 3

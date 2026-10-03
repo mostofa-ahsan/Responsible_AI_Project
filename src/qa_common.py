@@ -6,7 +6,7 @@ import random
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from chunk import read_jsonl
+from chunk import is_appendix_or_table, read_jsonl  # noqa: F401 (re-exported)
 from utils import repo_path
 
 
@@ -117,14 +117,6 @@ def banned_regex(cfg):
     return re.compile(r"\b(?:" + "|".join(f"(?:{p})" for p in cfg["qa"]["banned_phrases"]) + r")", re.I)
 
 
-def is_appendix_or_table(chunk):
-    if any("appendix" in s.lower() for s in chunk["section_path"]):
-        return True
-    lines = [ln for ln in chunk["text"].splitlines() if ln.strip()]
-    return chunk["chunk_type"] == "table" or (
-        bool(lines) and sum(ln.lstrip().startswith("|") for ln in lines) / len(lines) > 0.5)
-
-
 def run_paths(cfg, run):
     d = repo_path(cfg["paths"]["qa_pairs"])
     return {k: d / f"{run}{suffix}" for k, suffix in (
@@ -137,14 +129,14 @@ def select_run(cfg, run, chunks, log):
     paths = run_paths(cfg, run)
     if paths["chunks"].exists():
         return json.loads(paths["chunks"].read_text())
+    rcfg = cfg["qa"].get("runs", {}).get(run, {})
     if run == "pilot":
         docs, ids = select_pilot(cfg, chunks, log)
         sel = {"docs": docs, "chunk_ids": ids, "origin": {i: "pilot" for i in ids}}
     else:
-        rcfg = cfg["qa"]["runs"][run]
         base = select_run(cfg, rcfg["reuse_chunks_from"], chunks, log)
         ids = list(base["chunk_ids"])
-        origin = {i: rcfg["reuse_chunks_from"] for i in ids}
+        origin = {i: base.get("origin", {}).get(i, rcfg["reuse_chunks_from"]) for i in ids}
         ex = rcfg.get("extra_chunks")
         if ex:
             for cid, dim in select_extra(cfg, chunks, set(base["docs"]), set(ids), ex, log):

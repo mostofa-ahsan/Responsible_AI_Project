@@ -50,8 +50,25 @@ grounding_score (1-5): does the answer restate only what the evidence says?
 
 standalone: true if someone who has never seen the source understands exactly what the question
 asks: no "the evidence", "the text", "this study/chapter", "the authors", "the recommendations",
-undefined acronyms or references to unseen context. A question may name a specific study, book
-or framework by its content.
+undefined acronyms, references to unseen context, or wording that presupposes a source ("is
+described as", "according to the ...", "the following"). A question may name a specific study,
+book or framework by its content.
+
+value_score (1-5): is the pair about responsible AI / AI in higher education (or the institutional
+context it depends on) and worth learning?
+  5 = core domain knowledge: a concept, finding, framework, risk or recommendation people should know
+  4 = useful domain knowledge, somewhat specific
+  3 = acceptable but narrow
+  2 = low value: research methodology, search or inclusion criteria, which regions/countries/samples
+      a study covered, course logistics or assignment weights, or a single table row
+  1 = trivia: bibliographic details, signposting, or unrelated to the domain
+A circular answer, one that only restates or rephrases the question without adding information
+(e.g. Q "What does it mean that X was designed to be modular?" A "X was designed to be modular"),
+scores value at most 2 regardless of topic.
+
+question_well_formed: true if the question is grammatical, coherent and reads naturally. False if
+it is garbled, ungrammatical, truncated, self-answering, or contrived (e.g. "What should a 2025
+scoping review ... say about ...").
 
 paraphrase_equivalent: for each paraphrase in order, true only if it asks for exactly the same
 information as the question (same scope, entities and expected answer) and is itself standalone."""
@@ -82,6 +99,9 @@ class Judgement(BaseModel):
     grounding_rationale: str = Field(description="One or two sentences naming any unsupported statement")
     standalone: bool
     standalone_rationale: str
+    value_score: int = Field(ge=1, le=5)
+    value_rationale: str = Field(description="One short sentence")
+    question_well_formed: bool
     paraphrase_equivalent: list[bool] = Field(description="One boolean per paraphrase, in order")
 
 
@@ -96,10 +116,16 @@ def sentences(text):
     return len([s for s in SENT_RX.split(text.strip()) if s.strip()])
 
 
+def evidence_sentences(evidence):
+    return sum(sentences(span) for span in evidence.split(" … ") if span.strip())
+
+
 class Checker:
-    def __init__(self, cfg, llm):
-        self.cfg, self.llm = cfg, llm
+    def __init__(self, cfg, llm, judge_role="judge"):
+        self.cfg, self.llm, self.judge_role = cfg, llm, judge_role
         self.banned = banned_regex(cfg)
+        self.meta = re.compile("|".join(f"(?:{x})" for x in cfg["qa"].get("meta_text_patterns", [])), re.I) \
+            if cfg["qa"].get("meta_text_patterns") else None
         self.qcfg = cfg["qa"]
 
     def check(self, p):
@@ -108,23 +134,41 @@ class Checker:
         m = self.banned.search(p["question"])
         scores["prefilter_question"] = m.group(0) if m else None
         scores["prefilter_paraphrases"] = [bool(self.banned.search(x)) for x in p["paraphrases"]]
+        meta = None
+        if self.meta:
+            for field in [p["question"], p["answer"]] + list(p["paraphrases"]):
+                mm = self.meta.search(field)
+                if mm:
+                    meta = mm.group(0)
+                    break
+        scores["meta_text"] = meta
+        if meta:
+            fails.append(f"meta_text('{meta}')")
         if m:
             fails.append(f"not_standalone(prefilter:'{m.group(0)}')")
         else:
             paras = "\n".join(f"{i + 1}. {x}" for i, x in enumerate(p["paraphrases"])) or "(none)"
             j = self.llm.complete(PROMPT.format(question=p["question"], paraphrases=paras,
                                                 answer=p["answer"], evidence=p["evidence"]),
-                                  SYSTEM, role="judge", json_schema=Judgement)
+                                  SYSTEM, role=self.judge_role, json_schema=Judgement)
             jp = j.parsed
             eq = (jp.paraphrase_equivalent + [False] * len(p["paraphrases"]))[:len(p["paraphrases"])]
             scores.update(grounding=jp.grounding_score, grounding_rationale=jp.grounding_rationale,
                           standalone=jp.standalone, standalone_rationale=jp.standalone_rationale,
+                          value=jp.value_score, value_rationale=jp.value_rationale,
+                          well_formed=jp.question_well_formed,
                           paraphrase_equivalent=eq, judge_model=j.served_model)
             if jp.grounding_score < self.qcfg["min_grounding"]:
                 fails.append(f"grounding({jp.grounding_score})")
             if not jp.standalone:
                 fails.append("not_standalone(judge)")
+            if jp.value_score < self.qcfg.get("min_value", 0):
+                fails.append(f"low_value({jp.value_score})")
+            if not jp.question_well_formed:
+                fails.append("garbled_question")
         lo, hi = self.qcfg["sentence_range"][p["q_type"]]
+        if evidence_sentences(p["evidence"]) <= 1:
+            lo, hi = 1, max(hi, 5)     # single-sentence evidence: 1-5 sentences for every type
         n = sentences(p["answer"])
         scores["answer_sentences"] = n
         if not lo <= n <= hi:
@@ -154,24 +198,51 @@ class Checker:
         return good + kept, info
 
 
-def dedup(rows, cfg, threshold, log):
+def dedup(rows, cfg, log):
+    """Drop a passing pair if its question is near-identical to an earlier kept pair anywhere in
+    the run, or its answer is near-identical to an earlier kept pair from the same document.
+    Vectors are L2-normalized, so a dot product is the cosine."""
+    import numpy as np
     from embed import encode, load_model
+    q_th, a_th = cfg["qa"]["dedup_cosine"], cfg["qa"].get("dedup_answer_cosine")
     idx = [i for i, r in enumerate(rows) if r["passed_filters"]]
     if not idx:
-        return 0
+        return {"question": 0, "answer": 0}
     model = load_model(cfg["embed"])
-    vecs = encode(model, [rows[i]["question"] for i in idx], cfg["embed"]["batch_size"])
-    kept, removed = [], 0
+    qv = encode(model, [rows[i]["question"] for i in idx], cfg["embed"]["batch_size"])
+    av = encode(model, [rows[i]["answer"] for i in idx], cfg["embed"]["batch_size"]) if a_th else None
+    kept_q = np.zeros_like(qv)
+    n_kept = 0
+    kept_ids = []
+    kept_by_doc = defaultdict(list)            # doc_id -> positions j of kept pairs
+    removed = {"question": 0, "answer": 0}
     for j, i in enumerate(idx):
-        best = max(((float(vecs[j] @ vecs[k]), rows[idx[k]]["qa_id"]) for k in kept), default=(0.0, None))
-        rows[i]["judge_scores"]["max_question_cosine"] = round(best[0], 3)
-        if best[0] > threshold:
-            rows[i]["passed_filters"] = False
-            rows[i]["reject_reason"] = f"duplicate(cos={best[0]:.3f} of {best[1]})"
-            removed += 1
+        r = rows[i]
+        bq, bq_id = 0.0, None
+        if n_kept:
+            sims = kept_q[:n_kept] @ qv[j]
+            k = int(sims.argmax())
+            bq, bq_id = float(sims[k]), kept_ids[k]
+        ba, ba_id = 0.0, None
+        if a_th and kept_by_doc[r["doc_id"]]:
+            pos = kept_by_doc[r["doc_id"]]
+            sims = av[pos] @ av[j]
+            k = int(sims.argmax())
+            ba, ba_id = float(sims[k]), rows[idx[pos[k]]]["qa_id"]
+        r["judge_scores"]["max_question_cosine"] = round(bq, 3)
+        r["judge_scores"]["max_answer_cosine_same_doc"] = round(ba, 3)
+        if bq > q_th:
+            r["passed_filters"], r["reject_reason"] = False, f"duplicate(question cos={bq:.3f} of {bq_id})"
+            removed["question"] += 1
+        elif a_th and ba > a_th:
+            r["passed_filters"], r["reject_reason"] = False, f"duplicate(answer cos={ba:.3f} of {ba_id})"
+            removed["answer"] += 1
         else:
-            kept.append(j)
-    log.info(f"dedup: {removed} near-duplicates removed")
+            kept_q[n_kept] = qv[j]
+            n_kept += 1
+            kept_ids.append(r["qa_id"])
+            kept_by_doc[r["doc_id"]].append(j)
+    log.info(f"dedup removed: {removed}")
     return removed
 
 
@@ -181,6 +252,7 @@ def main():
     ap.add_argument("--limit", type=int, help="only process the first N pairs")
     ap.add_argument("--skip-dedup", action="store_true")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--compare", help="earlier run to compare with (default: the run's reuse_chunks_from)")
     args = ap.parse_args()
 
     cfg = load_config()
@@ -201,10 +273,16 @@ def main():
     def process(g):
         fails, scores = checker.check(g)
         rec = {"pair": g, "first_fails": fails, "first_scores": scores, "repair": None}
-        repairable = [f for f in fails if f.startswith(("grounding", "not_standalone"))]
+        repairable = [f for f in fails if f.startswith(("grounding", "not_standalone", "meta_text", "garbled_question"))]
+        if any(f.startswith("low_value") for f in fails):
+            repairable = []          # rewording cannot make a low-value pair worth learning
         if repairable and cfg["qa"]["repair_rounds"] > 0:
             reason = "; ".join(repairable) + ". " + " ".join(
-                x for x in (scores.get("grounding_rationale"), scores.get("standalone_rationale")) if x)
+                x for x in (scores.get("grounding_rationale") if any(f.startswith("grounding") for f in repairable) else None,
+                            scores.get("standalone_rationale") if any(f.startswith("not_standalone") for f in repairable) else None,
+                            "Remove meta-text that refers to the evidence or quoted text." if scores.get("meta_text") else None,
+                            "Rewrite the question so it is grammatical and natural." if "garbled_question" in repairable else None)
+                if x)
             fixed = repair_pair(llm, cfg, g, units[g["chunk_id"]], reason)
             c = chunks[g["chunk_id"]]
             new = to_row(fixed.parsed, g["chunk_id"], int(g["qa_id"].rsplit("q", 1)[1]), c,
@@ -251,15 +329,14 @@ def main():
             "chunk_id": p["chunk_id"], "origin": sel["origin"].get(p["chunk_id"]),
             "unit_ids": p["unit_ids"], "requested": p.get("requested"), "generator": p["generator"],
         })
-    if not args.skip_dedup:
-        dedup(rows, cfg, cfg["qa"]["dedup_cosine"], log)
+    dedup_removed = None if args.skip_dedup else dedup(rows, cfg, log)
 
     with paths["final"].open("w", encoding="utf-8") as f:
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     header = ["qa_id", "origin", "passed_filters", "reject_reason", "repaired", "q_type", "dimension",
               "difficulty", "question", "paraphrase_1", "paraphrase_2", "answer", "citation", "evidence",
-              "grounding", "standalone", "judge_rationale"]
+              "grounding", "standalone", "value", "judge_rationale"]
     review = []
     for r in rows:
         js, para = r["judge_scores"], r["paraphrases"] + ["", ""]
@@ -272,138 +349,177 @@ def main():
             "citation": f"{r['citation']['title']}, p{'p' if len(pages) > 1 else ''}. "
                         f"{'-'.join(str(x) for x in (pages[0], pages[-1]) if x) if len(pages) > 1 else pages[0]}",
             "evidence": r["evidence"], "grounding": js.get("grounding"), "standalone": js.get("standalone"),
+            "value": js.get("value"),
             "judge_rationale": " | ".join(x for x in (js.get("grounding_rationale"), js.get("standalone_rationale"),
+                                                      f"value: {js['value_rationale']}" if js.get("value_rationale") else None,
                                                       f"prefilter: {js['prefilter_question']}" if js.get("prefilter_question") else None) if x),
         })
     kept_human = write_review_csv(paths["review"], header, review)
     log.info(f"wrote {paths['final'].name} and {paths['review'].name} (kept {kept_human} human verdicts)")
-    report(rows, cfg, args, llm)
+    report(rows, cfg, args, llm, dedup_removed, paths)
 
 
 def pct(a, b):
-    return f"{a}/{b} ({a / max(b, 1):.0%})"
+    return f"{a}/{b} ({a / max(b, 1):.0%})" if b else "n/a"
 
 
-def report(rows, cfg, args, llm):
+def first(r):
+    """First-pass view of a row from any run version (v1 rows have no first_pass)."""
+    fp = r.get("first_pass")
+    if fp:
+        return fp["passed"], fp["reject_reason"], fp["judge_scores"]
+    return r["passed_filters"], r["reject_reason"], r["judge_scores"]
+
+
+def run_metrics(rows, units, status, cost):
+    n = len(rows)
+    passed = [r for r in rows if r["passed_filters"]]
+    fps = [first(r) for r in rows]
+    judged = [js for _, _, js in fps if js.get("grounding") is not None]
+    valued = [js["value"] for js in judged if "value" in js]
+    reps = [r for r in rows if r.get("repair")]
+    m = {
+        "chunks used for generation": f"{sum(s['generate'] for s in status.values())}/{len(status)}" if status
+        else f"{len({r['chunk_id'] for r in rows})}",
+        "valid knowledge units": pct(sum(u["evidence_valid"] for u in units), len(units)) if units else "n/a",
+        "pairs generated": str(n),
+        "passed first pass (no repair)": pct(sum(ok for ok, _, _ in fps), n),
+        "passed (final)": pct(len(passed), n),
+        "grounding >= 4 (first pass, judged)": pct(sum(js["grounding"] >= 4 for js in judged), len(judged)),
+        "grounding = 5 (first pass, judged)": pct(sum(js["grounding"] == 5 for js in judged), len(judged)),
+        "standalone (first pass)": pct(sum("not_standalone" not in rr for _, rr, _ in fps), n),
+        "value >= 3 (first pass, judged)": pct(sum(v >= 3 for v in valued), len(valued)) if valued else "n/a",
+        "meta-text caught (first pass)": str(sum(bool(js.get("meta_text")) for _, _, js in fps)),
+        "format ok (first pass)": pct(sum("format(" not in rr for _, rr, _ in fps), n),
+        "repair attempted / passed": f"{len(reps)} / {sum(r['repair']['passed_after_repair'] for r in reps)}",
+        # v1 kept both paraphrases regardless, so count only the ones its judge called equivalent
+        "passing pairs with 2 paraphrases": pct(sum(
+            len(r["paraphrases"]) == 2 and (bool(r.get("first_pass"))
+                                            or r["judge_scores"].get("paraphrases_equivalent", True) is True)
+            for r in passed), len(passed)),
+        "application share (generated)": pct(sum(r["q_type"] == "application" for r in rows), n),
+        "hard share (generated)": pct(sum(r["difficulty"] == "hard" for r in rows), n),
+        "cost": f"${cost:.2f}",
+        "cost per passed pair": f"${cost / max(len(passed), 1):.4f}",
+    }
+    return m
+
+
+def run_cost(usage, run):
+    if run == "pilot":
+        stages = ("qa_extract", "qa_generate", "qa_filter")
+    else:
+        stages = (f"qa_extract:{run}", f"qa_generate:{run}", f"qa_filter:{run}")
+    return sum(u["cost"] for u in usage if u["stage"] in stages and not u["cached"])
+
+
+def report(rows, cfg, args, llm, dedup_removed, paths):
     rep = Report(f"qa_{args.run}", cfg)
     n = len(rows)
     passed = [r for r in rows if r["passed_filters"]]
-    first_pass = [r for r in rows if r["first_pass"]["passed"]]
-    repaired = [r for r in rows if r["repair"]]
+    units = read_jsonl(paths["units"])
+    status_path = paths["chunks"].with_name(f"{args.run}_chunk_status.json")
+    status = json.loads(status_path.read_text()) if status_path.exists() else {}
+    usage = [json.loads(line) for line in repo_path(cfg["llm"]["usage_log"]).open(encoding="utf-8")]
+
     rep(f"=== Phase 4a {args.run}: {n} QA pairs from {len({r['chunk_id'] for r in rows})} chunks, "
         f"{len({r['doc_id'] for r in rows})} docs ===")
     rep("single-chunk types only; closed_book_correct and retrieval_rank pending (null)")
-    rep(f"passed (final): {pct(len(passed), n)}   first pass (before repair): {pct(len(first_pass), n)}")
-    rep(f"repair: attempted {len(repaired)}, passed after repair "
-        f"{pct(sum(r['repair']['passed_after_repair'] for r in repaired), len(repaired))}")
+    skipped = {cid: s["reason"] for cid, s in status.items() if not s["generate"]}
+    rep(f"chunks skipped before generation: {len(skipped)} {skipped}")
+    rep(f"knowledge units: {len(units)}; invalid: not verbatim {sum(not u.get('evidence_verbatim', u['evidence_valid']) for u in units)}, "
+        f"ends mid-sentence {sum(u.get('evidence_complete') is False for u in units)}")
+    reps = [r for r in rows if r["repair"]]
+    rep(f"passed (final): {pct(len(passed), n)}   first pass: {pct(sum(r['first_pass']['passed'] for r in rows), n)}   "
+        f"repair: attempted {len(reps)}, passed after repair {pct(sum(r['repair']['passed_after_repair'] for r in reps), len(reps))}")
 
-    fp = [r["first_pass"] for r in rows]
-    rep("\n-- First-pass rates per filter (comparable to v1) --")
-    rep(f"prefilter (banned phrase in question): "
-        f"{sum(bool(f['judge_scores'].get('prefilter_question')) for f in fp)} caught before the judge")
-    judged = [f for f in fp if "grounding" in f["judge_scores"]]
-    rep(f"grounding >= {cfg['qa']['min_grounding']}: "
-        f"{pct(sum(f['judge_scores']['grounding'] >= cfg['qa']['min_grounding'] for f in judged), len(judged))} "
-        f"(of judged); distribution {dict(sorted(Counter(f['judge_scores']['grounding'] for f in judged).items()))}")
-    rep(f"standalone (prefilter + judge): {pct(sum('not_standalone' not in f['reject_reason'] for f in fp), n)}")
-    rep(f"format (type-specific sentence range): {pct(sum('format(' not in f['reject_reason'] for f in fp), n)}")
-    eqs = [e for f in judged for e in f["judge_scores"].get("paraphrase_equivalent", [])]
-    rep(f"paraphrases equivalent (first pass, per paraphrase): {pct(sum(eqs), len(eqs))}")
+    fps = [r["first_pass"] for r in rows]
+    judged = [f for f in fps if "grounding" in f["judge_scores"]]
+    rep("\n-- First-pass filters --")
+    rep(f"prefilter (banned phrase in question): {sum(bool(f['judge_scores'].get('prefilter_question')) for f in fps)} "
+        f"caught before the judge: {[f['judge_scores']['prefilter_question'] for f in fps if f['judge_scores'].get('prefilter_question')]}")
+    rep(f"meta-text: {sum(bool(f['judge_scores'].get('meta_text')) for f in fps)}")
+    rep(f"grounding distribution {dict(sorted(Counter(f['judge_scores']['grounding'] for f in judged).items()))}")
+    rep(f"value distribution {dict(sorted(Counter(f['judge_scores'].get('value') for f in judged).items(), key=lambda kv: (kv[0] is None, kv[0])))}")
+    rep(f"standalone (prefilter + judge): {pct(sum('not_standalone' not in f['reject_reason'] for f in fps), n)}")
+    rep(f"format: {pct(sum('format(' not in f['reject_reason'] for f in fps), n)}")
     pf = [r["paraphrase_fix"] for r in rows if r.get("paraphrase_fix")]
-    rep(f"paraphrase repair on passing pairs: {sum(x['initial_bad'] for x in pf)} bad -> "
-        f"{sum(x['regenerated'] for x in pf)} regenerated, {sum(x['dropped'] for x in pf)} dropped; "
-        f"passing pairs with 2/1/0 paraphrases: "
-        f"{sum(len(r['paraphrases']) == 2 for r in passed)}/{sum(len(r['paraphrases']) == 1 for r in passed)}/"
-        f"{sum(len(r['paraphrases']) == 0 for r in passed)}")
+    rep(f"paraphrases: {sum(x['initial_bad'] for x in pf)} bad on passing pairs -> {sum(x['regenerated'] for x in pf)} "
+        f"regenerated, {sum(x['dropped'] for x in pf)} dropped")
+    if dedup_removed is not None:
+        rep(f"dedup removed: {dedup_removed['question']} by question, {dedup_removed['answer']} by answer (same doc)")
     rep(f"final reject reasons: {dict(Counter(x.split('(')[0] for r in rows for x in r['reject_reason'].split(';') if x))}")
-
     for key in ("q_type", "difficulty", "dimension"):
-        g, p = Counter(r[key] for r in rows), Counter(r[key] for r in passed)
+        g, pp = Counter(r[key] for r in rows), Counter(r[key] for r in passed)
         rep(f"\n-- {key}: generated -> passed --")
         for k, v in g.most_common():
-            rep(f"  {k:24s} {v:4d} ({v / n:.0%}) -> {p[k]:4d}")
+            rep(f"  {k:24s} {v:4d} ({v / n:.0%}) -> {pp[k]:4d}")
 
-    # v1 comparison on the same chunks
-    v1_path = run_paths(cfg, "pilot")["final"]
-    if v1_path.exists():
-        v1 = read_jsonl(v1_path)
-        same = {r["chunk_id"] for r in v1}
-        v2s = [r for r in rows if r["chunk_id"] in same]
-        v2p = [r for r in v2s if r["passed_filters"]]
-        v1p = [r for r in v1 if r["passed_filters"]]
-        rep("\n-- v1 vs v2 on the same 20 chunks --")
-        rep(f"{'':34s} {'v1':>14s} {'v2':>14s}")
-        def line(name, a, b):
-            rep(f"{name:34s} {a:>14s} {b:>14s}")
-        line("pairs generated", str(len(v1)), str(len(v2s)))
-        line("passed (final)", pct(len(v1p), len(v1)), pct(len(v2p), len(v2s)))
-        line("passed first pass (no repair)", pct(len(v1p), len(v1)),
-             pct(sum(r["first_pass"]["passed"] for r in v2s), len(v2s)))
-        g1 = [r["judge_scores"].get("grounding") or 0 for r in v1]
-        g2 = [r["first_pass"]["judge_scores"].get("grounding") for r in v2s if "grounding" in r["first_pass"]["judge_scores"]]
-        line("grounding >= 4 (first pass)", pct(sum(x >= 4 for x in g1), len(g1)), pct(sum(x >= 4 for x in g2), len(g2)))
-        line("grounding = 5 (first pass)", pct(sum(x == 5 for x in g1), len(g1)), pct(sum(x == 5 for x in g2), len(g2)))
-        line("standalone (first pass)", pct(sum(r["judge_scores"].get("standalone") is True for r in v1), len(v1)),
-             pct(sum("not_standalone" not in r["first_pass"]["reject_reason"] for r in v2s), len(v2s)))
-        line("passing pairs with 2 paraphrases",
-             pct(sum(r["judge_scores"].get("paraphrases_equivalent") is True for r in v1p), len(v1p)),
-             pct(sum(len(r["paraphrases"]) == 2 for r in v2p), len(v2p)))
-        line("application share (generated)", pct(sum(r["q_type"] == "application" for r in v1), len(v1)),
-             pct(sum(r["q_type"] == "application" for r in v2s), len(v2s)))
-        line("hard share (generated)", pct(sum(r["difficulty"] == "hard" for r in v1), len(v1)),
-             pct(sum(r["difficulty"] == "hard" for r in v2s), len(v2s)))
-        extra = [r for r in rows if r["chunk_id"] not in same]
-        if extra:
-            rep(f"\nnew targeted chunks: {pct(sum(r['passed_filters'] for r in extra), len(extra))} passed; "
-                f"passed by dimension: {dict(Counter(r['dimension'] for r in extra if r['passed_filters']))}")
+    cmp_run = args.compare or (cfg["qa"].get("runs", {}).get(args.run, {}).get("reuse_chunks_from"))
+    if cmp_run and run_paths(cfg, cmp_run)["final"].exists():
+        cp = run_paths(cfg, cmp_run)
+        old_rows = read_jsonl(cp["final"])
+        old_units = read_jsonl(cp["units"])
+        osp = cp["chunks"].with_name(f"{cmp_run}_chunk_status.json")
+        old_status = json.loads(osp.read_text()) if osp.exists() else {}
+        same = set(json.loads(cp["chunks"].read_text())["chunk_ids"])
+        new_rows = [r for r in rows if r["chunk_id"] in same]
+        new_status = {k: v for k, v in status.items() if k in same}
+        a = run_metrics(old_rows, old_units, old_status, run_cost(usage, cmp_run))
+        b = run_metrics(new_rows, [u for u in units if u["chunk_id"] in same], new_status, run_cost(usage, args.run))
+        rep(f"\n-- {cmp_run} vs {args.run} on the same {len(same)} chunks --")
+        rep(f"{'':38s} {cmp_run:>16s} {args.run:>16s}")
+        for k in a:
+            rep(f"{k:38s} {a[k]:>16s} {b[k]:>16s}")
 
-    usage = [json.loads(line) for line in repo_path(cfg["llm"]["usage_log"]).open(encoding="utf-8")]
-    rep("\n-- Cost (from logs/llm_usage.jsonl; cached re-runs cost $0) --")
+    rep("\n-- Cost (from logs/llm_usage.jsonl; cached calls cost $0) --")
     total = 0.0
     for st in (f"qa_extract:{args.run}", f"qa_generate:{args.run}", f"qa_filter:{args.run}"):
         for role in ("generator", "judge"):
             us = [u for u in usage if u["stage"] == st and u["role"] == role and not u["cached"]]
-            if not us:
-                continue
-            c = sum(u["cost"] for u in us)
-            total += c
-            rep(f"  {st:24s} {role:9s} calls={len(us):4d} in={sum(u['input'] for u in us):>9,} "
-                f"out={sum(u['output'] for u in us):>9,} ${c:.4f}")
-    rep(f"  TOTAL ${total:.4f}  (${total / max(n, 1):.4f} per generated pair, "
-        f"${total / max(len(passed), 1):.4f} per passed pair)")
-    v1c = sum(u["cost"] for u in usage if u["stage"] in ("qa_extract", "qa_generate", "qa_filter") and not u["cached"])
-    rep(f"  v1 total for comparison: ${v1c:.4f} for 100 pairs")
+            if us:
+                c = sum(u["cost"] for u in us)
+                total += c
+                rep(f"  {st:24s} {role:9s} calls={len(us):4d} in={sum(u['input'] for u in us):>9,} "
+                    f"out={sum(u['output'] for u in us):>9,} ${c:.4f}")
+    rep(f"  TOTAL ${total:.4f}  (${total / max(n, 1):.4f} per generated pair, ${total / max(len(passed), 1):.4f} per passed pair)")
 
     rng = random.Random(args.seed)
+
     def show(r):
         js = r["judge_scores"]
         tag = " | REPAIRED" if r["repair"] else ""
-        rep(f"\n[{r['qa_id']}] {r['q_type']} | {r['difficulty']} | {r['dimension']} | "
-            f"grounding={js.get('grounding')} standalone={js.get('standalone')}{tag}"
+        rep(f"\n[{r['qa_id']}] {r['q_type']} | {r['difficulty']} | {r['dimension']} | grounding={js.get('grounding')} "
+            f"standalone={js.get('standalone')} value={js.get('value')}{tag}"
             + (f" | REJECTED: {r['reject_reason']}" if r["reject_reason"] else ""))
         if r["repair"]:
             rep(f"  before: Q: {r['repair']['original_question']}")
-            rep(f"  repair reason: {r['repair']['reason'][:300]}")
+            rep(f"  repair reason: {r['repair']['reason'][:250]}")
         rep(f"Q: {r['question']}")
         for x in r["paraphrases"]:
             rep(f"   ~ {x}")
         rep(f"A: {r['answer']}")
-        rep(f"citation: {r['citation']}")
+        rep(f"citation: {r['citation']['title']}, pages {r['citation']['pages']}")
         if r["reject_reason"]:
-            rep(f"judge: {js.get('grounding_rationale', '')} | {js.get('standalone_rationale', '')}")
+            rep(f"judge: {js.get('grounding_rationale', '')} | {js.get('standalone_rationale', '')} | {js.get('value_rationale', '')}")
     rejected = [r for r in rows if not r["passed_filters"]]
     rep_ok = [r for r in passed if r["repair"]]
     plain = [r for r in passed if not r["repair"]]
     sample_pass = rng.sample(rep_ok, min(2, len(rep_ok))) + rng.sample(plain, min(5 - min(2, len(rep_ok)), len(plain)))
+    by_reason = defaultdict(list)
+    for r in rejected:
+        by_reason[r["reject_reason"].split("(")[0]].append(r)
+    sample_rej = []
+    while len(sample_rej) < min(5, len(rejected)):
+        for k in sorted(by_reason):
+            if by_reason[k] and len(sample_rej) < 5:
+                sample_rej.append(by_reason[k].pop(rng.randrange(len(by_reason[k]))))
     rep("\n-- 5 random passed examples (incl. repaired) --")
     for r in sample_pass:
         show(r)
-    rep("\n-- 5 random rejected examples --")
-    for r in rng.sample(rejected, min(5, len(rejected))):
+    rep("\n-- 5 rejected examples (spread over reasons) --")
+    for r in sample_rej:
         show(r)
-    rep("\nthis run (stage 3):")
-    for ln in llm.summary():
-        rep(ln)
     rep.save()
 
 

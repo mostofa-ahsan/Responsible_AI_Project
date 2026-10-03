@@ -58,7 +58,11 @@ general: responsible-AI knowledge that fits none of the above"""
 BANNED_FOR_PROMPT = ['"the evidence"', '"the text"', '"the passage"', '"the author(s)"',
                      '"the authors above"', '"this chapter/section/study/paper/review/framework"',
                      '"the study/review/report" (without saying which)', '"the recommendations say"',
-                     '"according to the source"', '"as mentioned above"', '"in this context"']
+                     '"according to the source"', '"as mentioned above"', '"in this context"',
+                     '"example is given"', '"is described as"',
+                     '"is/are recommended" (say who recommends it)', '"the following"',
+                     'any wording that presupposes a source ("according to the ...", "described in the ...", '
+                     '"as outlined", "the discussion")']
 
 
 def system_prompt(cfg):
@@ -70,6 +74,12 @@ you are given, which were extracted verbatim from a book or journal article.
 Question types:
 {chr(10).join(f"- {k}: {v}" for k, v in TYPE_GUIDE.items())}
 Difficulty: {DIFFICULTY_GUIDE}.
+
+Value: only ask about substantive knowledge of responsible AI in higher education that is worth
+learning: concepts, findings, frameworks and their content, recommendations, risks, causes and
+effects. Never ask about research methodology, search or inclusion criteria, which regions,
+countries, samples or databases a study covered, course logistics or assignment weights,
+bibliographic details, or individual table rows.
 
 Questions:
 - Standalone: a reader who has never seen the source must understand exactly what is asked.
@@ -88,7 +98,10 @@ Answers:
   added connective claims ("this shows that", "therefore", "which means") unless the evidence
   itself states them. Do not combine units into a conclusion the evidence does not state.
 - Length: {rng['factual'][0]}-{rng['factual'][1]} sentences for factual and definition,
-  {rng['explanation'][0]}-{rng['explanation'][1]} sentences for explanation and application.
+  {rng['explanation'][0]}-{rng['explanation'][1]} sentences for explanation and application (1 is fine for any
+  type when all the cited evidence is a single sentence).
+- Never mention the evidence, the quoted text, units or unit ids, and add no notes in
+  parentheses about the source.
 - No outside knowledge. Do not add a citation; it is stored separately.
 
 Also assign one readiness dimension:
@@ -119,7 +132,9 @@ Knowledge units the pair must be grounded in (id, verbatim evidence):
 
 Rewrite the pair to fix the problem. Keep the same type and topic. The answer must restate only
 what the evidence says; the question and paraphrases must be standalone and avoid the banned
-phrases. You may use any of the listed units."""
+phrases. You may use any of the listed units. Write a normal question and answer: never refer to
+the evidence, the quoted text or the units, and add no parenthetical notes such as "(the quoted
+text ...)"."""
 
 PARAPHRASE_PROMPT = """Question: {question}
 

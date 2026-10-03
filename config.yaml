@@ -53,6 +53,7 @@ chunk:
   density_threshold: 0.35    # mine = not excluded, >= mine_min_tokens, density >= this, topic_score >= min_topic_score
   min_topic_score: 2.0       # domain-keyword hits per 100 words (0 disables the topic gate)
   exclude_from_mining: [bulk-download-contents, bulk-download-frontmatter]
+  exclude_appendix_and_table_chunks: true   # appendix sections and table-row chunks are never mined
 
 # Heuristic density: per signal, hits per 100 words capped at caps[signal], times weights[signal];
 # summed and squashed to 0-1 as 1 - exp(-raw / scale).
@@ -80,7 +81,12 @@ density:
     causal: '\bbecause\b|\bleads? to\b|\bresults? in\b|\bdue to\b|\btherefore\b|\bconsequently\b|\bimpacts? on\b|\beffects? of\b|\bthus\b'
 
 # Domain relevance gate: hits per 100 words of these terms (plus all dimension keywords).
+# ai_terms are counted separately (ai_score) to report mineable chunks with no AI content.
 topic:
+  ai_terms: [artificial intelligence, ai, genai, generative, chatgpt, chatbot, chatbots, llm, llms,
+             large language model, large language models, machine learning, deep learning, algorithm,
+             algorithms, algorithmic, automation, automated, neural network, intelligent tutoring,
+             learning analytics, copilot, gpt]
   keywords: [responsible ai, ethics, ethical, trustworthy, trust, transparency, transparent, explainab, fairness, bias,
              accountability, higher education, university, universities, college, student, students, learner, learners,
              education, educational, academic, generative ai, genai, chatgpt, ai adoption, readiness, artificial intelligence]
@@ -168,6 +174,9 @@ qa:
         dimensions: [assessment, procurement_technology, leadership_strategy, faculty_readiness]
         seed: 21
       q_types: [factual, definition, explanation, application]
+    pilot_v3:
+      reuse_chunks_from: pilot_v2 # same 30 chunks as v2 (appendix/table chunks are now skipped)
+      q_types: [factual, definition, explanation, application]
   questions_per_chunk: 5
   # Spec mix with application raised to 15 and factual lowered to 20; only the enabled types
   # are used, renormalized.
@@ -176,9 +185,10 @@ qa:
   sentence_range: {factual: [1, 5], definition: [1, 5], explanation: [2, 5], application: [2, 5]}
   units_per_chunk: [3, 8]
   min_units: 3                    # chunks with fewer valid units are not used for generation
-  min_units_appendix_or_table: 5  # stricter for appendix / table-dominated chunks
   min_grounding: 4                # judge grounding score (1-5) to keep a pair
-  dedup_cosine: 0.92
+  min_value: 3                    # judge value score (1-5): about the domain and worth learning
+  dedup_cosine: 0.92              # question embeddings, across the run
+  dedup_answer_cosine: 0.90       # answer embeddings, within the same chunk or document
   repair_rounds: 1                # grounding/standalone rejects go back to the generator once
   # Regex pre-filter (case-insensitive) on questions and paraphrases, also listed in the prompt.
   banned_phrases:
@@ -194,6 +204,26 @@ qa:
     - 'according to the (?:source|text|passage|evidence|authors?)'
     - 'as (?:described|mentioned|stated|discussed) (?:above|earlier|here)'
     - 'in this context'
+    - 'example is given'
+    - 'described as'
+    - '(?:is|are|be) (?:\w+ )?recommended\b(?!\s+by\b)'   # passive recommendation with no agent
+    - 'the following'
+    # questions that presuppose a source
+    - 'according to (?:the|this|these|those)\b'
+    - '(?:described|discussed|mentioned|outlined|presented|reported|cited|listed|noted|explained|identified|proposed) (?:in|by) (?:the|this|these)\b'
+    - 'the (?:source|document|material|reading|discussion|analysis)\b(?!\s+of)'
+    - '(?:is|are|was|were) (?:given|offered|provided) (?:as|for)\b'
+    - 'as (?:noted|shown|seen|outlined|argued)\b'
+  # Meta-text that must never appear in questions, answers or paraphrases (checked on every pair,
+  # including repaired ones).
+  meta_text_patterns:
+    - '\((?:the )?(?:quoted|provided|given|cited) (?:text|evidence|passage|span|source)'
+    - '\bthe (?:quoted|provided|given) (?:text|evidence|passage|units?|spans?)\b'
+    - '\bknowledge units?\b'
+    - '\bunits?\s*\[?u\d{1,2}\]?'
+    - '\[u\d+\]'
+    - '\bevidence (?:says|states|shows|indicates|does not)\b'
+    - '\b(?:as|is) (?:stated|quoted) (?:above|here)\b'
   dimensions: [governance, leadership_strategy, faculty_readiness, student_ai_literacy, teaching_learning,
                assessment, privacy_security, equity_accessibility, procurement_technology,
                monitoring_improvement, general]

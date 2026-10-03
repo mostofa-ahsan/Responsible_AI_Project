@@ -7,9 +7,10 @@ a substring of the chunk (after whitespace normalization only) are kept with
 evidence_valid=false and are not used downstream. Review methodology (search
 strategy, inclusion criteria, screening, framework mechanics) is skipped.
 
-A chunk is used for generation only if it has >= qa.min_units valid units
-(>= qa.min_units_appendix_or_table for appendix or table-dominated chunks);
-see <run>_chunk_status.json.
+A unit is also invalid if its evidence ends mid-sentence (no final . ! ? before closing
+quotes/brackets or a trailing reference marker). Appendix sections and table-row chunks are
+skipped without an API call. A chunk is used for generation only if it has >= qa.min_units
+valid units; see <run>_chunk_status.json.
 
 Writes data/qa_pairs/<run>_units.jsonl and <run>_chunks.json. Resumable by chunk_id.
 
@@ -19,6 +20,7 @@ Usage:
 
 import argparse
 import json
+import re
 from collections import Counter
 from typing import Literal
 
@@ -43,8 +45,9 @@ A knowledge unit is one atomic, self-contained piece of knowledge stated in the 
 Rules:
 - Each unit restates the knowledge in one or two plain sentences that make sense on their own:
   name the subject explicitly (no "this study", "the authors", "it").
-- evidence is copied VERBATIM from the passage: one contiguous span (a sentence or a few
-  consecutive sentences) that fully supports the unit. Do not paraphrase, fix typos, merge
+- evidence is copied VERBATIM from the passage: one contiguous span of COMPLETE sentences (a
+  sentence or a few consecutive sentences, ending with the sentence's final punctuation) that
+  fully supports the unit. Never stop mid-sentence. Do not paraphrase, fix typos, merge
   non-adjacent sentences, or add ellipses.
 - Prefer substantive units a student or university administrator would want to know about AI
   in higher education: concepts, findings, frameworks and their content, recommendations,
@@ -77,15 +80,25 @@ class Units(BaseModel):
     units: list[Unit]
 
 
+SENTENCE_END_RX = re.compile(r"[.!?][\"”’')\]]*(?:\s*\[\d+(?:\s*[,–-]\s*\d+)*\])?$")
+
+
+def complete_sentence(evidence):
+    return bool(SENTENCE_END_RX.search(ws(evidence)))
+
+
 def chunk_status(cfg, chunks, sel, units):
     """Which chunks have enough valid units to generate from."""
     valid = Counter(u["chunk_id"] for u in units if u["evidence_valid"])
     status = {}
     for cid in sel["chunk_ids"]:
         c = chunks[cid]
-        thin_kind = is_appendix_or_table(c)
-        need = cfg["qa"]["min_units_appendix_or_table"] if thin_kind else cfg["qa"]["min_units"]
-        status[cid] = {"valid_units": valid[cid], "appendix_or_table": thin_kind,
+        if is_appendix_or_table(c):
+            status[cid] = {"valid_units": 0, "appendix_or_table": True, "generate": False,
+                           "reason": "appendix_or_table"}
+            continue
+        need = cfg["qa"]["min_units"]
+        status[cid] = {"valid_units": valid[cid], "appendix_or_table": False,
                        "generate": valid[cid] >= need,
                        "reason": "" if valid[cid] >= need else f"thin({valid[cid]}<{need})"}
     return status
@@ -106,7 +119,7 @@ def main():
     done = {u["chunk_id"] for u in read_jsonl(paths["units"])}
     done |= set(json.loads(paths["chunks"].with_name(f"{args.run}_empty.json").read_text())
                 if paths["chunks"].with_name(f"{args.run}_empty.json").exists() else [])
-    todo = [cid for cid in todo_ids if cid not in done]
+    todo = [cid for cid in todo_ids if cid not in done and not is_appendix_or_table(chunks[cid])]
     log.info(f"{len(todo_ids)} chunks selected, {len(todo)} to extract")
 
     llm = LLM(cfg, f"qa_extract:{args.run}")
@@ -128,11 +141,14 @@ def main():
         norm_chunk = ws(c["text"])
         rows = []
         for i, u in enumerate(res.parsed.units):
-            valid = ws(u.evidence) in norm_chunk and len(ws(u.evidence)) >= 20
+            verbatim = ws(u.evidence) in norm_chunk and len(ws(u.evidence)) >= 20
+            complete = complete_sentence(u.evidence)
+            valid = verbatim and complete
             rows.append({
                 "unit_id": f"{cid}:u{i:02d}", "chunk_id": cid, "doc_id": c["doc_id"],
                 "unit": u.unit, "type": u.type, "evidence": u.evidence,
-                "evidence_valid": valid, "section_path": c["section_path"],
+                "evidence_valid": valid, "evidence_verbatim": verbatim, "evidence_complete": complete,
+                "section_path": c["section_path"],
                 "page": pages.page_of(c, u.evidence) if valid else None,
                 "model": res.served_model,
             })
@@ -153,8 +169,9 @@ def main():
     rep = Report(f"qa_extract_{args.run}", cfg)
     rep(f"=== Phase 4 stage 1 ({args.run}): knowledge units from {len(todo_ids)} chunks ===")
     valid = [u for u in units if u["evidence_valid"]]
-    rep(f"units: {len(units)}  valid evidence (verbatim substring): {len(valid)} "
-        f"({len(valid) / max(len(units), 1):.0%})")
+    rep(f"units: {len(units)}  valid evidence: {len(valid)} ({len(valid) / max(len(units), 1):.0%}); "
+        f"not verbatim: {sum(not u.get('evidence_verbatim', u['evidence_valid']) for u in units)}, "
+        f"ends mid-sentence: {sum(u.get('evidence_complete') is False for u in units)}")
     rep(f"by type (valid): {dict(Counter(u['type'] for u in valid))}")
     skipped = {cid: s for cid, s in status.items() if not s["generate"] and cid in set(todo_ids)}
     rep(f"chunks usable for generation: {len(todo_ids) - len(skipped)}/{len(todo_ids)}; "

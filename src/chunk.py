@@ -26,7 +26,7 @@ import math
 import random
 import re
 import statistics
-from collections import Counter, defaultdict
+from collections import Counter
 
 from utils import Report, get_logger, load_config, repo_path
 
@@ -47,7 +47,7 @@ class Tok:
 # --- chunking ---------------------------------------------------------------
 def doc_units(parsed):
     """Non-skip blocks as units, grouped by top-level section (in document order)."""
-    sections, order = defaultdict(list), []
+    order = []
     prev_key = object()
     for b in parsed["blocks"]:
         if b["skip"]:
@@ -184,6 +184,30 @@ def build_chunks(parsed, meta, tok, ccfg):
 
 
 # --- scoring ----------------------------------------------------------------
+TABLE_CHAR_SHARE = 0.6
+
+
+def table_char_share(text):
+    """Share of non-whitespace characters that sit in markdown table rows."""
+    total = table = 0
+    for ln in text.splitlines():
+        n = len(ln.replace(" ", ""))
+        total += n
+        if ln.lstrip().startswith("|"):
+            # separator rows (|---|---|) carry no content
+            table += 0 if set(ln.replace(" ", "")) <= set("|-:") else n
+    return table / total if total else 0.0
+
+
+def is_appendix_or_table(chunk):
+    """Appendix sections, standalone table chunks, and text chunks whose characters are mostly
+    table rows (> TABLE_CHAR_SHARE). Measured by characters, not lines, so a chunk with a real
+    prose paragraph above a short table stays eligible."""
+    if any("appendix" in s.lower() for s in chunk["section_path"]):
+        return True
+    return chunk["chunk_type"] == "table" or table_char_share(chunk["text"]) > TABLE_CHAR_SHARE
+
+
 class Scorer:
     def __init__(self, cfg):
         d = cfg["density"]
@@ -195,6 +219,9 @@ class Scorer:
                      for name, kws in dc["keywords"].items()}
         self.ccfg = cfg["chunk"]
         topic_terms = list(cfg["topic"]["keywords"]) + [k for kws in dc["keywords"].values() for k in kws]
+        ai = cfg["topic"].get("ai_terms", [])
+        self.ai = re.compile(r"\b(?:" + "|".join(re.escape(k) for k in sorted(ai, key=len, reverse=True))
+                             + r")\b", re.I) if ai else None
         self.topic = re.compile(r"\b(?:" + "|".join(re.escape(k) for k in sorted(set(topic_terms), key=len, reverse=True))
                                 + r")", re.I)
 
@@ -206,11 +233,14 @@ class Scorer:
         raw = sum(self.weights[k] * min(v / per100, self.caps.get(k, float("inf"))) for k, v in hits.items())
         c["density"] = round(1 - math.exp(-raw / self.scale), 3)
         c["topic_score"] = round(len(self.topic.findall(text)) / per100, 2)
+        c["ai_score"] = round(len(self.ai.findall(text)) / per100, 2) if self.ai else None
         c["density_signals"] = {k: v for k, v in hits.items() if v}
         c["dimensions_preview"] = [n for n, rx in self.dims.items()
                                    if len(rx.findall(text)) >= self.min_hits]
         if c["doc_id"] in self.ccfg["exclude_from_mining"]:
             c["mine"], c["mine_reason"] = False, "excluded_doc"
+        elif self.ccfg.get("exclude_appendix_and_table_chunks") and is_appendix_or_table(c):
+            c["mine"], c["mine_reason"] = False, "appendix_or_table"
         elif c["n_tokens"] < self.ccfg["mine_min_tokens"]:
             c["mine"], c["mine_reason"] = False, "too_short"
         elif c["density"] < self.ccfg["density_threshold"]:
@@ -367,6 +397,16 @@ def report(chunks, cfg, seed, new_docs):
         n = dim[name]
         rep(f"  {name:24s} {n:6,} ({n / max(len(mine), 1):.0%})  docs={len({c['doc_id'] for c in mine if name in c['dimensions_preview']})}")
     rep(f"  {'(none)':24s} {sum(not c['dimensions_preview'] for c in mine):6,}")
+    rep("\n-- Scope: mineable chunks with no AI content (ai_score = 0 AI-term hits) --")
+    no_ai = [c for c in mine if not c.get("ai_score")]
+    rep(f"{len(no_ai):,}/{len(mine):,} mineable chunks ({len(no_ai) / max(len(mine), 1):.0%}), "
+        f"{sum(c['n_tokens'] for c in no_ai):,} tokens; low AI content (< 0.5 hits/100 words): "
+        f"{sum((c.get('ai_score') or 0) < 0.5 for c in mine):,}")
+    per = Counter(c["doc_id"] for c in no_ai)
+    tot = Counter(c["doc_id"] for c in mine)
+    rep("docs with the most no-AI mineable chunks (no-AI / mineable in doc):")
+    for d, nn in per.most_common(12):
+        rep(f"  {d:50s} {nn:4d} / {tot[d]:4d} ({nn / tot[d]:.0%})")
     rep("\nAPI cost this phase: $0 (heuristic density, no LLM calls)")
     rep.save()
 
