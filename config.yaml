@@ -31,6 +31,14 @@ parse:
   header_min_pages: 3        # short text repeated on >= N pages is a running header
   max_year: 2026             # later years are flagged for review
 
+# Manual metadata corrections (applied by parse.py when building data/parsed/metadata.csv).
+# Filled human_title/human_authors/human_year columns in metadata_review.csv are applied too.
+metadata_overrides:
+  budd-l-hall-rajesh-2021-socially-responsible:
+    authors: "Budd L. Hall · Rajesh Tandon (eds.)"
+  towards-ethical:
+    authors: "Mohammad Amir Khusru Akhtar · Mohit Kumar · Anand Nayyar"
+
 # Model to fine-tune; its tokenizer is used for all token counts. Used with thinking disabled
 # (enable_thinking=False in the chat template).
 base_model: Qwen/Qwen3-8B
@@ -143,6 +151,7 @@ pricing:
   claude-haiku-4-5-20251001: {input: 1.00, output: 5.00, cache_read: 0.10, cache_write: 1.25}
 
 qa:
+  # Pilot v1 selection (kept so run "pilot" is reproducible).
   pilot:
     n_docs: 5
     n_books: 2                    # the rest are articles
@@ -150,15 +159,41 @@ qa:
     min_mine_chunks: 8            # candidate docs need at least this many mineable chunks
     seed: 13
     exclude_flagged_metadata: true  # skip docs listed in data/parsed/metadata_review.csv
-    # Phase 4a: single-chunk types only (multi-hop/unanswerable wait for the index + retrieval check)
     q_types: [factual, definition, explanation, application]
+  runs:
+    pilot_v2:
+      reuse_chunks_from: pilot    # same 20 chunks as v1, for a direct comparison
+      extra_chunks:               # plus chunks targeting under-covered dimensions
+        n: 10
+        dimensions: [assessment, procurement_technology, leadership_strategy, faculty_readiness]
+        seed: 21
+      q_types: [factual, definition, explanation, application]
   questions_per_chunk: 5
-  # Spec mix (factual 25, definition 20, explanation 20, comparison 10, multi_hop 10, application 5,
-  # unanswerable 10); only the enabled types are used, renormalized.
-  type_mix: {factual: 25, definition: 20, explanation: 20, comparison: 10, multi_hop: 10, application: 5, unanswerable: 10}
+  # Spec mix with application raised to 15 and factual lowered to 20; only the enabled types
+  # are used, renormalized.
+  type_mix: {factual: 20, definition: 20, explanation: 20, comparison: 10, multi_hop: 10, application: 15, unanswerable: 10}
+  difficulty_mix: {easy: 35, medium: 45, hard: 20}
+  sentence_range: {factual: [1, 5], definition: [1, 5], explanation: [2, 5], application: [2, 5]}
   units_per_chunk: [3, 8]
+  min_units: 3                    # chunks with fewer valid units are not used for generation
+  min_units_appendix_or_table: 5  # stricter for appendix / table-dominated chunks
   min_grounding: 4                # judge grounding score (1-5) to keep a pair
   dedup_cosine: 0.92
+  repair_rounds: 1                # grounding/standalone rejects go back to the generator once
+  # Regex pre-filter (case-insensitive) on questions and paraphrases, also listed in the prompt.
+  banned_phrases:
+    - 'the evidence'
+    - 'the (?:source )?text'
+    - 'the passage'
+    - 'the excerpt'
+    - 'the (?:above|following)'
+    - 'the authors?(?: above)?\b'
+    - 'this (?:chapter|section|study|paper|article|book|review|report|framework|model|source)'
+    - 'the (?:chapter|section|study|paper|article|book|review|report)\b(?! (?:of|on|by|titled))'
+    - 'the recommendations say'
+    - 'according to the (?:source|text|passage|evidence|authors?)'
+    - 'as (?:described|mentioned|stated|discussed) (?:above|earlier|here)'
+    - 'in this context'
   dimensions: [governance, leadership_strategy, faculty_readiness, student_ai_literacy, teaching_learning,
                assessment, privacy_security, equity_accessibility, procurement_technology,
                monitoring_improvement, general]

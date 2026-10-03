@@ -579,8 +579,20 @@ def extract_metadata(blocks, raw, row, pcfg):
     return {"title": title, "authors": authors, "year": year, "year_kind": year_kind}
 
 
-def build_metadata(inv_rows, parsed, pcfg):
-    """Combine inventory metadata with first-page extraction; flag uncertain rows."""
+def read_human_metadata(path):
+    """Filled human_* columns from an existing metadata_review.csv (kept across rewrites)."""
+    if not path.exists():
+        return {}
+    with path.open(encoding="utf-8") as f:
+        return {r["doc_id"]: {k[6:]: r[k].strip() for k in ("human_title", "human_authors", "human_year")
+                              if r.get(k, "").strip()}
+                for r in csv.DictReader(f)}
+
+
+def build_metadata(inv_rows, parsed, pcfg, overrides=None, human=None):
+    """Combine inventory metadata with first-page extraction; flag uncertain rows.
+    overrides (config metadata_overrides) and human (review CSV) corrections win."""
+    overrides, human = overrides or {}, human or {}
     group_titles = {}
     by_group = defaultdict(list)
     for r in inv_rows:
@@ -631,13 +643,26 @@ def build_metadata(inv_rows, parsed, pcfg):
         if year and int(year) > pcfg["max_year"]:
             flags.append("future_year")
 
+        fix = {**human.get(r["doc_id"], {}), **overrides.get(r["doc_id"], {})}
+        if fix:
+            title = fix.get("title", title)
+            authors = fix.get("authors", authors)
+            year = str(fix.get("year", year))
+            title_src = "manual" if "title" in fix else title_src
+            author_src = "manual" if "authors" in fix else author_src
+            year_src = "manual" if "year" in fix else year_src
+            # a manual value resolves the corresponding flags
+            drop = {"title": ("title_",), "authors": ("authors_",), "year": ("year_", "future_year")}
+            flags = [f for f in flags if not any(f.startswith(p) for k in fix for p in drop.get(k, ()))]
+
         out = {"doc_id": r["doc_id"], "folder": r["folder"], "title": title, "authors": authors,
                "year": year, "title_source": title_src, "author_source": author_src,
                "year_source": year_src, "flags": ";".join(flags)}
         rows.append(out)
-        if flags:
-            review.append({**out, "path": r["path"], "human_title": "", "human_authors": "",
-                           "human_year": ""})
+        h = human.get(r["doc_id"], {})
+        if flags or h:
+            review.append({**out, "path": r["path"], "human_title": h.get("title", ""),
+                           "human_authors": h.get("authors", ""), "human_year": h.get("year", "")})
     return rows, review
 
 
@@ -732,7 +757,8 @@ def main():
         f = out_dir / f"{r['doc_id']}.json"
         if f.exists():
             parsed[r["doc_id"]] = json.loads(f.read_text(encoding="utf-8"))
-    meta_rows, review = build_metadata(inv, parsed, pcfg)
+    human = read_human_metadata(out_dir / "metadata_review.csv")
+    meta_rows, review = build_metadata(inv, parsed, pcfg, cfg.get("metadata_overrides"), human)
     write_csv(out_dir / "metadata.csv", meta_rows)
     write_csv(out_dir / "metadata_review.csv", review)
 

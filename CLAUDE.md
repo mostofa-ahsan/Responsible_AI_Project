@@ -44,6 +44,12 @@ python src/parse.py --reclean        # re-apply cleaning rules from data/cache/d
 python src/chunk.py                  # Phase 3: data/parsed -> data/chunks/chunks.jsonl (~90s; resumes per doc)
 python src/chunk.py --rescore        # recompute density/topic/mine after changing thresholds in config.yaml
 python src/embed.py                  # Phase 3b: embed all chunks -> data/index/ (FAISS; ~15 min GPU; reuses unchanged)
+python src/qa_extract.py --run pilot_v2    # Phase 4 stage 1: knowledge units (Sonnet; cached)
+python src/qa_generate.py --run pilot_v2   # stage 2: QA pairs from valid units
+python src/qa_filter.py --run pilot_v2     # stage 3: prefilter + Opus judge + repair + paraphrase fix + dedup
+python src/qa_agreement.py --run pilot_v2  # human_verdict vs filters (kappa, disagreements)
+python src/retrieval_study.py        # recall@k for dense/BM25/hybrid/rerank on passed questions
+python src/density_llm.py            # Haiku scores the borderline density band (report only)
 python -m pytest tests -q            # all tests
 python -m pytest tests/test_parse.py -k bibliography   # single test
 python src/audit_hyphenation.py      # list suspicious line-break joins (logs/hyphenation_audit_report.txt)
@@ -55,7 +61,7 @@ Tests use synthetic `{label, text, page}` items with `parse.clean_items()`, so t
 
 ## Project status
 
-Phases 1–3 are done (inventory, parse, chunk + embed). Phase 4 (QA mining pilot) is next. `closed_book_baseline` in `config.yaml` is still `TODO`, and `src/llm.py` isn't built yet.
+Phases 1–3 are done (inventory, parse, chunk + embed). Phase 4a (single-chunk QA pilot) is at v2; multi-hop, unanswerable, the closed-book check and the retrieval filter come next. `closed_book_baseline` in `config.yaml` is still `TODO`, and `src/llm.py` isn't built yet.
 
 Inventory facts (`data/inventory.csv`):
 - `doc_id` is the stable key for every later stage. It's a slug of the cleaned filename; if two files would get the same slug, a short sha256 suffix is added.
@@ -107,3 +113,11 @@ notebooks/       exploration
 ```
 
 PDF filenames contain spaces, ampersands, curly quotes, and trailing spaces (e.g. `"Leveraging GenAI .pdf"`), so always quote paths and handle unusual characters robustly.
+
+QA mining (`src/llm.py`, `src/qa_*.py`, spec in `docs/qa_pipeline_spec.md`):
+- All LLM calls go through `llm.LLM(cfg, stage).complete(prompt, system, role=..., json_schema=PydanticModel)`. Roles, models, effort and pricing are in `config.yaml`. Every call is disk-cached in `data/cache/llm/` and logged to `logs/llm_usage.jsonl`, so re-running a stage is free unless a prompt changes. Changing a prompt or schema invalidates the cache for that stage and costs money: check `logs/llm_usage.jsonl` totals.
+- A run (`--run NAME`) is defined under `qa.runs` in config. Its files are `data/qa_pairs/<run>_{chunks.json,units.jsonl,generated.jsonl}`, `<run>.jsonl` (final) and `<run>_review.csv`. The chunk selection is frozen in `<run>_chunks.json` after the first run; delete it to reselect.
+- `answer` never contains a citation. `citation` is `{title, pages}` from the evidence pages, and training formats decide whether to append it.
+- The review CSV keeps filled `human_verdict`/`human_notes` when it is rewritten (`qa_common.write_review_csv`). Never write it any other way.
+- The judge (`claude-opus-5-5`) is the same family as the generator (`claude-sonnet-5-5`). Repaired pairs are re-judged by the same judge, so treat repaired passes with extra suspicion when reviewing.
+

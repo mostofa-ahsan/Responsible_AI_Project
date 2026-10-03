@@ -3,14 +3,18 @@
 For each selected chunk, the generator returns units
     {unit, type (definition|claim|finding|framework|recommendation|causal), evidence}
 where evidence must be a verbatim span of the chunk. Units whose evidence is not
-a substring of the chunk (after whitespace normalization only) are kept in the
-output with evidence_valid=false and are not used downstream.
+a substring of the chunk (after whitespace normalization only) are kept with
+evidence_valid=false and are not used downstream. Review methodology (search
+strategy, inclusion criteria, screening, framework mechanics) is skipped.
 
-Writes data/qa_pairs/<run>_units.jsonl (one row per unit) and
-data/qa_pairs/<run>_chunks.json (the chunk selection). Resumable by chunk_id.
+A chunk is used for generation only if it has >= qa.min_units valid units
+(>= qa.min_units_appendix_or_table for appendix or table-dominated chunks);
+see <run>_chunk_status.json.
+
+Writes data/qa_pairs/<run>_units.jsonl and <run>_chunks.json. Resumable by chunk_id.
 
 Usage:
-    python src/qa_extract.py --pilot [--limit N]
+    python src/qa_extract.py --run pilot_v2 [--limit N]
 """
 
 import argparse
@@ -21,9 +25,9 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from llm import LLM
-from qa_common import (PageLookup, append_jsonl, load_chunks, read_jsonl, run_parallel,
-                       select_pilot, ws)
-from utils import Report, get_logger, load_config, repo_path
+from qa_common import (PageLookup, append_jsonl, is_appendix_or_table, load_chunks, read_jsonl,
+                       run_parallel, run_paths, select_run, ws)
+from utils import Report, get_logger, load_config
 
 SYSTEM = """You extract knowledge units from passages of books and journal articles about \
 responsible AI in higher education, to build a source-grounded question-answering dataset.
@@ -42,10 +46,16 @@ Rules:
 - evidence is copied VERBATIM from the passage: one contiguous span (a sentence or a few
   consecutive sentences) that fully supports the unit. Do not paraphrase, fix typos, merge
   non-adjacent sentences, or add ellipses.
-- Prefer substantive units a student or university administrator would want to know. Skip
-  bibliographic details, section signposting ("Section 3 describes ..."), figure references and
-  generic filler.
-- If the passage has fewer good units than the minimum, return only the good ones."""
+- Prefer substantive units a student or university administrator would want to know about AI
+  in higher education: concepts, findings, frameworks and their content, recommendations,
+  risks, causes and effects.
+- SKIP research-process details: search strategy, databases searched, inclusion/exclusion
+  criteria, screening and PRISMA counts, sample recruitment, survey or interview procedures,
+  statistical procedures and fit indices, and the mechanics of a review framework (e.g. how
+  its guiding questions are worded). Keep the substantive findings those methods produced.
+- SKIP bibliographic details, author affiliations, section signposting ("Section 3
+  describes ..."), figure/table references and generic filler.
+- It is fine to return few or zero units if the passage has little substantive knowledge."""
 
 PROMPT = """Document: {title}
 Section: {section}
@@ -54,7 +64,7 @@ Section: {section}
 {text}
 </passage>
 
-Extract between {lo} and {hi} knowledge units from the passage."""
+Extract up to {hi} knowledge units from the passage (aim for {lo} or more if the passage supports it)."""
 
 
 class Unit(BaseModel):
@@ -67,34 +77,39 @@ class Units(BaseModel):
     units: list[Unit]
 
 
+def chunk_status(cfg, chunks, sel, units):
+    """Which chunks have enough valid units to generate from."""
+    valid = Counter(u["chunk_id"] for u in units if u["evidence_valid"])
+    status = {}
+    for cid in sel["chunk_ids"]:
+        c = chunks[cid]
+        thin_kind = is_appendix_or_table(c)
+        need = cfg["qa"]["min_units_appendix_or_table"] if thin_kind else cfg["qa"]["min_units"]
+        status[cid] = {"valid_units": valid[cid], "appendix_or_table": thin_kind,
+                       "generate": valid[cid] >= need,
+                       "reason": "" if valid[cid] >= need else f"thin({valid[cid]}<{need})"}
+    return status
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--pilot", action="store_true", help="use the pilot chunk selection")
+    ap.add_argument("--run", default="pilot_v2")
     ap.add_argument("--limit", type=int, help="only process the first N chunks")
     args = ap.parse_args()
-    if not args.pilot:
-        ap.error("only --pilot is implemented (the full run is Phase 5)")
 
     cfg = load_config()
     log = get_logger("qa_extract", cfg)
-    out_dir = repo_path(cfg["paths"]["qa_pairs"])
-    out_dir.mkdir(parents=True, exist_ok=True)
-    run = "pilot"
-    sel_path, units_path = out_dir / f"{run}_chunks.json", out_dir / f"{run}_units.jsonl"
+    paths = run_paths(cfg, args.run)
     chunks = load_chunks(cfg)
-
-    if sel_path.exists():
-        sel = json.loads(sel_path.read_text())
-    else:
-        docs, ids = select_pilot(cfg, chunks, log)
-        sel = {"docs": docs, "chunk_ids": ids}
-        sel_path.write_text(json.dumps(sel, indent=2))
+    sel = select_run(cfg, args.run, chunks, log)
     todo_ids = sel["chunk_ids"][:args.limit] if args.limit else sel["chunk_ids"]
-    done = {u["chunk_id"] for u in read_jsonl(units_path)}
+    done = {u["chunk_id"] for u in read_jsonl(paths["units"])}
+    done |= set(json.loads(paths["chunks"].with_name(f"{args.run}_empty.json").read_text())
+                if paths["chunks"].with_name(f"{args.run}_empty.json").exists() else [])
     todo = [cid for cid in todo_ids if cid not in done]
     log.info(f"{len(todo_ids)} chunks selected, {len(todo)} to extract")
 
-    llm = LLM(cfg, "qa_extract")
+    llm = LLM(cfg, f"qa_extract:{args.run}")
     pages = PageLookup(cfg)
     lo, hi = cfg["qa"]["units_per_chunk"]
 
@@ -104,7 +119,7 @@ def main():
                                text=c["text"], lo=lo, hi=hi)
         return llm.complete(prompt, SYSTEM, role="generator", json_schema=Units)
 
-    failures = []
+    failures, empty = [], []
     for cid, res in run_parallel(work, todo, cfg["llm"]["max_workers"], log):
         if isinstance(res, Exception):
             failures.append((cid, str(res)))
@@ -121,26 +136,33 @@ def main():
                 "page": pages.page_of(c, u.evidence) if valid else None,
                 "model": res.served_model,
             })
-        append_jsonl(units_path, rows)
+        if rows:
+            append_jsonl(paths["units"], rows)
+        else:
+            empty.append(cid)
         log.info(f"{cid}: {len(rows)} units, {sum(r['evidence_valid'] for r in rows)} valid evidence")
+    if empty:   # remember chunks that legitimately produced no units, so resume skips them
+        ep = paths["chunks"].with_name(f"{args.run}_empty.json")
+        prev = json.loads(ep.read_text()) if ep.exists() else []
+        ep.write_text(json.dumps(sorted(set(prev) | set(empty))))
 
-    units = [u for u in read_jsonl(units_path) if u["chunk_id"] in set(todo_ids)]
-    rep = Report("qa_extract", cfg)
-    rep(f"=== Phase 4 stage 1 ({run}): knowledge units from {len({u['chunk_id'] for u in units})} chunks ===")
-    rep(f"docs: {', '.join(sel['docs'])}")
+    units = [u for u in read_jsonl(paths["units"]) if u["chunk_id"] in set(todo_ids)]
+    status = chunk_status(cfg, chunks, sel, units)
+    paths["chunks"].with_name(f"{args.run}_chunk_status.json").write_text(json.dumps(status, indent=2))
+
+    rep = Report(f"qa_extract_{args.run}", cfg)
+    rep(f"=== Phase 4 stage 1 ({args.run}): knowledge units from {len(todo_ids)} chunks ===")
     valid = [u for u in units if u["evidence_valid"]]
     rep(f"units: {len(units)}  valid evidence (verbatim substring): {len(valid)} "
         f"({len(valid) / max(len(units), 1):.0%})")
     rep(f"by type (valid): {dict(Counter(u['type'] for u in valid))}")
+    skipped = {cid: s for cid, s in status.items() if not s["generate"] and cid in set(todo_ids)}
+    rep(f"chunks usable for generation: {len(todo_ids) - len(skipped)}/{len(todo_ids)}; "
+        f"skipped as thin: {[(cid, s['reason']) for cid, s in skipped.items()]}")
     rep(f"failures: {len(failures)} {failures[:3]}")
     rep("cost (this run):")
     for line in llm.summary():
         rep(line)
-    bad = [u for u in units if not u["evidence_valid"]][:3]
-    if bad:
-        rep("\nexamples of rejected evidence:")
-        for u in bad:
-            rep(f"  {u['unit_id']}: {u['evidence'][:160]!r}")
     rep.save()
 
 

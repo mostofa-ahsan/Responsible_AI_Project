@@ -110,3 +110,112 @@ def run_parallel(fn, items, max_workers, log):
             except Exception as e:  # noqa: BLE001 - logged and reported per item
                 log.error(f"{it}: {type(e).__name__}: {e}")
                 yield it, e
+
+
+# --- v2 additions -----------------------------------------------------------
+def banned_regex(cfg):
+    return re.compile(r"\b(?:" + "|".join(f"(?:{p})" for p in cfg["qa"]["banned_phrases"]) + r")", re.I)
+
+
+def is_appendix_or_table(chunk):
+    if any("appendix" in s.lower() for s in chunk["section_path"]):
+        return True
+    lines = [ln for ln in chunk["text"].splitlines() if ln.strip()]
+    return chunk["chunk_type"] == "table" or (
+        bool(lines) and sum(ln.lstrip().startswith("|") for ln in lines) / len(lines) > 0.5)
+
+
+def run_paths(cfg, run):
+    d = repo_path(cfg["paths"]["qa_pairs"])
+    return {k: d / f"{run}{suffix}" for k, suffix in (
+        ("chunks", "_chunks.json"), ("units", "_units.jsonl"), ("generated", "_generated.jsonl"),
+        ("final", ".jsonl"), ("review", "_review.csv"))}
+
+
+def select_run(cfg, run, chunks, log):
+    """Chunk selection for a run; written once to <run>_chunks.json and reused."""
+    paths = run_paths(cfg, run)
+    if paths["chunks"].exists():
+        return json.loads(paths["chunks"].read_text())
+    if run == "pilot":
+        docs, ids = select_pilot(cfg, chunks, log)
+        sel = {"docs": docs, "chunk_ids": ids, "origin": {i: "pilot" for i in ids}}
+    else:
+        rcfg = cfg["qa"]["runs"][run]
+        base = select_run(cfg, rcfg["reuse_chunks_from"], chunks, log)
+        ids = list(base["chunk_ids"])
+        origin = {i: rcfg["reuse_chunks_from"] for i in ids}
+        ex = rcfg.get("extra_chunks")
+        if ex:
+            for cid, dim in select_extra(cfg, chunks, set(base["docs"]), set(ids), ex, log):
+                ids.append(cid)
+                origin[cid] = f"extra:{dim}"
+        docs = sorted({chunks[i]["doc_id"] for i in ids}, key=lambda d: ids.index(
+            next(i for i in ids if chunks[i]["doc_id"] == d)))
+        sel = {"docs": docs, "chunk_ids": ids, "origin": origin}
+    paths["chunks"].parent.mkdir(parents=True, exist_ok=True)
+    paths["chunks"].write_text(json.dumps(sel, indent=2))
+    return sel
+
+
+def select_extra(cfg, chunks, used_docs, used_ids, ex, log):
+    """Round-robin over target dimensions: the strongest mineable text chunk per dimension from a
+    new, metadata-unflagged doc (one chunk per doc), alternating books and articles."""
+    from chunk import Scorer
+    dims_rx = Scorer(cfg).dims
+    flagged = flagged_docs(cfg)
+    rng = random.Random(ex["seed"])
+    cands = {}
+    for d in ex["dimensions"]:
+        rows = []
+        for c in chunks.values():
+            if (c["mine"] and c["chunk_type"] == "text" and c["chunk_id"] not in used_ids
+                    and c["doc_id"] not in used_docs and c["doc_id"] not in flagged
+                    and d in c["dimensions_preview"] and not is_appendix_or_table(c)
+                    and c["topic_score"] >= ex.get("min_topic_score", 5)
+                    and not METHODS_SECTION_RX.search(" > ".join(c["section_path"]))):
+                n_hits = len(dims_rx[d].findall(c["text"]))
+                if n_hits < ex.get("min_dim_hits", 3):
+                    continue
+                per100 = n_hits / max(len(c["text"].split()), 1) * 100
+                rows.append((per100 + 0.1 * c["density"] + rng.random() * 1e-6, c))
+        cands[d] = [c for _, c in sorted(rows, key=lambda x: x[0], reverse=True)]
+    picked, docs, folder_turn = [], set(), ["article", "book"]
+    i = 0
+    while len(picked) < ex["n"] and any(cands.values()):
+        d = ex["dimensions"][i % len(ex["dimensions"])]
+        want = folder_turn[len(picked) % 2]
+        pool = [c for c in cands[d] if c["doc_id"] not in docs]
+        c = next((c for c in pool if c["folder"] == want), pool[0] if pool else None)
+        if c:
+            picked.append((c["chunk_id"], d))
+            docs.add(c["doc_id"])
+            cands[d].remove(c)
+        else:
+            cands[d] = []
+        i += 1
+    log.info(f"extra chunks: {picked}")
+    return picked
+
+
+METHODS_SECTION_RX = re.compile(
+    r"method|research design|data collection|data analysis|participants|sampl|procedure|instrument|"
+    r"search strategy|inclusion|screening|prisma|measures|analytical approach|limitations", re.I)
+
+HUMAN_COLS = ("human_verdict", "human_notes")
+
+
+def write_review_csv(path, header, rows, key="qa_id"):
+    """Write a review CSV, carrying over filled human_* columns from an existing file by key."""
+    old = {}
+    if path.exists():
+        with path.open(encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                if any(r.get(h, "").strip() for h in HUMAN_COLS):
+                    old[r[key]] = {h: r.get(h, "") for h in HUMAN_COLS}
+    with path.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=list(header) + list(HUMAN_COLS))
+        w.writeheader()
+        for r in rows:
+            w.writerow({**{h: "" for h in HUMAN_COLS}, **r, **old.get(r[key], {})})
+    return len(old)
