@@ -69,6 +69,10 @@ class Deferred(Exception):
     """Raised in collect mode for an uncached request (recorded for a batch)."""
 
 
+class Unavailable(Exception):
+    """Raised with LLM_OFFLINE=1 for an uncached request (budget cap reached: no more API calls)."""
+
+
 class BillingError(LLMError):
     """Credit balance or spend limit reached: stop the run cleanly."""
 
@@ -121,6 +125,13 @@ class LLM:
                 with self._lock, open(collect, "a", encoding="utf-8") as f:
                     f.write(json.dumps(rec, ensure_ascii=False) + "\n")
                 raise Deferred(key)
+        if os.environ.get("LLM_OFFLINE"):
+            mcfg = dict(self.cfg["models"][role])
+            if model:
+                mcfg["model"] = model
+            key = self._cache_key(mcfg, system, prompt, json_schema)
+            if not (self.cache_dir / f"{key}.json").exists():
+                raise Unavailable(key)
         try:
             return self._complete_standard(prompt, system, role, json_schema, model)
         except LLMError:
@@ -522,3 +533,84 @@ class BatchRunner:
                 except Exception as e:  # noqa: BLE001 - reported to caller
                     still.append({**futs[fut], "_why": f"standard retry: {type(e).__name__}: {e}"})
         return ok, still
+
+
+def batched_map(cfg, log, stage, fn, items, workers=8):
+    """Run fn(item) for every item with its uncached LLM calls sent as ONE Message Batch.
+
+    fn must make its LLM calls through LLM(cfg, <stage starting with `stage`>).complete(). Pass 1
+    runs fn in collect mode (calls are recorded, items deferred); the recorded requests go out as a
+    batch and are written into the cache; pass 2 runs fn normally (all cache hits) and returns
+    {index: result or Exception}. Only one dependency level: fn's calls must not depend on each
+    other's results (use full_run.py's rounds for multi-step stages)."""
+    import tempfile
+    from concurrent.futures import ThreadPoolExecutor
+
+    def run_all():
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            futs = {i: ex.submit(fn, it) for i, it in enumerate(items)}
+        out = {}
+        for i, f in futs.items():
+            try:
+                out[i] = f.result()
+            except Exception as e:  # noqa: BLE001 - returned per item
+                out[i] = e
+        return out
+
+    with tempfile.NamedTemporaryFile(suffix=".jsonl", delete=False) as tmp:
+        collect = tmp.name
+    prev = os.environ.get("LLM_COLLECT")
+    os.environ["LLM_COLLECT"] = collect
+    try:
+        run_all()
+    finally:
+        if prev is None:
+            os.environ.pop("LLM_COLLECT", None)
+        else:
+            os.environ["LLM_COLLECT"] = prev
+    recs = {}
+    with open(collect, encoding="utf-8") as f:
+        for line in f:
+            r = json.loads(line)
+            recs.setdefault(r["cache_key"], r)
+    os.unlink(collect)
+    if recs:
+        lcfg = cfg["llm"]
+        runner = BatchRunner(cfg, log)
+        for bid in runner.pending(stage):         # resume an interrupted earlier call
+            runner.poll(bid, interval_s=lcfg["batch_poll_s"], timeout_min=lcfg["batch_timeout_min"])
+            runner.collect(bid)
+        todo = [r for k, r in recs.items() if not (repo_path(lcfg["cache_dir"]) / f"{k}.json").exists()]
+        if todo:
+            bid = runner.submit_batch(todo, stage_prefix=stage)
+            runner.poll(bid, interval_s=lcfg["batch_poll_s"], timeout_min=lcfg["batch_timeout_min"])
+            ok, failed, billing = runner.collect(bid)
+            log.info(f"{stage}: batch {bid}: {ok} succeeded, {len(failed)} to retry via standard API")
+            if billing:
+                raise BillingError(f"billing error in batch {bid}")
+            if failed:
+                runner.retry_standard(failed, workers=lcfg["standard_workers"])
+    return run_all()
+
+
+DEFAULT_CALL_COST = {"claude-opus-5-5": 0.0065, "claude-sonnet-5-5": 0.003, "claude-haiku-4-5-20251001": 0.001}
+
+
+def estimate_cost(cfg, records, batch=True):
+    """Estimated USD for records: mean logged cost per call for the same stage+role (batch or not),
+    else the same model, else DEFAULT_CALL_COST."""
+    by_sr, by_model = {}, {}
+    path = repo_path(cfg["llm"]["usage_log"])
+    if path.exists():
+        for line in path.open(encoding="utf-8"):
+            u = json.loads(line)
+            if u["cached"] or bool(u.get("batch")) != batch:
+                continue
+            by_sr.setdefault((u["stage"], u["role"]), []).append(u["cost"])
+            by_model.setdefault(u["model"], []).append(u["cost"])
+    total = 0.0
+    for r in records:
+        c = by_sr.get((r["stage"], r["role"])) or by_model.get(r["mcfg"]["model"])
+        total += sum(c) / len(c) if c else DEFAULT_CALL_COST.get(r["mcfg"]["model"], 0.005)
+    return total
+

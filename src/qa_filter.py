@@ -30,7 +30,7 @@ from collections import Counter, defaultdict
 
 from pydantic import BaseModel, Field
 
-from llm import LLM, BillingError
+from llm import LLM, BillingError, Unavailable
 from qa_common import (banned_regex, citation_title, load_chunks, load_metadata, read_jsonl,
                        run_parallel, run_paths, write_review_csv)
 from qa_generate import regenerate_paraphrases, repair_pair, to_row
@@ -185,12 +185,19 @@ class Checker:
         info = {"initial_bad": len(bad), "regenerated": 0, "dropped": 0}
         if not bad:
             return good, info
-        new = regenerate_paraphrases(self.llm, self.cfg, p["question"], bad, len(bad)).parsed.paraphrases
+        try:
+            new = regenerate_paraphrases(self.llm, self.cfg, p["question"], bad, len(bad)).parsed.paraphrases
+        except Unavailable:                 # budget cap reached: drop the bad paraphrases
+            info.update(dropped=len(bad), skipped_budget=True)
+            return good, info
         new = [x.strip() for x in new if x.strip() and not self.banned.search(x)][:len(bad)]
         if new:
-            chk = self.llm.complete(PARA_PROMPT.format(question=p["question"], cands="\n".join(
-                f"{i + 1}. {x}" for i, x in enumerate(new))), PARA_SYSTEM, role="judge",
-                json_schema=ParaCheck).parsed.equivalent
+            try:
+                chk = self.llm.complete(PARA_PROMPT.format(question=p["question"], cands="\n".join(
+                    f"{i + 1}. {x}" for i, x in enumerate(new))), PARA_SYSTEM, role="judge",
+                    json_schema=ParaCheck).parsed.equivalent
+            except Unavailable:
+                chk = []                    # unchecked paraphrases are not kept
             kept = [x for x, ok in zip(new, chk + [False] * len(new)) if ok]
         else:
             kept = []
@@ -284,14 +291,22 @@ def main():
                             "Remove meta-text that refers to the evidence or quoted text." if scores.get("meta_text") else None,
                             "Rewrite the question so it is grammatical and natural." if "garbled_question" in repairable else None)
                 if x)
-            fixed = repair_pair(llm, cfg, g, units[g["chunk_id"]], reason)
+            try:
+                fixed = repair_pair(llm, cfg, g, units[g["chunk_id"]], reason)
+            except Unavailable:             # budget cap reached: keep the first-pass rejection
+                rec.update(final_fails=fails + ["repair_skipped_budget"], final_scores=scores)
+                return rec
             c = chunks[g["chunk_id"]]
             new = to_row(fixed.parsed, g["chunk_id"], int(g["qa_id"].rsplit("q", 1)[1]), c,
                          units[g["chunk_id"]], citation_title(meta[c["doc_id"]]), None, fixed.served_model)
             new["requested"] = g["requested"]
             if not new["unit_ids"]:            # repair cited no known unit: keep original evidence
                 new.update(evidence=g["evidence"], unit_ids=g["unit_ids"], citation=g["citation"])
-            f2, s2 = checker.check(new)
+            try:
+                f2, s2 = checker.check(new)
+            except Unavailable:
+                rec.update(final_fails=fails + ["repair_skipped_budget"], final_scores=scores)
+                return rec
             rec.update(pair=new, repair={"reason": reason, "fails_after": f2}, final_fails=f2, final_scores=s2)
         else:
             rec.update(final_fails=fails, final_scores=scores)

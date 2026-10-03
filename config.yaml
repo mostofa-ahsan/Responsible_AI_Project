@@ -117,7 +117,7 @@ split:
 train:
   output_dir: models/qwen3-8b-qlora
   max_seq_length: 1024
-  epochs: 3
+  epochs: 2                       # default 2 (1-3 allowed via --epochs)
   learning_rate: 2.0e-4
   per_device_batch_size: 4
   grad_accum: 4
@@ -126,6 +126,7 @@ train:
   lora_alpha: 32
   lora_dropout: 0.05
   target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+  seed: 42
   use_paraphrases: true           # each paraphrase becomes an extra training example with the same answer
   system_prompt: "You are an expert on responsible AI in higher education. Answer accurately and concisely."
 
@@ -186,6 +187,14 @@ llm:
   batch_poll_s: 60
   batch_timeout_min: 90           # cancel and finish via the standard API after this
   standard_workers: 8             # parallel workers for standard-API fallback/retries
+
+# Spend caps (USD, including batch discounts). full_run.py skips the remaining batch rounds and
+# finalizes offline if the next round would exceed its run cap; eval_closedbook.py grades a
+# stratified sample if grading would exceed its per-run share of eval_max_usd.
+budget:
+  run_max_usd: {full_v1: 170}
+  eval_max_usd: 45                # all eval grading (base + fine-tuned, all models)
+  eval_run_max_usd: 7.5           # per eval run = per split: base 2 x 7.5, fine-tuned 2 x 7.5 (eval_max_usd 30)
 
 # USD per million tokens (Anthropic first-party list prices; thinking tokens bill as output).
 pricing:
