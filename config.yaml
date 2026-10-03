@@ -136,6 +136,11 @@ models:
     effort: medium
     max_tokens: 8000
     fallbacks: default
+  judge_fast:
+    # Cheap first-tier judge for the full run (see qa.judge_strategy); no effort/fallbacks on Haiku 4.5.
+    provider: anthropic
+    model: claude-haiku-4-5-20251001
+    max_tokens: 4000
   closed_book_baseline:
     # TODO: the local open base model to be fine-tuned (Qwen/Qwen3-8B, thinking disabled), via vLLM/Ollama.
     provider: openai_compatible
@@ -149,6 +154,11 @@ llm:
   min_interval_s: 0.2             # spacing between request starts (simple rate limit)
   max_retries: 5                  # SDK retries on 429/5xx/connection errors (exponential backoff)
   validation_retries: 1           # re-ask once if the JSON fails schema validation
+  batch_dir: data/cache/batches   # request mappings per batch (custom_id -> request)
+  batch_discount: 0.5             # Message Batches bill at 50% of standard token prices
+  batch_poll_s: 60
+  batch_timeout_min: 90           # cancel and finish via the standard API after this
+  standard_workers: 8             # parallel workers for standard-API fallback/retries
 
 # USD per million tokens (Anthropic first-party list prices; thinking tokens bill as output).
 pricing:
@@ -176,6 +186,14 @@ qa:
       q_types: [factual, definition, explanation, application]
     pilot_v3:
       reuse_chunks_from: pilot_v2 # same 30 chunks as v2 (appendix/table chunks are now skipped)
+      q_types: [factual, definition, explanation, application]
+    # End-to-end test of the batch path on 10 chunks no pilot has touched (so nothing is cached).
+    batchtest:
+      select: {mode: mineable_ai, n: 10, seed: 5, exclude_runs: [pilot, pilot_v2, pilot_v3]}
+      q_types: [factual, definition, explanation, application]
+    # Full single-chunk run: every mineable chunk with AI content (ai_score > 0).
+    full_v1:
+      select: {mode: mineable_ai}
       q_types: [factual, definition, explanation, application]
   questions_per_chunk: 5
   # Spec mix with application raised to 15 and factual lowered to 20; only the enabled types

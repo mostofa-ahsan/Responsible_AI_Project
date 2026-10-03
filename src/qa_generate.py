@@ -19,6 +19,7 @@ Usage:
 """
 
 import argparse
+import sys
 import json
 import math
 import random
@@ -27,7 +28,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from llm import LLM
+from llm import LLM, BillingError
 from qa_common import (append_jsonl, citation_title, load_chunks, load_metadata, read_jsonl,
                        run_parallel, run_paths, select_run)
 from utils import Report, get_logger, load_config
@@ -302,4 +303,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except BillingError as e:
+        print(f"BILLING ERROR, stopping: {e}", file=sys.stderr)
+        sys.exit(3)

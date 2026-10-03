@@ -108,7 +108,12 @@ def run_parallel(fn, items, max_workers, log):
             try:
                 yield it, fut.result()
             except Exception as e:  # noqa: BLE001 - logged and reported per item
-                log.error(f"{it}: {type(e).__name__}: {e}")
+                if type(e).__name__ == "Deferred":
+                    log.debug(f"{it}: deferred to batch")
+                elif type(e).__name__ == "BillingError":
+                    raise
+                else:
+                    log.error(f"{it}: {type(e).__name__}: {e}")
                 yield it, e
 
 
@@ -133,6 +138,22 @@ def select_run(cfg, run, chunks, log):
     if run == "pilot":
         docs, ids = select_pilot(cfg, chunks, log)
         sel = {"docs": docs, "chunk_ids": ids, "origin": {i: "pilot" for i in ids}}
+    elif "select" in rcfg:
+        sc = rcfg["select"]
+        if sc["mode"] != "mineable_ai":
+            raise ValueError(f"unknown selection mode {sc['mode']}")
+        excluded = set()
+        for other in sc.get("exclude_runs", []):
+            op = run_paths(cfg, other)["chunks"]
+            if op.exists():
+                excluded |= set(json.loads(op.read_text())["chunk_ids"])
+        ids = sorted(c["chunk_id"] for c in chunks.values()
+                     if c["mine"] and c.get("ai_score") and c["chunk_id"] not in excluded)
+        if sc.get("n"):
+            ids = sorted(random.Random(sc.get("seed", 0)).sample(ids, sc["n"]))
+        docs = sorted({chunks[i]["doc_id"] for i in ids})
+        sel = {"docs": docs, "chunk_ids": ids, "origin": {i: run for i in ids}}
+        log.info(f"{run}: selected {len(ids)} mineable AI-content chunks from {len(docs)} docs")
     else:
         base = select_run(cfg, rcfg["reuse_chunks_from"], chunks, log)
         ids = list(base["chunk_ids"])

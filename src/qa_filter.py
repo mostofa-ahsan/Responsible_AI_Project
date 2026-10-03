@@ -22,6 +22,7 @@ Usage:
 """
 
 import argparse
+import sys
 import json
 import random
 import re
@@ -29,7 +30,7 @@ from collections import Counter, defaultdict
 
 from pydantic import BaseModel, Field
 
-from llm import LLM
+from llm import LLM, BillingError
 from qa_common import (banned_regex, citation_title, load_chunks, load_metadata, read_jsonl,
                        run_parallel, run_paths, write_review_csv)
 from qa_generate import regenerate_paraphrases, repair_pair, to_row
@@ -524,4 +525,8 @@ def report(rows, cfg, args, llm, dedup_removed, paths):
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except BillingError as e:
+        print(f"BILLING ERROR, stopping: {e}", file=sys.stderr)
+        sys.exit(3)
