@@ -50,6 +50,12 @@ python src/qa_filter.py --run pilot_v2     # stage 3: prefilter + Opus judge + r
 python src/qa_agreement.py --run pilot_v2  # human_verdict vs filters (kappa, disagreements)
 python src/retrieval_study.py        # recall@k for dense/BM25/hybrid/rerank on passed questions
 python src/density_llm.py            # Haiku scores the borderline density band (report only)
+python src/judge_compare.py          # candidate judge (Haiku) vs Opus on a run's judged pairs
+python src/full_run.py --run full_v1           # full QA run via Message Batches (run inside tmux)
+python src/full_run.py --run full_v1 --status  # stage, batch status, items, spend, ETA
+python src/split.py --run full_v1              # train/val/test_indomain/test_heldout_docs
+python src/train_qlora.py --dry-run            # CPU: build + tokenize training data, no model load
+python src/eval_closedbook.py --dry-run --limit 3
 python -m pytest tests -q            # all tests
 python -m pytest tests/test_parse.py -k bibliography   # single test
 python src/audit_hyphenation.py      # list suspicious line-break joins (logs/hyphenation_audit_report.txt)
@@ -120,4 +126,11 @@ QA mining (`src/llm.py`, `src/qa_*.py`, spec in `docs/qa_pipeline_spec.md`):
 - `answer` never contains a citation. `citation` is `{title, pages}` from the evidence pages, and training formats decide whether to append it.
 - The review CSV keeps filled `human_verdict`/`human_notes` when it is rewritten (`qa_common.write_review_csv`). Never write it any other way.
 - The judge (`claude-opus-5-5`) is the same family as the generator (`claude-sonnet-5-5`). Repaired pairs are re-judged by the same judge, so treat repaired passes with extra suspicion when reviewing.
+
+Batch runs (`src/full_run.py`, `llm.BatchRunner`):
+- With `LLM_COLLECT=<file>`, `LLM.complete()` records each uncached request and raises `Deferred` instead of calling the API. `full_run.py` runs each stage script in collect mode, sends the recorded requests as ONE Message Batch, and writes each result into the normal cache (same key) and `llm_usage.jsonl` (with `"batch": true`, at 50%). It then re-runs the stage. A stage is done when a collect pass records nothing; a final normal pass (all cache hits) writes the outputs.
+- Batch request mappings live in `data/cache/batches/<batch_id>.json` (`custom_id` -> request, `collected` flag). On restart, uncollected batches are polled and collected before anything new is submitted, so a crash never pays twice. Just re-run the same command.
+- After `llm.batch_timeout_min` a batch is cancelled. Unfinished, errored, expired, refused or schema-invalid results get one standard-API retry. Billing or spend-limit errors exit with code 3 and the state saved.
+- Refusal fallbacks (`fallbacks: default`) only apply on the standard path; the Batches API rejects that parameter.
+- Two 4B models (embedder and reranker) on the 24 GB GPU at once thrash WSL memory and stall both jobs. Run GPU steps (retrieval study, the filter's dedup, training, eval) one at a time.
 

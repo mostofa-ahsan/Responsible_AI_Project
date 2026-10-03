@@ -1,5 +1,8 @@
 """Build a human-review workbook (Instructions / Review / Agreement) for a QA run.
 
+--layout v3 writes only a stratified random sample (--n-passed passed pairs over q_type x
+dimension, --n-rejected rejected pairs over reject reason), shuffled, 40 of them marked priority.
+
 The Review sheet lists every pair of data/qa_pairs/<run>.jsonl with dropdowns for
 human_verdict (accept/reject) and reject_category; a stratified priority sample comes first
 (priority = TRUE, highlighted): repaired pairs that passed, some rejected pairs, and passed
@@ -208,7 +211,7 @@ def build(rows, priority, out, run, counts):
         ("B3", f'=COUNTIFS({P},TRUE,{V},"accept")+COUNTIFS({P},TRUE,{V},"reject")', False),
         ("A4", "Human accept rate", False), ("B4", f'=IFERROR(COUNTIF({V},"accept")/B2,"")', False),
         ("A5", "Human accept rate among filter-passed pairs", False),
-        ("B5", f'=IFERROR(B9/(B9+C9),"")', False),
+        ("B5", '=IFERROR(B9/(B9+C9),"")', False),
         ("A6", "Human accept rate among repaired pairs that passed", False),
         ("B6", f'=IFERROR(COUNTIFS({R},TRUE,{F},TRUE,{V},"accept")/(COUNTIFS({R},TRUE,{F},TRUE,{V},"accept")'
                f'+COUNTIFS({R},TRUE,{F},TRUE,{V},"reject")),"")', False),
@@ -244,10 +247,19 @@ def main():
     ap.add_argument("--out")
     ap.add_argument("--n-priority", type=int, default=40)
     ap.add_argument("--n-repaired", type=int, default=10)
-    ap.add_argument("--n-rejected", type=int, default=4)
+    ap.add_argument("--n-rejected", type=int, default=None,
+                    help="rejected pairs: in the priority rows (v2, default 4) or in the sample (v3, default 30)")
     ap.add_argument("--seed", type=int, default=7)
+    ap.add_argument("--layout", choices=["v2", "v3"], default="v2",
+                    help="v2: all pairs, stratified priority rows first; v3: random stratified sample only")
+    ap.add_argument("--n-passed", type=int, default=100, help="v3: passed pairs in the sample")
     args = ap.parse_args()
     cfg = load_config()
+    if args.layout == "v3":
+        args.n_rejected = 30 if args.n_rejected is None else args.n_rejected
+        main_v3(args, cfg)
+        return
+    args.n_rejected = 4 if args.n_rejected is None else args.n_rejected
     rows = read_jsonl(run_paths(cfg, args.run)["final"])
     priority = stratified_priority(rows, args.n_priority, args.n_repaired, args.n_rejected, args.seed)
     out = repo_path(args.out) if args.out else repo_path(cfg["paths"]["qa_pairs"]) / \
@@ -256,6 +268,178 @@ def main():
     print(f"wrote {out}: {len(rows)} rows, {len(priority)} priority "
           f"({sum(bool(r['repair']) and r['passed_filters'] for r in priority)} repaired-passed, "
           f"{sum(not r['passed_filters'] for r in priority)} rejected)")
+
+
+
+# --- v3 layout: random stratified review sample (used for full runs) -----------------------------
+COLUMNS_V3 = [
+    ("#", 5, None), ("priority", 9, None), ("human_verdict", 14, None), ("reject_category", 18, None),
+    ("human_notes", 30, None),
+    ("question", 45, lambda r: r["question"]),
+    ("answer", 55, lambda r: r["answer"]),
+    ("evidence", 60, lambda r: r["evidence"]),
+    ("citation", 22, lambda r: citation_text(r["citation"])),
+    ("passed_filters", 10, lambda r: r["passed_filters"]),
+    ("repaired", 10, lambda r: bool(r["repair"])),
+    ("reject_reason", 20, lambda r: r["reject_reason"]),
+    ("q_type", 12, lambda r: r["q_type"]),
+    ("difficulty", 10, lambda r: r["difficulty"]),
+    ("dimension", 18, lambda r: r["dimension"]),
+    ("grounding", 10, lambda r: r["judge_scores"].get("grounding")),
+    ("value", 8, lambda r: r["judge_scores"].get("value")),
+    ("judge_rationale", 45, lambda r: " | ".join(x for x in (
+        r["judge_scores"].get("grounding_rationale"), r["judge_scores"].get("standalone_rationale"),
+        f"value: {r['judge_scores']['value_rationale']}" if r["judge_scores"].get("value_rationale") else None) if x)),
+    ("paraphrase_1", 35, lambda r: (r["paraphrases"] + ["", ""])[0]),
+    ("paraphrase_2", 35, lambda r: (r["paraphrases"] + ["", ""])[1]),
+    ("origin", 18, lambda r: r.get("origin") or ""),
+    ("qa_id", 40, lambda r: r["qa_id"]),
+]
+
+
+def stratified_sample(rows, n, key, rng):
+    """Proportional allocation over strata (largest remainder, at least one per stratum while
+    n allows), random within each stratum."""
+    strata = defaultdict(list)
+    for r in rows:
+        strata[key(r)].append(r)
+    n = min(n, len(rows))
+    raw = {k: n * len(v) / len(rows) for k, v in strata.items()}
+    alloc = {k: int(x) for k, x in raw.items()}
+    for k in sorted(raw, key=lambda k: raw[k] - alloc[k], reverse=True)[:n - sum(alloc.values())]:
+        alloc[k] += 1
+    out = []
+    for k, v in strata.items():
+        out += rng.sample(v, min(alloc[k], len(v)))
+    return out
+
+
+def build_v3(sample, n_passed, n_rejected, priority_ids, out, run):
+    """Write the review workbook with the sample rows in the given order."""
+    cols = COLUMNS_V3
+    wb = Workbook()
+    ins = wb.active
+    ins.title = "Instructions"
+    ins.column_dimensions["A"].width = 110
+    lines = [
+        (f"{run} QA review", True), ("", False), ("What to do", True),
+        (f"1. The Review sheet has a stratified random sample of {n_passed} pairs that passed the filters "
+         f"(spread over question type and dimension) and {n_rejected} rejected pairs (spread over reject "
+         f"reason), shuffled together. Review all {len(sample)} if you can; if short on time, do the "
+         f"{len(priority_ids)} rows marked priority = TRUE (shaded) first.", False),
+        ("2. Pick accept or reject in human_verdict (yellow, dropdown). If rejecting, pick a reject_category and add "
+         "a short note.", False),
+        ("3. Judge the answer text only; the citation is in its own column. repaired = TRUE means the first version "
+         "failed a check and was rewritten once, then re-judged by the same judge.", False),
+        ("4. The Agreement sheet updates automatically: your accept rate and how often you agree with the automatic "
+         "filters.", False),
+        ("", False), ("Accept a pair only if all three are true", True),
+        ("Correct: the answer is fully supported by the evidence, with nothing added.", False),
+        ("Standalone: the question makes sense to someone who has never seen the source.", False),
+        ("Worth learning: it is about the domain (responsible AI, higher education), not trivia, study methodology "
+         "or bibliography. A circular answer (it only restates the question) is not worth learning.", False),
+        ("", False), ("Reject categories", True),
+        ("incorrect - answer contradicts or misreads the evidence", False),
+        ("unsupported - answer adds claims the evidence does not make", False),
+        ('not_standalone - question depends on unseen context ("the study", "what example is given")', False),
+        ("low_value - trivial, methodology, bibliographic or appendix detail, or a circular answer", False),
+        ("unclear - ambiguous, garbled, contrived or self-answering question", False),
+        ("other - e.g. duplicate; explain in human_notes", False),
+        ("", False), ("When done", True),
+        (f"Save (keep .xlsx), copy into the project as data/qa_pairs/{run}_review_reviewed.xlsx, and ask Claude Code "
+         "to merge human_verdict, reject_category and human_notes by qa_id (sheet \"Review\"). Check that the "
+         "Agreement sheet shows your rows as reviewed before saving.", False),
+    ]
+    for i, (text, bold) in enumerate(lines, 1):
+        c = ins.cell(row=i, column=1, value=text or None)
+        c.font = Font(bold=bold, size=13 if i == 1 else 11)
+        c.alignment = Alignment(wrap_text=True, vertical="top")
+
+    ws = wb.create_sheet("Review")
+    for j, (name, width, _) in enumerate(cols, 1):
+        c = ws.cell(row=1, column=j, value=name)
+        c.fill = HEADER_FILL
+        c.font = Font(bold=True, color="FFFFFFFF")
+        c.alignment = Alignment(wrap_text=True, vertical="center")
+        ws.column_dimensions[c.column_letter].width = width
+    ws.row_dimensions[1].height = 30
+    for i, r in enumerate(sample, 2):
+        values = [i - 1, r["qa_id"] in priority_ids, None, None, None] + [g(r) for _, _, g in cols[5:]]
+        for j, v in enumerate(values, 1):
+            ws.cell(row=i, column=j, value=v).alignment = Alignment(wrap_text=True, vertical="top")
+        ws.cell(row=i, column=3).fill = VERDICT_FILL
+        ws.cell(row=i, column=4).fill = VERDICT_FILL
+    last = len(sample) + 1
+    dv1 = DataValidation(type="list", formula1='"accept,reject"', allow_blank=True)
+    dv2 = DataValidation(type="list", formula1=f'"{",".join(CATEGORIES)}"', allow_blank=True)
+    ws.add_data_validation(dv1)
+    ws.add_data_validation(dv2)
+    dv1.add(f"C2:C{last}")
+    dv2.add(f"D2:D{last}")
+    ws.conditional_formatting.add(f"C2:C{last}", FormulaRule(formula=['$C2="accept"'],
+                                  fill=PatternFill("solid", fgColor="FFC6EFCE")))
+    ws.conditional_formatting.add(f"C2:C{last}", FormulaRule(formula=['$C2="reject"'],
+                                  fill=PatternFill("solid", fgColor="FFFFC7CE")))
+    ws.conditional_formatting.add(f"A2:B{last}", FormulaRule(formula=["$B2=TRUE"],
+                                  fill=PatternFill("solid", fgColor="FFDDEBF7")))
+    ws.freeze_panes = "F2"
+    from openpyxl.utils import get_column_letter
+    ws.auto_filter.ref = f"A1:{get_column_letter(len(cols))}{last}"
+
+    ag = wb.create_sheet("Agreement")
+    ag.column_dimensions["A"].width = 58
+    ag.column_dimensions["B"].width = 16
+    ag.column_dimensions["C"].width = 16
+    pf = get_column_letter([c[0] for c in cols].index("passed_filters") + 1)
+    V, P, F, D = (f"Review!${c}$2:${c}${last}" for c in ("C", "B", pf, "D"))
+    cells = [
+        ("A1", "Review progress", True), ("A2", "Rows reviewed", False),
+        ("B2", f'=COUNTIF({V},"accept")+COUNTIF({V},"reject")', False),
+        ("A3", f"Priority rows reviewed (of {len(priority_ids)})", False),
+        ("B3", f'=COUNTIFS({P},TRUE,{V},"accept")+COUNTIFS({P},TRUE,{V},"reject")', False),
+        ("A4", "Human accept rate among filter-passed pairs", False), ("B4", '=IFERROR(B8/(B8+C8),"")', False),
+        ("A6", "You vs automatic filters (reviewed rows)", True), ("B7", "Human accept", True), ("C7", "Human reject", True),
+        ("A8", "Filters passed", False), ("B8", f'=COUNTIFS({F},TRUE,{V},"accept")', False),
+        ("C8", f'=COUNTIFS({F},TRUE,{V},"reject")', False),
+        ("A9", "Filters rejected", False), ("B9", f'=COUNTIFS({F},FALSE,{V},"accept")', False),
+        ("C9", f'=COUNTIFS({F},FALSE,{V},"reject")', False),
+        ("A10", "Observed agreement", False), ("B10", '=IFERROR((B8+C9)/(B8+C8+B9+C9),"")', False),
+        ("A11", "Cohen's kappa", False),
+        ("B11", '=IFERROR(((B8+C9)/(B8+C8+B9+C9)-((B8+C8)*(B8+B9)+(B9+C9)*(C8+C9))/(B8+C8+B9+C9)^2)'
+                '/(1-((B8+C8)*(B8+B9)+(B9+C9)*(C8+C9))/(B8+C8+B9+C9)^2),"")', False),
+        ("A13", "Your reject categories", True),
+    ]
+    for i, cat in enumerate(CATEGORIES):
+        cells += [(f"A{14 + i}", cat, False), (f"B{14 + i}", f'=COUNTIF({D},"{cat}")', False)]
+    cells.append((f"A{15 + len(CATEGORIES)}", "Kappa above ~0.6 = the judge broadly matches your standard. The "
+                  f"sample over-represents rejected pairs ({n_rejected} of {len(sample)}), so read accept "
+                  "rates per group, not overall.", False))
+    for coord, val, bold in cells:
+        ag[coord] = val
+        ag[coord].font = Font(bold=bold)
+        ag[coord].alignment = Alignment(wrap_text=coord.startswith("A"), vertical="top")
+    for coord in ("B4", "B10"):
+        ag[coord].number_format = "0%"
+    ag["B11"].number_format = "0.00"
+    wb.save(out)
+
+
+def main_v3(args, cfg):
+    rows = read_jsonl(run_paths(cfg, args.run)["final"])
+    rng = random.Random(args.seed)
+    passed = [r for r in rows if r["passed_filters"]]
+    rejected = [r for r in rows if not r["passed_filters"]]
+    ps = stratified_sample(passed, args.n_passed, lambda r: (r["q_type"], r["dimension"]), rng)
+    rs = stratified_sample(rejected, args.n_rejected, lambda r: r["reject_reason"].split("(")[0].split(";")[0], rng)
+    pri = {r["qa_id"] for r in rng.sample(ps, min(30, len(ps)))} | {r["qa_id"] for r in rng.sample(rs, min(10, len(rs)))}
+    sample = ps + rs
+    rng.shuffle(sample)
+    out = repo_path(args.out) if args.out else repo_path(cfg["paths"]["qa_pairs"]) / f"{args.run}_review.xlsx"
+    build_v3(sample, len(ps), len(rs), pri, out, args.run)
+    from collections import Counter
+    print(f"wrote {out}: {len(ps)} passed + {len(rs)} rejected, {len(pri)} priority; "
+          f"q_type {dict(Counter(r['q_type'] for r in ps))}; reject reasons "
+          f"{dict(Counter(r['reject_reason'].split('(')[0].split(';')[0] for r in rs))}")
 
 
 if __name__ == "__main__":

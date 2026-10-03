@@ -106,6 +106,33 @@ dimensions:
     procurement_technology: [procurement, vendor, vendors, licensing, license, licence, infrastructure, platform, platforms, lms, learning management system, cloud, interoperability, technical support, it department, enterprise tools]
     monitoring_improvement: [monitoring, monitor, continuous improvement, evaluation, metrics, indicators, kpi, kpis, benchmark, benchmarking, maturity, readiness assessment, audit, auditing, impact assessment, feedback loop]
 
+split:
+  heldout_pair_share: 0.12        # target share of pairs in test_heldout_docs (whole documents held out)
+  min_heldout_docs: 10
+  max_heldout_docs: 15
+  val_share: 0.05                 # of the remaining chunks
+  test_indomain_share: 0.10       # of the remaining chunks
+  seed: 42
+
+train:
+  output_dir: models/qwen3-8b-qlora
+  max_seq_length: 1024
+  epochs: 3
+  learning_rate: 2.0e-4
+  per_device_batch_size: 4
+  grad_accum: 4
+  warmup_ratio: 0.03
+  lora_r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+  use_paraphrases: true           # each paraphrase becomes an extra training example with the same answer
+  system_prompt: "You are an expert on responsible AI in higher education. Answer accurately and concisely."
+
+eval:
+  output_dir: eval
+  max_new_tokens: 512
+
 embed:
   model: Qwen/Qwen3-Embedding-4B
   dtype: bfloat16

@@ -11,3 +11,11 @@ numpy
 pymupdf
 pyyaml
 pytest
+openpyxl
+bm25s
+PyStemmer
+peft
+trl
+bitsandbytes
+datasets
+accelerate
