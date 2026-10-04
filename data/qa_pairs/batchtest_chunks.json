@@ -1,0 +1,37 @@
+{
+  "docs": [
+    "ai-and-digital-transformation",
+    "ai-and-security-in-china-s-higher-education",
+    "ai-roles",
+    "artificial-intelligence-and-higher-education",
+    "cecilia-ka-yuk-chan-2024-generative-ai-in",
+    "conceptualizing-pre-service-teachers-readiness",
+    "higher-education-in-arab",
+    "pedagogical-considerations-in-the-automation",
+    "teaching-the-teachers-a-systematic-review-of"
+  ],
+  "chunk_ids": [
+    "ai-and-digital-transformation:0185",
+    "ai-and-security-in-china-s-higher-education:0057",
+    "ai-roles:0195",
+    "artificial-intelligence-and-higher-education:0040",
+    "cecilia-ka-yuk-chan-2024-generative-ai-in:0133",
+    "conceptualizing-pre-service-teachers-readiness:0001",
+    "higher-education-in-arab:0097",
+    "higher-education-in-arab:0228",
+    "pedagogical-considerations-in-the-automation:0019",
+    "teaching-the-teachers-a-systematic-review-of:0002"
+  ],
+  "origin": {
+    "ai-and-digital-transformation:0185": "batchtest",
+    "ai-and-security-in-china-s-higher-education:0057": "batchtest",
+    "ai-roles:0195": "batchtest",
+    "artificial-intelligence-and-higher-education:0040": "batchtest",
+    "cecilia-ka-yuk-chan-2024-generative-ai-in:0133": "batchtest",
+    "conceptualizing-pre-service-teachers-readiness:0001": "batchtest",
+    "higher-education-in-arab:0097": "batchtest",
+    "higher-education-in-arab:0228": "batchtest",
+    "pedagogical-considerations-in-the-automation:0019": "batchtest",
+    "teaching-the-teachers-a-systematic-review-of:0002": "batchtest"
+  }
+}

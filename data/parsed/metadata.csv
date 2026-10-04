@@ -1,0 +1,101 @@
+doc_id,folder,title,authors,year,title_source,author_source,year_source,flags
+ai-frameworks,book,AI Frameworks Enabled by Blockchain,Vikram Dhillon David Metcalf Max Hooper,2025,metadata,text,text,authors_from_text_heuristic
+ai-roles,book,AI Roles and Responsibilities in Education,Jingdong Chen,2025,metadata,text,text,authors_from_text_heuristic
+ai-and-digital-transformation,book,"AI and Digital Transformation: Opportunities, Challenges, and Emerging Threats in Technology, Business, and Security",,2026,metadata,,text,authors_missing
+ai-and-security-in-china-s-higher-education,book,AI and Security in China’s Higher Education,Xiaoshu Xu,2026,font,metadata,text,
+artificial-intelligence-bceaf5,book,"Artificial Intelligence in Education. Posters and Late Breaking Results, Workshops and Tutorials, Industry and Innovation Tracks, Practitioners, Doctoral Consortium and Blue Sky",Andrew M. Olney,2024,metadata,metadata,text,
+artificial-intelligence-and-accounting-education,book,"Artificial Intelligence and Accounting Education; Policy, Practice and Research",Md Jahidur Rahman,2027,metadata,metadata,text,future_year
+artificial-intelligence-and-higher-education,book,Artificial Intelligence and Higher Education; The Impact of AI on Business Students Learning,Katerina Beta,2026,metadata,metadata,text,
+artificial-intelligence-20ab93,book,Artificial Intelligence and Machine Learning for Digital Pathology,Andreas Holzinger,2020,metadata,metadata,text,
+budd-l-hall-rajesh-2021-socially-responsible,book,Socially Responsible Higher Education,Budd L. Hall · Rajesh Tandon (eds.),2021,font,manual,filename,
+building-responsible-ai,book,Building Responsible AI Algorithms,Toju Duke,2023,metadata,text,text,authors_from_text_heuristic
+cecilia-ka-yuk-chan-2024-generative-ai-in,book,Generative AI in Higher Education; The ChatGPT Effect,Cecilia Ka Yuk Chan,2024,metadata,metadata,filename,
+daniel-araya-peter-2023-augmented-education-in,book,Augmented Education in the Global Age; Artificial Intelligence and the Future of Learning and Work,Daniel Araya,2023,metadata,metadata,filename,
+embracing-chatbots-in-higher-education,book,"Embracing Chatbots in Higher Education; The Use of Artificial Intelligence in Teaching, Administration, and Scholarship",Alexander M. Sidorkin,2024,metadata,metadata,text,
+ethical-and-legal-dilemmas,book,Ethical and Legal Dilemmas of Artificial Intelligence in Latin America,,2025,metadata,,text,authors_missing
+generative-ai-in-higher-education-64e6b1,book,Generative AI in Higher Education Innovation Strategies for Teaching and Learning,Adebowale Owoseni · Oluwaseun Kolade · Abiodun Egbetokun,2024,font,metadata,text,
+higher-education-in-arab,book,Higher Education in the Arab World,Adnan Badran · Elias Baydoun · Sandra Hillman · Joelle Mesmar,2026,metadata,metadata,text,
+innovative-educational,book,"Innovative Educational Assessment with Generative AI: Opportunities, Challenges, and Practical Case Studies",Ashok Vaseashta,2026,metadata,text,text,authors_from_text_heuristic
+introduction-to-responsible-ai,book,Introduction to Responsible AI,Avinash Manure,2023,font,text,text,authors_from_text_heuristic
+john-preston-2022-artificial-intelligence-in,book,"Artificial Intelligence in the Capitalist University; Academic Labour, Commodification, and Value",John Preston,2022,metadata,metadata,filename,
+leadership-management-and-ai,book,"Leadership, Management and AI",Amanpreet Singh Chopra and Sridhar Manohar,2026,font,metadata,text,
+leveraging-genai,book,Leveraging Gen AI for Machine Learning Education in Public Health,,2025,metadata,,text,authors_missing
+postdigital,book,Postdigital Education for Development,Sarah Hayes,2025,metadata,text,text,authors_from_text_heuristic
+responsible-ai-in-practice,book,Responsible AI in Practice,Toju Duke Paolo Giudici,2025,font,text,text,authors_from_text_heuristic
+responsible-ai-f6c5e0,book,Responsible Artificial Intelligence,Chaminda Hewage · Nishtha Kesswani · A. M. Khan · B. H. Shekar,2025,metadata,metadata,text,
+responsible-ai-16f1bf,book,Responsible AI,Sray Agarwal Shashin Mishra,2021,font,text,text,authors_from_text_heuristic
+responsible-ai-in-the-enterprise-practical-ai,book,Responsible AI in the Enterprise,,2023,font,,text,authors_missing
+the-future-of-responsible-management-education,book,The Future of Responsible Management Education,Christian Hauser · Wolfgang Amann,2023,font,text,text,authors_from_text_heuristic
+towards-ethical,book,Towards Ethical and Socially Responsible Explainable AI,Mohammad Amir Khusru Akhtar · Mohit Kumar · Anand Nayyar,2024,metadata,manual,text,
+voicing-responsible-ai,book,Voicing Responsible AI Pedagogy for Music and Visual Arts Education,,2025,metadata,,text,authors_missing
+bulk-download-chapter-1-focusing-on-ai-ethics,book,AI Horizons: Chapter 1 Focusing on AI Ethics and Social Impact,,2024,doc_group,,doc_group,authors_missing
+bulk-download-chapter-2-ai-applications-and,book,AI Horizons: Chapter 2 AI Applications and Real-World Case Studies,,2024,doc_group,,doc_group,authors_missing
+bulk-download-chapter-3-ai-in-emerging-markets,book,AI Horizons: Chapter 3 AI in Emerging Markets,,2024,doc_group,,doc_group,authors_missing
+bulk-download-chapter-4-the-human-ai-partnership,book,AI Horizons: Chapter 4 The Human-AI Partnership,,2024,doc_group,,doc_group,authors_missing
+bulk-download-chapter-5-ai-governance-and-policy,book,AI Horizons: Chapter 5 AI Governance and Policy,,2024,doc_group,,doc_group,authors_missing
+bulk-download-chapter-6-public-perception,book,AI Horizons: Chapter 6 Public Perception- Acceptance- and Literacy of AI,,2024,doc_group,,doc_group,authors_missing
+bulk-download-contents,book,AI Horizons: Contents,,2024,doc_group,,doc_group,authors_missing
+bulk-download-frontmatter,book,AI Horizons: Frontmatter,,2024,doc_group,,text,authors_missing
+bulk-download-introduction,book,AI Horizons: Introduction,,2024,doc_group,,doc_group,authors_missing
+bulk-download-preface,book,AI Horizons: Preface,,2024,doc_group,,doc_group,authors_missing
+a-cross-national-assessment-of-artificial,article,A cross-national assessment of artificial intelligence (AI) Chatbot user perceptions in collegiate physics education,Benjamin Agyare,2025,metadata,metadata,text,
+a-roadmap-to-implement-metaverse-in-education,article,A roadmap to implement Metaverse in education field based on ADDIE model: A systematic review,Yu Shi,2026,metadata,metadata,text,
+a-systematic-review-of-ai-driven-business-models,article,A systematic review of AI-driven business models for advancing Sustainable Development Goals,MD. Azam Khan,2025,metadata,metadata,text,
+a-systematic-review-of-artificial-intelligence,article,A systematic review of artificial intelligence applications in education: Emerging trends and challenges,Tomás Matos; Walter Santos; Eftim Zdravevski; Paulo Jorge Coelho; Ivan Miguel Pires; Filipe Madeira,2025,text,text,text,title_from_text_heuristic;authors_from_text_heuristic
+ai-literacy-and-dependence-in-the-21st-century,article,AI Literacy and Dependence in the 21 st -Century Formation of Future Educators,Alexandhrea Hiedie Dumagay; Keir A. Balasa; Kharylle Schyaneid T. Kenoh; Dolores O. San Juan; Keith Alvin S. Solamillo; Bernadeth Abequibel Encarnacion; Anthony I O. Pil; Nuriza P. Jalani; Jay Rodel C. Serdenia; Ericson O. Alieto,2026,text,text,text,title_from_text_heuristic;authors_from_text_heuristic
+ai-in-education-sustainability-and-the-future,article,"AI in education, sustainability, and the future of work: An integrative review of industry 5.0, education 5.0, and work 5.0",Bianca Ifeoma Chigbu,2025,metadata,metadata,text,
+ai-in-higher-education-a-bibliometric-analysis,article,"AI in higher education: A bibliometric analysis, synthesis, and a critique of research ☆",Ahmed Lachheb,2025,font,metadata,text,
+ai-integration-in-mathematics-education,article,AI integration in mathematics education: A systematic review of implementation challenges and pedagogical implications (2017-2025),Anjie Manto,2026,metadata,metadata,text,
+ai-literacy-interventions-in-education,article,AI literacy interventions in education: A meta-analysis of effects and moderators,Suya Liu,2026,metadata,metadata,text,
+ai-enabled-assessment-in-higher-education,article,AI-enabled assessment in higher education: Institutional culture and student meta-skill readiness across university tiers,Chi Che,2026,metadata,metadata,text,
+an-exploratory-machine-learning-approach-to,article,An exploratory machine learning approach to understanding determinants of future ChatGPT use in higher education,Chaman Verma,2026,metadata,metadata,text,
+artificial-intelligence-in-cybersecurity-and,article,Artificial intelligence in cybersecurity and education: A bibliometric review of emerging trends and research frontiers,Rafiqul Islam,2026,metadata,metadata,text,
+artificial-intelligence-in-education,article,Artificial intelligence in education: A systematic literature review,Shan Wang,2024,metadata,metadata,text,
+artificial-intelligence-readiness-in-management,article,Artificial intelligence readiness in management education: Scale development and validation,I-Ying Wang,2026,metadata,metadata,text,
+assessing-the-maturity-of-generative-ai-systems,article,"24 th International Conference on Modelling and Applied Simulation (MAS 2025), held within the 22 nd International Multidisciplinary Modeling & Simulation Multiconference (I3M 2025) Assessing the Maturity of Generative AI Systems: A Framework for Education and Public Engagement",Mizna Rehman; Kartikee Awasare,2025,text,text,text,title_from_text_heuristic;authors_from_text_heuristic
+be-aiware-an-ai-competency-model-for-k-12,article,Be AIware! An AI Competency Model for K-12 Education,Lana Sattelmaier,2025,font,metadata,text,
+comparative-analysis-of-artificial-intelligence,article,Comparative Analysis of Artificial Intelligence Anxiety among Preservice and In-service Teachers: The Role of Gender and Internet Reliability,Keir A. Balasa; Alexandhrea Hiedie Dumagay; Anthony I O. Pil; Joel M. Torres; Emily T. Astrero; Leila M. Collantes; Dyna L. Idris; Charie Ann T. Alimpos; Criselda D. R. Ricohermoso; Eduard M. Riparip; Ericson O. Alieto; Richard M. Rillo; Manuel R. Tanpoco,2026,text,text,text,title_from_text_heuristic;authors_from_text_heuristic
+conceptualizing-pre-service-teachers-readiness,article,Conceptualizing pre-service teachers' readiness for AI integration into teaching practices: An intelligent-TPACK approach,José Reyes-Rojas,2025,metadata,metadata,text,
+decoding-ai-ethics-from-users-lens-in-education,article,Decoding AI ethics from Users' lens in education: A systematic review,Qin An,2024,metadata,metadata,text,
+developing-teacher-ai-competence,article,"Developing teacher AI competence: A systematic review of beliefs, professional learning, and cultural factors",Xinyan Zhou,2026,metadata,metadata,text,
+digital-transformation-in-the-management-of,article,Digital transformation in the management of higher education institutions,Jose Ermeson Silva Carmo,2025,font,metadata,text,
+efl-teachers-attitudes-toward-artificial,article,EFL teachers’ attitudes toward artificial intelligence in language teaching: A mixed-methods study in Türkiye,Nazmiye Gurel Cennetkusu,2026,metadata,metadata,text,
+effects-of-an-ai-supported-inquiry-model-on-ai,article,Effects of an AI-supported inquiry model on AI literacy and authentic performance: A quasi-experimental study with preservice teachers,Dongyun Cao,2026,metadata,metadata,text,
+empowered-by-ai-exploring-the-link-between,article,"Empowered by AI: exploring the link between literacy, self-efficacy, and career expectations",Nguyen Thi Thao Ho,2026,font,metadata,text,
+encouraging-responsible-genai-use-in-software,article,Encouraging responsible GenAI use in software engineering education: A design-oriented model,Vəhid Gəruslu,2026,metadata,metadata,text,
+ethical-and-pedagogical-implications-of-ai-in,article,Ethical and pedagogical implications of AI in language education: An empirical study at Ha'il University,Fahad S. Aljabr,2024,metadata,metadata,text,
+explainable-machine-learning-for-sustainable,article,Explainable machine learning for sustainable education: Predicting college students' reliance on generative artificial intelligence,Sunyu Tao,2026,metadata,metadata,text,
+exploring-ai-adoption-in-manufacturing,article,Exploring AI adoption in manufacturing: An empirical study on effects of AI readiness,Heidi Heimberger,2025,metadata,metadata,text,
+exploring-ai-competency-in-chinese,article,Exploring AI competency in Chinese undergraduates through the UNESCO framework,Jue Wang,2026,metadata,metadata,text,
+exploring-perspectives-toward-generative,article,Exploring perspectives toward generative artificial intelligence integration in science education: A cross-generational study,Aaron A. Funa,2025,metadata,metadata,text,
+exploring-student-motivations-for-ai-usage-in,article,"Exploring student motivations for AI usage in education: Nisantasi in Turkey, a case study",Fareed AL-Sayid,2026,metadata,metadata,text,
+exploring-the-intention-behaviour-gap-in,article,Exploring the intention-behaviour gap in Artificial Intelligence adoption: the case study of students’ ChatGPT usage in Dutch higher education,Athanasios Polyportis,2026,metadata,metadata,text,
+facilitating-public-involvement-in-research,article,Facilitating public involvement in research about healthcare AI: A scoping review of empirical methods,Emma Kellie Frost,2024,metadata,metadata,text,
+factors-affecting-performance-expectancy-and,article,Factors affecting performance expectancy and intentions to use ChatGPT: Using SmartPLS to advance an information technology acceptance framework,Mark Anthony Camilleri,2024,metadata,metadata,text,
+from-literature-to-research-based-learning,article,From literature to research-based learning: An AI-powered information extraction system to enhance undergraduate thesis completion,Rong An,2026,metadata,metadata,text,
+generative-ai-in-higher-education-seeing,article,"Generative AI in higher education: Seeing ChatGPT through universities' policies, resources, and guidelines",Hui Wang,2024,metadata,metadata,text,
+generative-ai-in-higher-education-f007ba,article,Generative AI in higher education: A global perspective of institutional adoption policies and guidelines,Yueqiao Jin,2024,metadata,metadata,text,
+how-to-measure-ai-literacy-fast,article,How to measure AI literacy (Fast): Development and norming of the AI competence objective scale short version (AICOS-S),André Markus,2026,metadata,metadata,text,
+integrating-generative-ai-into-programming,article,Integrating Generative AI into Programming Education: Student Perceptions and the Challenge of Correcting AI Errors,Dan Kohen-Vacs,2025,metadata,metadata,text,
+integrating-generative-artificial-intelligence,article,Integrating generative artificial intelligence into chemical engineering education: Staff and student perspectives,Evan Cunningham,2026,metadata,metadata,text,
+language-teachers-ai-literacy-a-psychometric,article,Language teachers’ AI literacy: A psychometric study based on the ED-AI framework,Salim Nabhan,2026,metadata,metadata,text,
+literature-review-on-the-integration-of,article,Literature Review on the Integration of Generative AI in Programming Education,Jemimah Nathaniel,2025,metadata,metadata,text,
+mathematics-teachers-perceptions-of-artificial,article,Mathematics teachers’ perceptions of artificial intelligence in education (AIED): Practices and challenges,Masooma Ali Al-Mutawah,2026,metadata,metadata,text,
+measuring-teachers-competencies-for-ai,article,Measuring Teachers' competencies for AI integration: Development and validation of the AI-TPACK in vocational education,Andri Setiyawan,2025,metadata,metadata,text,
+measuring-students-ai-competence-development,article,Measuring students' AI competence: Development and validation of a multidimensional scale integrating educational psychology perspectives,Zubair Ahmad,2025,metadata,metadata,text,
+modeling-generative-ai-adoption-in-higher,article,Modeling generative AI adoption in higher education: An integrated TAM–TPB–SDT framework with SEM validation,Dina Tbaishat,2026,metadata,metadata,text,
+navigating-ethical-considerations-and,article,Navigating ethical considerations and implications of AI chatbots in higher education: A systematic review,Ons Al-Shamaileh,2026,metadata,metadata,text,
+opening-the-black-box-operational-principles,article,"Opening the black box: Operational principles, tools and frameworks that advance explainable artificial intelligence (XAI) models",Mark Anthony Camilleri,2026,metadata,metadata,text,
+opportunities-challenges-and-school-strategies,article,"Opportunities, challenges and school strategies for integrating generative AI in education",Davy Tsz Kit Ng,2025,metadata,metadata,text,
+patterns-advances-and-gaps-in-using-chatgpt-and,article,"Patterns, advances, and gaps in using ChatGPT and similar technologies in nursing education: A PAGER scoping review",Isaac Amankwaa,2025,metadata,metadata,text,
+reliable-but-not-rigorous-evaluating-chatgpt-s,article,"Reliable but not rigorous: Evaluating ChatGPT's reliability, validity, and bias in automated academic grading",Raed Awashreh,2026,metadata,metadata,text,
+responsible-management-education,article,Responsible management education: Retrospective insights and reflective takeaways,Weng Marc Lim,2025,metadata,metadata,text,
+social-and-cognitive-drivers-of-generative-ai,article,Social and cognitive drivers of generative AI adoption: A unified socio-cognitive model for engineering education,Mazen Abdulwahab Asag,2026,metadata,metadata,text,
+stakeholder-engagement-and-strategic-innovation,article,Stakeholder engagement and strategic innovation in higher education through AI competency,Margarita Núñez-Canal,2025,metadata,metadata,text,
+tackling-the-ai-creativity-paradox,article,Tackling the AI-Creativity paradox: How educational innovation and knowledge unlocks positive-sum dynamics?,Guihua Shen,2025,metadata,metadata,text,
+teaching-the-teachers-a-systematic-review-of,article,Teaching the teachers: A systematic review of genAI-specific technological pedagogical knowledge (TPK) in teacher education,T. J. Ó Ceallaigh,2026,metadata,metadata,text,
+the-trustworthy-ai-maturity-model-taimm,article,The Trustworthy AI Maturity Model (TAIMM): Integrating ethics and regulation across the AI lifecycle,Louise McCormack,2026,metadata,metadata,text,
+the-formation-of-ai-capital-in-higher-education,article,The formation of AI Capital in higher education: Enhancing students’ academic performance and employment rates,Nick Drydakis,2025,metadata,metadata,text,
+toward-understanding-the-role-of-generative-ai,article,Toward understanding the role of generative AI in entrepreneurship education: A systematic review,Genping Yu,2025,metadata,metadata,text,
+trajectories-of-ai-policy-in-higher-education,article,"Trajectories of AI policy in higher education: Interpretations, discourses, and enactments of students and teachers",Jack Tsao,2025,metadata,metadata,text,
+pedagogical-considerations-in-the-automation,article,Pedagogical Considerations in the Automation Era: A Systematic Literature Review of AIED in K‐12 Authentic Settings,Carla Haelermans,2025,metadata,text,text,authors_from_text_heuristic

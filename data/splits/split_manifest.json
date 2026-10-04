@@ -1,0 +1,33 @@
+{
+  "run": "full_v1",
+  "heldout_doc_groups": [
+    "Books_AI/Artificial Intelligence .pdf",
+    "Books_AI/Artificial Intelligence.pdf",
+    "Books_AI/Building Responsible AI.pdf",
+    "Books_AI/Introduction to Responsible AI.pdf",
+    "Books_AI/Postdigital .pdf",
+    "Books_AI/bulk-download",
+    "Research Articles_AI/JA_Encouraging responsible GenAI use in software engineering education.pdf",
+    "Research Articles_AI/JA_Facilitating public involvement in research about healthcare AI.pdf",
+    "Research Articles_AI/JA_Tackling the AI-Creativity paradox.pdf",
+    "Research Articles_AI/JA_The formation of AI Capital in higher education.pdf"
+  ],
+  "seed": 42,
+  "counts": {
+    "test_heldout_docs": 1486,
+    "val": 393,
+    "test_indomain": 791,
+    "train": 6680
+  },
+  "checks": {
+    "no chunk in two splits": true,
+    "no group_id in two splits": true,
+    "held-out docs only in test_heldout_docs": true,
+    "every dimension in test_indomain": true,
+    "every dimension in test_heldout_docs": true
+  },
+  "missing_dimensions": {
+    "test_indomain": [],
+    "test_heldout_docs": []
+  }
+}

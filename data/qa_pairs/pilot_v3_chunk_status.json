@@ -1,0 +1,182 @@
+{
+  "budd-l-hall-rajesh-2021-socially-responsible:0027": {
+    "valid_units": 7,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "budd-l-hall-rajesh-2021-socially-responsible:0055": {
+    "valid_units": 6,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "budd-l-hall-rajesh-2021-socially-responsible:0118": {
+    "valid_units": 7,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "budd-l-hall-rajesh-2021-socially-responsible:0120": {
+    "valid_units": 6,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "towards-ethical:0028": {
+    "valid_units": 0,
+    "appendix_or_table": true,
+    "generate": false,
+    "reason": "appendix_or_table"
+  },
+  "towards-ethical:0051": {
+    "valid_units": 7,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "towards-ethical:0077": {
+    "valid_units": 0,
+    "appendix_or_table": true,
+    "generate": false,
+    "reason": "appendix_or_table"
+  },
+  "towards-ethical:0090": {
+    "valid_units": 8,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "patterns-advances-and-gaps-in-using-chatgpt-and:0003": {
+    "valid_units": 2,
+    "appendix_or_table": false,
+    "generate": false,
+    "reason": "thin(2<3)"
+  },
+  "patterns-advances-and-gaps-in-using-chatgpt-and:0004": {
+    "valid_units": 0,
+    "appendix_or_table": false,
+    "generate": false,
+    "reason": "thin(0<3)"
+  },
+  "patterns-advances-and-gaps-in-using-chatgpt-and:0013": {
+    "valid_units": 7,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "patterns-advances-and-gaps-in-using-chatgpt-and:0016": {
+    "valid_units": 6,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "toward-understanding-the-role-of-generative-ai:0000": {
+    "valid_units": 6,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "toward-understanding-the-role-of-generative-ai:0005": {
+    "valid_units": 4,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "toward-understanding-the-role-of-generative-ai:0024": {
+    "valid_units": 8,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "toward-understanding-the-role-of-generative-ai:0033": {
+    "valid_units": 7,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "be-aiware-an-ai-competency-model-for-k-12:0002": {
+    "valid_units": 6,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "be-aiware-an-ai-competency-model-for-k-12:0004": {
+    "valid_units": 6,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "be-aiware-an-ai-competency-model-for-k-12:0008": {
+    "valid_units": 8,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "be-aiware-an-ai-competency-model-for-k-12:0057": {
+    "valid_units": 0,
+    "appendix_or_table": true,
+    "generate": false,
+    "reason": "appendix_or_table"
+  },
+  "reliable-but-not-rigorous-evaluating-chatgpt-s:0002": {
+    "valid_units": 8,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "ai-and-security-in-china-s-higher-education:0016": {
+    "valid_units": 7,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "the-formation-of-ai-capital-in-higher-education:0012": {
+    "valid_units": 6,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "cecilia-ka-yuk-chan-2024-generative-ai-in:0035": {
+    "valid_units": 5,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "ai-enabled-assessment-in-higher-education:0000": {
+    "valid_units": 6,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "artificial-intelligence-bceaf5:0124": {
+    "valid_units": 6,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "stakeholder-engagement-and-strategic-innovation:0006": {
+    "valid_units": 8,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "higher-education-in-arab:0053": {
+    "valid_units": 4,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "ethical-and-pedagogical-implications-of-ai-in:0011": {
+    "valid_units": 7,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "daniel-araya-peter-2023-augmented-education-in:0075": {
+    "valid_units": 7,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  }
+}

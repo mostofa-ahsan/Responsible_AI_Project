@@ -1,0 +1,62 @@
+{
+  "ai-and-digital-transformation:0185": {
+    "valid_units": 5,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "ai-and-security-in-china-s-higher-education:0057": {
+    "valid_units": 8,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "ai-roles:0195": {
+    "valid_units": 6,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "artificial-intelligence-and-higher-education:0040": {
+    "valid_units": 2,
+    "appendix_or_table": false,
+    "generate": false,
+    "reason": "thin(2<3)"
+  },
+  "cecilia-ka-yuk-chan-2024-generative-ai-in:0133": {
+    "valid_units": 6,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "conceptualizing-pre-service-teachers-readiness:0001": {
+    "valid_units": 7,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "higher-education-in-arab:0097": {
+    "valid_units": 7,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "higher-education-in-arab:0228": {
+    "valid_units": 8,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "pedagogical-considerations-in-the-automation:0019": {
+    "valid_units": 7,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  },
+  "teaching-the-teachers-a-systematic-review-of:0002": {
+    "valid_units": 8,
+    "appendix_or_table": false,
+    "generate": true,
+    "reason": ""
+  }
+}

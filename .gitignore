@@ -11,7 +11,6 @@
 .venv-vllm/
 .venv/
 __pycache__/
-data/
 eval/
 logs/
 logs/*.log
@@ -22,3 +21,12 @@ models_epochs*/
 results/**/*.jsonl
 results/*/*/
 results/*/.markers/
+data/*
+!data/splits/
+!data/qa_pairs/
+!data/chunks/
+!data/inventory.csv
+!data/parsed/
+data/parsed/*
+!data/parsed/metadata.csv
+!data/parsed/metadata_review.csv
