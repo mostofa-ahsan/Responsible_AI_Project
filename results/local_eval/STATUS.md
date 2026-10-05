@@ -38,3 +38,5 @@ _Written 2026-10-05 01:31 by `src/local_pack.py status`._
 - Human review: `results/local_eval/keyfact_spotcheck.xlsx`, `results/paper_pack/human_eval_sheet.xlsx`
 
 - Git: pushed 9a74b43 to origin at 2026-10-05 01:31:19.
+
+- Git: pushed 5356539 to origin at 2026-10-05 11:31:37.
