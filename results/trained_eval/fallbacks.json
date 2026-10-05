@@ -1,0 +1,8 @@
+[
+  {
+    "time": "2026-10-05 09:56:49",
+    "stage": "T5",
+    "fallback": "GGUF Q4_K_M variant skipped",
+    "why": "llama.cpp is not installed; the only local GGUF route is Ollama, whose model store belongs to another project on this machine (not touched); a GGUF export needs the merged bf16 model on disk (~16 GB) plus the Q4_K_M file; 31.6 GB free"
+  }
+]
