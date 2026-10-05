@@ -35,3 +35,5 @@ _Written 2026-10-04 21:38 by `src/local_pack.py status`._
 - `results/paper_pack/RESULTS.md` (write-up), `results/paper_pack/README.md` (file index)
 - `results/local_eval/SUMMARY.md`, `judge_calibration.md`, `keyfact_validation.md`, `metrics_by_system.csv`
 - Human review: `results/local_eval/keyfact_spotcheck.xlsx`, `results/paper_pack/human_eval_sheet.xlsx`
+
+- Git: pushed 9e0709f to origin at 2026-10-04 21:38:39.
