@@ -4,5 +4,11 @@
     "stage": "S5b",
     "fallback": "Flan-T5-Large is the primary support checker",
     "why": "MiniCheck-7B covered only 0/67500 pairs"
+  },
+  {
+    "time": "2026-10-04 21:26:49",
+    "stage": "S5b",
+    "fallback": "reverted: MiniCheck-7B is the primary support checker again",
+    "why": "rerun after the post-crash relaunch with the vLLM InternLM2 fix (src/vllm_shims/sitecustomize.py)"
   }
 ]
