@@ -183,7 +183,8 @@ def fig3_style_vs_facts(d):
             if j == 0:
                 ax.set_ylabel(SPLIT_LABEL[s], fontsize=8)
             ax.set_xticks(range(4), ["base", "ep1", "ep2", "ep3"])
-    axes[0, 0].legend(loc="upper left", fontsize=7)
+    h, l = axes[0, 0].get_legend_handles_labels()
+    fig.legend(h, l, loc="lower center", ncol=4, bbox_to_anchor=(0.5, -0.03))
     fig.suptitle("Figure 3. Style metrics (token F1, ROUGE-L) vs factual metrics (judge accuracy, key-fact recall)",
                  y=1.0, fontsize=9)
     savefig(fig, "F3_style_vs_facts")
@@ -922,6 +923,14 @@ def gpu_lines():
                     pass
             elif "PAUSE" in line or "RESUME" in line:
                 ev.append(line)
+        lim, hist, prev = [], [], None
+        for line in g.read_text(errors="ignore").replace("\x00", "").splitlines()[1:]:
+            parts = line.split(",")
+            if len(parts) == 6 and parts[3] != prev:
+                hist.append(f"{parts[3]} W from {parts[0]}")
+                prev = parts[3]
+        if hist:
+            out.append("- Power-limit history (logs/gpu_temp.log): " + "; ".join(hist) + ".")
         if temps:
             mt, pt = max(temps), max(pw)
             out.append(f"- GPU (logs/gpu_temp.log, {len(temps)} readings since {temps[0][1]}): max {mt[0]:.0f} °C at "
