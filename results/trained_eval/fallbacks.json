@@ -3,6 +3,18 @@
     "time": "2026-10-05 09:56:49",
     "stage": "T5",
     "fallback": "GGUF Q4_K_M variant skipped",
-    "why": "llama.cpp is not installed; the only local GGUF route is Ollama, whose model store belongs to another project on this machine (not touched); a GGUF export needs the merged bf16 model on disk (~16 GB) plus the Q4_K_M file; 31.6 GB free"
+    "why": "llama.cpp is not installed; the only local GGUF route is Ollama, whose model store belongs to another project on this machine (not touched); a GGUF export needs the merged bf16 model on disk (~16 GB) plus the Q4_K_M file; 31.6 GB free; no CUDA toolkit to build llama.cpp's GPU backend (CPU-only inference would take hours)"
+  },
+  {
+    "time": "2026-10-05 09:56:50",
+    "stage": "T6",
+    "fallback": "gemma-4-e4b-it: 4-bit export redone with AWQ (RTN answers kept in answers/gemma-4-e4b-it__awq_ep1_rtn, not graded)",
+    "why": "the first AWQ attempt failed because the Gemma 3 mapping regexes also matched the audio tower"
+  },
+  {
+    "time": "2026-10-05 09:58:12",
+    "stage": "T6",
+    "fallback": "gemma-4-e4b-it: the 4-bit variant is RTN W4A16 (round-to-nearest, asym, group 128), not AWQ",
+    "why": "llm-compressor 0.14 has no Gemma 4 AWQ mapping; Gemma 3 regexes also match the audio tower, and language-model-anchored mappings fail because Gemma 4's KV-shared layers have no v_proj. An MLP-only AWQ retry would need ~10 GB more disk while the judge is present (reserve 10 GB) and could not be graded after the judge is deleted"
   }
 ]

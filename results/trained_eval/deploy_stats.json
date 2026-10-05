@@ -37,9 +37,9 @@
     "size_gb": 10.03,
     "quant_minutes": 0.8,
     "weights_vram_gb": 9.72,
-    "seconds": 23.2,
-    "output_tokens": 52305,
-    "tokens_per_s": 2254.5
+    "seconds": 22.7,
+    "output_tokens": 52386,
+    "tokens_per_s": 2307.8
   },
   "llama-3.1-8b-instruct__awq_ep2": {
     "backend": "vLLM, compressed-tensors AWQ W4A16 asym (group 128)",

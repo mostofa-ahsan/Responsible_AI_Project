@@ -5,3 +5,4 @@ T2_gen_nf4	done	32
 T3_purge_minicheck	done	0	
 T4_awq	done	20	
 T5_gguf	done	0	
+T6_judge_keyfacts	done	7	
