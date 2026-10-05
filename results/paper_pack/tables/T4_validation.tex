@@ -1,0 +1,23 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Judge and checker validation against Opus 5.5}
+\label{tab:T4_validation}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llc}
+\toprule
+Check & Statistic & Value \\
+\midrule
+Local judge vs Opus (TEST, n = 6673) & 3-class agreement & 0.646 \\
+ & Cohen's $\kappa$ / quadratic-weighted $\kappa$ & 0.453 / 0.644 \\
+ & binary $\kappa$ correct-vs-rest / incorrect-vs-rest & 0.482 / 0.606 \\
+ & system-level Pearson r / Spearman $\rho$ (18 cells) & 0.900 / 0.806 \\
+ & base→FT delta signs matching & 8/9 \\
+Contradiction vs Opus (item level) & r\_pb judge hallucination flag \textasciitilde{} Opus incorrect & 0.387 (n = 7667) \\
+System level vs Opus accuracy & Pearson / Spearman: local-judge accuracy (all items) & 0.888 / 0.800 \\
+System level vs Opus accuracy & Pearson / Spearman: token F1 & -0.701 / -0.670 \\
+System level vs Opus accuracy & Pearson / Spearman: ROUGE-L & -0.728 / -0.659 \\
+\bottomrule
+\end{tabular}}
+\par\smallskip\footnotesize Opus grades exist for the 3 base and 3 one-epoch systems only (eval subset).
+\end{table}

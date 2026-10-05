@@ -30,3 +30,21 @@ data/*
 data/parsed/*
 !data/parsed/metadata.csv
 !data/parsed/metadata_review.csv
+
+# local evaluation (added by localeval_commit.sh): results and figures in, caches out
+!results/local_eval/
+!results/local_eval/per_item/
+!results/local_eval/per_item/*.jsonl
+results/local_eval/judge_cache/
+results/local_eval/.done/
+results/local_eval/*.tmp
+!results/paper_pack/
+!results/paper_pack/figures/
+!results/paper_pack/tables/
+!data/eval_keyfacts/
+!data/eval_keyfacts/*.jsonl
+
+# seed replication: adapters stay local, summaries are committed
+models_seeds*/
+results/seed_replication/.done/
+results/.gpu_pause

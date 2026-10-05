@@ -1,0 +1,34 @@
+\begin{table*}[t]
+\centering
+\scriptsize
+\caption{Dataset statistics and generation funnel}
+\label{tab:T1_dataset}
+\begin{tabular}{lp{9cm}}
+\toprule
+Statistic & Value \\
+\midrule
+Documents (books / articles) & 100 (39 / 61) \\
+Pages & 10,161 \\
+Chunks (all / mineable) & 6,406 / 2,708 \\
+Knowledge units extracted & 16,003 \\
+QA pairs generated & 11,630 \\
+QA pairs passing filters & 9,350 \\
+  rejected: low\_value (multi-label) & 1,637 \\
+  rejected: not\_standalone (multi-label) & 492 \\
+  rejected: duplicate (multi-label) & 430 \\
+  rejected: grounding (multi-label) & 149 \\
+  rejected: garbled\_question (multi-label) & 95 \\
+Split train & 6,680 \\
+Split val & 393 \\
+Split test\_indomain & 791 \\
+Split test\_heldout\_docs & 1,486 \\
+Split test\_seen\_facts & 279 \\
+Evaluation subset (in-domain / held-out docs / seen facts) & 500 / 500 / 279 \\
+By q type (train+val+test) & explanation 2,505, definition 2,480, factual 2,373, application 1,992 \\
+By difficulty (train+val+test) & medium 4,200, easy 3,170, hard 1,980 \\
+By dimension (train+val+test) & teaching\_learning 1,794, governance 1,572, general 1,097, equity\_accessibility 871, student\_ai\_literacy 808, privacy\_security 639, monitoring\_improvement 634, faculty\_readiness 627, leadership\_strategy 514, assessment 459, procurement\_technology 335 \\
+API spend so far (all LLM calls, USD) & 190.47 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\footnotesize Generated with Claude Sonnet 5.5, filtered by Claude Opus 5.5 (full\_v1); splits are document-level; spend from logs/llm\_usage.jsonl (uncached calls).
+\end{table*}

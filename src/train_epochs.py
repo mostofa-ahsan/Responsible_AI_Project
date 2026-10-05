@@ -52,24 +52,32 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--model", required=True)
     ap.add_argument("--limit", type=int, help="test only: first N training rows")
-    ap.add_argument("--root", default="models_epochs", help="test only: output root")
+    ap.add_argument("--root", default="models_epochs", help="output root")
+    ap.add_argument("--subdir", default="", help="extra level under <root>/<model>/, e.g. seed43")
+    ap.add_argument("--seed", type=int, help="override train.seed (and data_seed); default: config")
+    ap.add_argument("--max-epochs", type=int, default=EPOCHS,
+                    help="stop after this many epochs (the schedule still spans 3 epochs)")
+    ap.add_argument("--save-steps", type=int, default=0,
+                    help="also checkpoint every N steps and resume mid-epoch after a crash (0 = epoch ends only)")
     args = ap.parse_args()
     cfg = load_config()
     tcfg = dict(cfg["train"])
     tcfg["epochs"] = EPOCHS
+    if args.seed is not None:
+        tcfg["seed"] = args.seed
     log = get_logger("train_epochs", cfg)
-    d = model_dir(args.model, args.root)
+    d = model_dir(args.model, args.root) / args.subdir if args.subdir else model_dir(args.model, args.root)
     d.mkdir(parents=True, exist_ok=True)
     state = load_state(d)
     done = len(state["epochs"])
-    if done >= EPOCHS:
-        log.info(f"{args.model}: all {EPOCHS} epochs done")
+    if done >= min(EPOCHS, args.max_epochs):
+        log.info(f"{args.model}: {done} epoch(s) done (max {args.max_epochs})")
         sys.exit(10)
     ckpt_dir = d / "checkpoints"
     resume = latest_checkpoint(ckpt_dir)
     if done > 0 and resume is None:
         raise SystemExit(f"{args.model}: {done} epoch(s) recorded but no checkpoint to resume from")
-    if done == 0 and resume is not None:          # crashed during epoch 1 after a mid-epoch save? start clean
+    if done == 0 and resume is not None and not args.save_steps:   # mid-epoch save without step mode: start clean
         shutil.rmtree(ckpt_dir, ignore_errors=True)
         resume = None
 
@@ -115,6 +123,14 @@ def main():
                         m += 1
             log.info(f"cast to bf16 at train begin: {n} LoRA tensors, {m} optimizer state tensors")
 
+    class ThermalPause(TrainerCallback):
+        """scripts/gpu_watchdog.sh creates results/.gpu_pause when the GPU runs hot: wait in 5-min steps."""
+        def on_step_end(self, args_, st, control, **kw):
+            flag = repo_path("results/.gpu_pause")
+            while flag.exists():
+                log.info(f"GPU pause flag set at step {st.global_step}: sleeping 5 min")
+                time.sleep(300)
+
     class StopAtEpochEnd(TrainerCallback):
         """Stop after the first epoch boundary reached in this invocation (after eval + save)."""
         def on_epoch_end(self, args_, st, control, **kw):
@@ -135,14 +151,15 @@ def main():
         output_dir=str(ckpt_dir), num_train_epochs=EPOCHS, learning_rate=tcfg["learning_rate"],
         per_device_train_batch_size=tcfg["per_device_batch_size"], gradient_accumulation_steps=tcfg["grad_accum"],
         warmup_steps=tcfg["warmup_ratio"], lr_scheduler_type="cosine", bf16=True, logging_steps=10,
-        seed=tcfg["seed"], data_seed=tcfg["seed"], eval_strategy="epoch", save_strategy="epoch",
-        save_total_limit=None, load_best_model_at_end=False, gradient_checkpointing=True, report_to=[],
+        seed=tcfg["seed"], data_seed=tcfg["seed"], eval_strategy="epoch",
+        save_strategy="steps" if args.save_steps else "epoch", save_steps=args.save_steps or 500,
+        save_total_limit=2 if args.save_steps else None, load_best_model_at_end=False, gradient_checkpointing=True, report_to=[],
         max_length=tcfg["max_seq_length"], dataset_kwargs={"skip_prepare_dataset": True}, remove_unused_columns=False)
     progress = progress_callback(log, tokens_per_step)
     trainer = SFTTrainer(model=model, args=sft, train_dataset=strip(tr), eval_dataset=strip(va), peft_config=lora,
                          processing_class=tok,
                          data_collator=DataCollatorForSeq2Seq(tok, padding=True, label_pad_token_id=-100),
-                         callbacks=[progress, KeepLoraBf16(), StopAtEpochEnd()])
+                         callbacks=[progress, KeepLoraBf16(), ThermalPause(), StopAtEpochEnd()])
     torch.cuda.reset_peak_memory_stats()
     t0 = time.time()
     trainer.train(resume_from_checkpoint=str(resume) if resume else None)
@@ -170,14 +187,16 @@ def main():
         "train_loss_mean": round(sum(tl) / len(tl), 4) if tl else None,
         "val_loss": vl[-1] if vl else None, "peak_vram_gb": round(torch.cuda.max_memory_allocated() / 1e9, 1),
         "adapter_size_mb": dir_size_mb(out), "resumed_from": resume.name if resume else None})
-    state.update(model=args.model, recipe="run_2026-10-03 recipe, 3 epochs, cosine over 3 epochs",
+    state.update(model=args.model, seed=tcfg["seed"], recipe="run_2026-10-03 recipe, 3 epochs, cosine over 3 epochs"
+                 + (f"; stopped after epoch {args.max_epochs}" if args.max_epochs < EPOCHS else ""),
                  steps_per_epoch=-(-len(tr) // eff_bs))
     (d / "epochs.json").write_text(json.dumps(state, indent=2))
     # keep only the newest checkpoint (needed to resume); none after the last epoch
     cks = sorted(ckpt_dir.glob("checkpoint-*"), key=lambda p: int(p.name.split("-")[1]))
-    for c in (cks if epoch == EPOCHS else cks[:-1]):
+    last = epoch >= min(EPOCHS, args.max_epochs)
+    for c in (cks if last else cks[:-1]):
         shutil.rmtree(c, ignore_errors=True)
-    if epoch == EPOCHS:
+    if last:
         shutil.rmtree(ckpt_dir, ignore_errors=True)
     log.info(f"{args.model}: epoch {epoch} saved to {out} ({minutes:.0f} min, val loss {state['epochs'][-1]['val_loss']})")
 

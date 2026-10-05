@@ -1,0 +1,49 @@
+{
+  "n_opus_items": 7674,
+  "auc_keyfact_recall_vs_opus_correct": null,
+  "auc_keyfact_recall_vs_opus_not_incorrect": null,
+  "auc_keyfact_recall_secondary_vs_opus_correct": null,
+  "auc_keyfact_recall_secondary_vs_opus_not_incorrect": null,
+  "pointbiserial_any_contradiction_vs_opus_incorrect": null,
+  "pointbiserial_contradiction_rate_vs_opus_incorrect": null,
+  "pointbiserial_claim_contradicted_rate_vs_opus_incorrect": null,
+  "pointbiserial_hallucination_vs_opus_incorrect": {
+    "r": 0.3872,
+    "p": 1.1395689751416124e-272,
+    "n": 7667
+  },
+  "pointbiserial_any_contradiction_vs_opus_unsupported_any (seen facts)": null,
+  "pointbiserial_hallucination_vs_opus_unsupported_any (seen facts)": {
+    "r": 0.2289,
+    "p": 2.478032747348789e-21,
+    "n": 1673
+  },
+  "pointbiserial_claim_unsupported_rate_vs_opus_unsupported_any (seen facts)": null,
+  "item_kappa_local_vs_opus_all_items": 0.4505,
+  "system_judge_lenient_vs_opus_lenient": {
+    "pearson": 0.8885,
+    "spearman": 0.7998,
+    "n_cells": 18
+  },
+  "system_token_f1_vs_opus_lenient": {
+    "pearson": -0.7011,
+    "spearman": -0.6698,
+    "n_cells": 18
+  },
+  "system_rouge_l_vs_opus_lenient": {
+    "pearson": -0.7284,
+    "spearman": -0.6594,
+    "n_cells": 18
+  },
+  "phase2c_coverage": {
+    "answers_with_claim_checks": 0,
+    "answers_total": 19185
+  },
+  "meta": {
+    "primary_checker": "flant5",
+    "secondary_checker": "minicheck7b",
+    "judge": "mistral-small-3.2-24b-awq",
+    "judge_prompt": "v1",
+    "judge_exploratory": false
+  }
+}

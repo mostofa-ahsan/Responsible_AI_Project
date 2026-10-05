@@ -1,0 +1,8 @@
+S1_calibration	failed	40	exit 143
+S1_calibration	done	40	gate recomputed from cached grades under the refined rule (judge A); old process stopped before Phi-4
+S2_grading	done	29	
+S3_keyfacts	done	4	
+S4_claims	done	45	
+S5a_purge_judge	done	0	
+S5b_minicheck7b	failed	2	exit 1
+S5c_flant5	done	14	

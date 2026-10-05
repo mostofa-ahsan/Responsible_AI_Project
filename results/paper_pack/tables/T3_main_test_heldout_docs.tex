@@ -1,0 +1,29 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Main results, Held-out documents (n = 500 per system)}
+\label{tab:T3_main_test_heldout_docs}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llcccccc}
+\toprule
+Model & Variant & Judge acc & Halluc. & KF recall & Contra. & F1 & ROUGE-L \\
+\midrule
+Qwen3-8B & base & 0.642 & 0.366 & – & – & 0.259 & 0.175 \\
+Qwen3-8B & 1-epoch (run 10-03) & 0.485$^\dagger$ & 0.365 & – & – & 0.355$^\dagger$ & 0.267$^\dagger$ \\
+Qwen3-8B & ep1 & 0.506$^\dagger$ & 0.356 & – & – & 0.340$^\dagger$ & 0.256$^\dagger$ \\
+Qwen3-8B & ep2 & 0.477$^\dagger$ & 0.400 & – & – & 0.319$^\dagger$ & 0.233$^\dagger$ \\
+Qwen3-8B & ep3 & 0.476$^\dagger$ & 0.417 & – & – & 0.315$^\dagger$ & 0.227$^\dagger$ \\
+Gemma 4 E4B & base & \textbf{0.679} & \textbf{0.218} & – & – & 0.177 & 0.118 \\
+Gemma 4 E4B & 1-epoch (run 10-03) & 0.518$^\dagger$ & 0.312$^\dagger$ & – & – & \textbf{0.361$^\dagger$} & \textbf{0.276$^\dagger$} \\
+Gemma 4 E4B & ep1 & 0.500$^\dagger$ & 0.354$^\dagger$ & – & – & 0.347$^\dagger$ & 0.267$^\dagger$ \\
+Gemma 4 E4B & ep2 & 0.498$^\dagger$ & 0.358$^\dagger$ & – & – & 0.332$^\dagger$ & 0.246$^\dagger$ \\
+Gemma 4 E4B & ep3 & 0.484$^\dagger$ & 0.360$^\dagger$ & – & – & 0.326$^\dagger$ & 0.239$^\dagger$ \\
+Llama 3.1 8B & base & 0.534 & 0.483 & – & – & 0.179 & 0.127 \\
+Llama 3.1 8B & 1-epoch (run 10-03) & 0.485$^\dagger$ & 0.364$^\dagger$ & – & – & 0.346$^\dagger$ & 0.259$^\dagger$ \\
+Llama 3.1 8B & ep1 & 0.460$^\dagger$ & 0.420 & – & – & 0.334$^\dagger$ & 0.248$^\dagger$ \\
+Llama 3.1 8B & ep2 & 0.465$^\dagger$ & 0.436 & – & – & 0.310$^\dagger$ & 0.222$^\dagger$ \\
+Llama 3.1 8B & ep3 & 0.462$^\dagger$ & 0.424 & – & – & 0.311$^\dagger$ & 0.226$^\dagger$ \\
+\bottomrule
+\end{tabular}}
+\par\smallskip\footnotesize Best value per column in bold (lowest for hallucination / contradiction). $^\dagger$ = differs from the same family's base, paired bootstrap, Holm-adjusted p < 0.05. Judge acc = (correct + 0.5 partial) / N.
+\end{table}

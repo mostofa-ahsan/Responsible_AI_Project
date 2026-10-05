@@ -154,3 +154,13 @@ Multi-model results (`results/run_2026-10-03/`; read `SUMMARY.md` first):
 - Judge accuracy uses the fixed stratified subset in `data/splits/eval_subset.json` (500 per split, the same for every model and arm). Keep it fixed for new arms so results stay comparable.
 - The Qwen3 embedder and reranker caches were deleted for disk space; re-download them for RAG work.
 
+
+Local evaluation (`scripts/run_all_localeval.sh`, `src/local_*.py`; read `results/local_eval/STATUS.md` and `results/paper_pack/RESULTS.md` first):
+- Fully offline: every stage imports `local_common`, which asserts `LLM_OFFLINE=1` and makes Anthropic/OpenAI client construction raise. Resumable through `results/local_eval/.done/` markers and the vLLM output caches in `results/local_eval/judge_cache/`; each stage has a time box and a failure never stops the pipeline. The paper pack (S7) always runs last.
+- Judge: Mistral-Small-3.2-24B AWQ (fallback Phi-4 AWQ) through `src/vllm_json_worker.py` (guided JSON, `.venv-vllm`). It reuses the Opus rubric verbatim and is calibrated only against the Opus grades of run_2026-10-03 (DEV/TEST split by qa_id).
+- Mistral3 checkpoints need `src/vllm_shims/sitecustomize.py` on the worker's PYTHONPATH (vLLM 0.30's pixtral.py imports names that transformers 5.18 removed). `run_worker` sets this.
+- The judge weights are deleted after S4 so that Bespoke-MiniCheck-7B fits the disk. Re-download them before re-grading anything new.
+- After a crash or reboot, run `bash scripts/resume_after_crash.sh`. It relaunches the GPU watchdog (`logs/gpu_temp.log`; it creates `results/.gpu_pause` at ≥ 84 °C), the local evaluation (tmux `localeval`) and the seed-43 queue (tmux `seeds`, `scripts/seeds_queue.sh`). Checkers append fsync'd JSONL and resume; seed training checkpoints every 150 steps.
+- Bespoke-MiniCheck-7B needs two fixes, both applied automatically:
+  - The remote-code InternLM2 tokenizer is broken under transformers 5.18, so `local_checks.minicheck_tokenizer()` builds a plain fast-tokenizer folder.
+  - vLLM 0.30's `InternLM2ForCausalLM.forward` lacks a default for `intermediate_tensors`; the shim adds it.

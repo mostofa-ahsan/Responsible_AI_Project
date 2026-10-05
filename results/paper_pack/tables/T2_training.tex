@@ -1,0 +1,28 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Training setup and compute}
+\label{tab:T2_training}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{ll}
+\toprule
+Setting & Value \\
+\midrule
+Method & QLoRA (4-bit NF4, double quantization, bf16 compute) \\
+LoRA r / alpha / dropout & 16 / 32 / 0.05 \\
+LoRA targets & q, k, v, o, gate, up, down projections \\
+Learning rate / schedule & 0.0002 / cosine, warmup ratio 0.03 \\
+Effective batch (per device $\times$ accumulation) & 16 (4 $\times$ 4) \\
+Max sequence length / seed & 1024 / 42 \\
+Training examples (with paraphrases) & 19,974 (6,680 QA pairs) \\
+GPU & NVIDIA GeForce RTX 3090, 24576 MiB \\
+Qwen3-8B: min/epoch, peak VRAM, val loss ep1→ep3 & 67.7 min, 11.4 GB, 2.095 → 2.893 → 3.232 \\
+Qwen3-8B: 1-epoch run (run 10-03) & 67.8 min, val loss 1.879 \\
+Gemma 4 E4B: min/epoch, peak VRAM, val loss ep1→ep3 & 64.9 min, 19.8 GB, 2.242 → 4.027 → 5.183 \\
+Gemma 4 E4B: 1-epoch run (run 10-03) & 65.8 min, val loss 1.963 \\
+Llama 3.1 8B: min/epoch, peak VRAM, val loss ep1→ep3 & 68.8 min, 10.3 GB, 2.293 → 3.190 → 3.582 \\
+Llama 3.1 8B: 1-epoch run (run 10-03) & 69.1 min, val loss 2.020 \\
+\bottomrule
+\end{tabular}}
+\par\smallskip\footnotesize The 3-epoch run uses a cosine schedule over 3 epochs, so its epoch-1 adapter differs from the 1-epoch run (cosine over 1 epoch) of run 10-03.
+\end{table}

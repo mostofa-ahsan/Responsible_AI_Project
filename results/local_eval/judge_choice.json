@@ -1,0 +1,17 @@
+{
+  "judge": "A",
+  "judge_name": "mistral-small-3.2-24b-awq",
+  "model": "jeffcookio/Mistral-Small-3.2-24B-Instruct-2506-awq-sym",
+  "prompt": "v1",
+  "passes_gate": true,
+  "exploratory": false,
+  "candidates": {
+    "A": {
+      "max_binary_kappa": 0.6064,
+      "passes_gate": true
+    }
+  },
+  "B_skipped": "not needed: judge A passes the refined gate",
+  "gate_rule": "max binary kappa >= 0.5 and sign match on every base->FT delta that is significant under Opus (paired bootstrap 95% CI excludes 0); test coverage >= 90%",
+  "note": "The running S1 process applied the original 9/9 sign rule and failed Judge A only on a delta that is not significant under Opus; the gate was recomputed from cached grades under the refined rule, Judge A selected, and Phi-4 skipped (S1 not restarted)."
+}
