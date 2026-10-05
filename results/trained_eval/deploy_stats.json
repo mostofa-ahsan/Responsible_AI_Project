@@ -1,0 +1,26 @@
+{
+  "qwen3-8b__nf4_ep1": {
+    "backend": "transformers + bitsandbytes NF4 (double quant) + PEFT LoRA, batch 16",
+    "seconds": 557.2,
+    "output_tokens": 51693,
+    "tokens_per_s": 92.8,
+    "peak_vram_gb": 6.85,
+    "weights_vram_gb": 6.35
+  },
+  "gemma-4-e4b-it__nf4_ep1": {
+    "backend": "transformers + bitsandbytes NF4 (double quant) + PEFT LoRA, batch 16",
+    "seconds": 789.1,
+    "output_tokens": 51234,
+    "tokens_per_s": 64.9,
+    "peak_vram_gb": 9.85,
+    "weights_vram_gb": 9.52
+  },
+  "llama-3.1-8b-instruct__nf4_ep2": {
+    "backend": "transformers + bitsandbytes NF4 (double quant) + PEFT LoRA, batch 16",
+    "seconds": 577.0,
+    "output_tokens": 62856,
+    "tokens_per_s": 108.9,
+    "peak_vram_gb": 6.57,
+    "weights_vram_gb": 5.97
+  }
+}
