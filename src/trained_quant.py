@@ -122,9 +122,14 @@ def main():
     try:
         kw = {}
         if "Gemma4" in arch:
-            from llmcompressor.modifiers.transform.awq.mappings import AWQ_MAPPING_REGISTRY
-            kw["mappings"] = AWQ_MAPPING_REGISTRY["Gemma3ForConditionalGeneration"]
-            method += ", Gemma 3 smoothing mappings"
+            # llm-compressor has no Gemma 4 mapping, and the Gemma 3 regexes also match the audio/vision towers.
+            # Gemma-style mappings anchored to the language model's decoder layers:
+            from llmcompressor.modifiers.transform.awq.mappings import AWQMapping
+            L = "re:.*language_model.layers.\\d+."
+            kw["mappings"] = [AWQMapping(L + "self_attn.v_proj$", [L + "self_attn.o_proj$"]),
+                              AWQMapping(L + "pre_feedforward_layernorm$", [L + "mlp.gate_proj$", L + "mlp.up_proj$"]),
+                              AWQMapping(L + "mlp.up_proj$", [L + "mlp.down_proj$"])]
+            method += ", Gemma-style smoothing mappings on the language-model layers"
         oneshot(model=model, dataset=ds, recipe=[AWQModifier(duo_scaling="both", **kw), quant],
                 max_seq_length=512, num_calibration_samples=len(texts))
     except Exception as e:

@@ -3,3 +3,4 @@ T0_testset	done	0
 T1_gen_vllm	done	19	
 T2_gen_nf4	done	32	
 T3_purge_minicheck	done	0	
+T4_awq	done	20	

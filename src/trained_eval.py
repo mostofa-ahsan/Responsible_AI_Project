@@ -381,64 +381,93 @@ def hf_generate_quant(qdir, rows, raw, stats, label):
     return sum(1 for r in rows if r["id"] not in got)
 
 
-def cmd_awq():
+def awq_one(fam, model, its, be):
+    """Quantize the best epoch to 4-bit (in-memory merge), generate on the 3 splits, record stats, remove the export.
+    Returns True when every answer exists."""
     import os
+    import shutil
+    var = f"awq_{be[fam]}"
+    if all(len(preds(fam, var, s)) >= len(its[s]) for s in SPLITS):
+        return True
+    qdir = repo_path("models_quant") / f"{fam}_{var}"
+    if not (qdir / "quant_info.json").exists():
+        if free_gb() < 10 + 11:
+            fallback("T4", f"{fam}: AWQ skipped", f"only {free_gb():.1f} GB free (needs >= 21)")
+            return False
+        pause_wait("T4")
+        cmd = [str(VLLM_PY), str(repo_path("src/trained_quant.py")), "--model", model, "--adapter",
+               str(adapter_path(fam, be[fam])), "--out", str(qdir), "--system", system_prompt("base")]
+        env = dict(os.environ, LLM_OFFLINE="1", PYTHONPATH=str(repo_path("models_quant/overlay")),
+                   TOKENIZERS_PARALLELISM="false")
+        log().info(f"[T4] {fam}: merging {be[fam]} adapter in memory and quantizing to 4-bit (llm-compressor)")
+        with repo_path("logs/trained_eval_worker.log").open("a") as lf:
+            lf.write(f"\n===== {time.strftime('%F %T')} T4 quant {fam}: {' '.join(cmd)}\n")
+            lf.flush()
+            rc = subprocess.run(cmd, env=env, stdout=lf, stderr=lf).returncode
+        if rc != 0 or not (qdir / "quant_info.json").exists():
+            fallback("T4", f"{fam}: no 4-bit export", f"quantization exit {rc} (logs/trained_eval_worker.log)")
+            return False
+    info = json.loads((qdir / "quant_info.json").read_text())
+    log().info(f"[T4] {fam}: {info}")
+    rows = [{"id": f"{var}|{s}|{q}", "system": system_prompt("base"), "question": r["question"], "adapter": None}
+            for s in SPLITS for q, r in its[s].items()]
+    raw = TE / "raw" / f"{fam}__{var}.jsonl"
+    raw.parent.mkdir(exist_ok=True)
+    label = f"T4 {fam} {var}"
+    stp = TE / "raw" / f"{fam}__{var}.stats.json"
+    if vllm_reads_export():
+        left = run_multi(str(qdir), rows, raw, False, stp, label)
+    else:
+        left = hf_generate_quant(qdir, rows, raw, stp, label)
+    split_out(raw, fam, None)
+    stats = json.loads(stp.read_text()) if stp.exists() else {}
+    record_deploy(f"{fam}__{var}", {"backend": (f"vLLM, compressed-tensors {info['method']}" if _VLLM_OK else
+                                                stats.get("backend", "transformers") + f", {info['method']}"),
+                                    "size_gb": info["size_gb"], "quant_minutes": info["minutes"],
+                                    "weights_vram_gb": loading_gib(label) if _VLLM_OK else stats.get("weights_vram_gb"),
+                                    "seconds": stats.get("seconds"), "output_tokens": stats.get("output_tokens"),
+                                    "tokens_per_s": round(stats["output_tokens"] / stats["seconds"], 1)
+                                    if stats.get("seconds") else None})
+    if left:
+        fallback("T4", f"{fam}: 4-bit model generation incomplete", f"{left} answers missing")
+        return False
+    shutil.rmtree(qdir, ignore_errors=True)       # disk reserve for the judge; regenerate with src/trained_quant.py
+    log().info(f"[T4] {fam}: 4-bit model evaluated and removed (free {free_gb():.1f} GB)")
+    return True
+
+
+def cmd_awq():
     its = all_items()
     be = best_epochs()
-    ok = 0
-    for fam, model in MODEL_ID.items():
-        var = f"awq_{be[fam]}"
-        if all(len(preds(fam, var, s)) >= len(its[s]) for s in SPLITS):
-            ok += 1
-            continue
-        qdir = repo_path("models_quant") / f"{fam}_{var}"
-        if not (qdir / "quant_info.json").exists():
-            if free_gb() < 10 + 8:
-                fallback("T4", f"{fam}: AWQ skipped", f"only {free_gb():.1f} GB free (needs >= 18)")
-                continue
-            pause_wait("T4")
-            cmd = [str(VLLM_PY), str(repo_path("src/trained_quant.py")), "--model", model, "--adapter",
-                   str(adapter_path(fam, be[fam])), "--out", str(qdir), "--system", system_prompt("base")]
-            env = dict(os.environ, LLM_OFFLINE="1", PYTHONPATH=str(repo_path("models_quant/overlay")),
-                       TOKENIZERS_PARALLELISM="false")
-            log().info(f"[T4] {fam}: merging {be[fam]} adapter in memory and quantizing to 4-bit (llm-compressor)")
-            with repo_path("logs/trained_eval_worker.log").open("a") as lf:
-                lf.write(f"\n===== {time.strftime('%F %T')} T4 quant {fam}: {' '.join(cmd)}\n")
-                lf.flush()
-                rc = subprocess.run(cmd, env=env, stdout=lf, stderr=lf).returncode
-            if rc != 0 or not (qdir / "quant_info.json").exists():
-                fallback("T4", f"{fam}: no 4-bit export", f"quantization exit {rc} (logs/trained_eval_worker.log)")
-                continue
-        info = json.loads((qdir / "quant_info.json").read_text())
-        log().info(f"[T4] {fam}: {info}")
-        rows = [{"id": f"{var}|{s}|{q}", "system": system_prompt("base"), "question": r["question"], "adapter": None}
-                for s in SPLITS for q, r in its[s].items()]
-        raw = TE / "raw" / f"{fam}__{var}.jsonl"
-        raw.parent.mkdir(exist_ok=True)
-        label = f"T4 {fam} {var}"
-        if vllm_reads_export():
-            left = run_multi(str(qdir), rows, raw, False, TE / "raw" / f"{fam}__{var}.stats.json", label)
-        else:
-            left = hf_generate_quant(qdir, rows, raw, TE / "raw" / f"{fam}__{var}.stats.json", label)
-        split_out(raw, fam, None)
-        stats = json.loads((TE / "raw" / f"{fam}__{var}.stats.json").read_text()) \
-            if (TE / "raw" / f"{fam}__{var}.stats.json").exists() else {}
-        record_deploy(f"{fam}__{var}", {"backend": (f"vLLM, compressed-tensors {info['method']}" if _VLLM_OK else
-                                                    stats.get("backend", "transformers") + f", {info['method']}"),
-                                        "size_gb": info["size_gb"], "quant_minutes": info["minutes"],
-                                        "weights_vram_gb": loading_gib(label) if _VLLM_OK else stats.get("weights_vram_gb"),
-                                        "seconds": stats.get("seconds"), "output_tokens": stats.get("output_tokens"),
-                                        "tokens_per_s": round(stats["output_tokens"] / stats["seconds"], 1)
-                                        if stats.get("seconds") else None})
-        if left:
-            fallback("T4", f"{fam}: 4-bit model generation incomplete", f"{left} answers missing (vLLM load/serve failed?)")
-            continue
-        ok += 1
-        import shutil
-        shutil.rmtree(qdir, ignore_errors=True)       # disk reserve for the judge; regenerate with src/trained_quant.py
-        log().info(f"[T4] {fam}: 4-bit model evaluated and removed (free {free_gb():.1f} GB)")
+    ok = sum(awq_one(fam, model, its, be) for fam, model in MODEL_ID.items())
     if ok == 0:
         raise SystemExit("T4: no 4-bit variant evaluated")
+
+
+def redo_rtn_with_awq():
+    """One-time fix (before the judge is downloaded): a model whose 4-bit export fell back to RTN because the Gemma 3
+    regexes also matched the audio tower is re-quantized with language-model-anchored AWQ mappings."""
+    import shutil
+    st = TE / "deploy_stats.json"
+    if not st.exists():
+        return
+    d = json.loads(st.read_text())
+    its, be = all_items(), best_epochs()
+    for fam, model in MODEL_ID.items():
+        key = f"{fam}__awq_{be[fam]}"
+        if "RTN" not in str(d.get(key, {}).get("backend", "")) or (TE / f".redo_{fam}").exists():
+            continue
+        (TE / f".redo_{fam}").write_text(time.strftime("%F %T"))
+        src = ANS / key
+        bak = ANS / (key + "_rtn")
+        if src.exists():
+            shutil.rmtree(bak, ignore_errors=True)
+            src.rename(bak)
+        (TE / "raw" / f"{key}.jsonl").unlink(missing_ok=True)
+        shutil.rmtree(repo_path("models_quant") / f"{fam}_awq_{be[fam]}", ignore_errors=True)
+        fallback("T6", f"{fam}: 4-bit export redone with AWQ (RTN answers kept in answers/{key}_rtn, not graded)",
+                 "the first AWQ attempt failed because the Gemma 3 mapping regexes also matched the audio tower")
+        awq_one(fam, model, its, be)
 
 
 def cmd_gguf():
@@ -461,6 +490,7 @@ def cmd_gguf():
 def cmd_judge_keyfacts():
     from local_common import JUDGES, KEYFACTS, CACHE, run_worker, parse_json, deadline_from_env
     import local_facts as F
+    redo_rtn_with_awq()
     if free_gb() < 10 + 16:
         raise SystemExit(f"only {free_gb():.1f} GB free; the judge needs ~15 GB plus the 10 GB reserve")
     from huggingface_hub import snapshot_download
