@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Trained-question recall: the exact training questions (n = 500)}
+\label{tab:T7_trained_recall}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llccccccc}
+\toprule
+Model & Variant & Judge acc & KF recall & Contra. & F1 & Exact repro. & ROUGE-L & Words \\
+\midrule
+Qwen3-8B & base & – & – & – & 0.266 & 0.000 & 0.186 & 123.9 \\
+Qwen3-8B & concise base (<= 40 words) & – & – & – & 0.313$^\dagger$ & 0.004 & 0.238$^\dagger$ & 24.6$^\dagger$ \\
+Qwen3-8B & 1-epoch (run 10-03) & – & – & – & 0.409$^\dagger$ & 0.016 & 0.325$^\dagger$ & 33.6$^\dagger$ \\
+Qwen3-8B & ep1 & – & – & – & 0.445$^\dagger$ & 0.054$^\dagger$ & 0.368$^\dagger$ & 32.5$^\dagger$ \\
+Qwen3-8B & ep2 & – & – & – & 0.537$^\dagger$ & 0.184$^\dagger$ & 0.474$^\dagger$ & 38.7$^\dagger$ \\
+Qwen3-8B & ep3 & – & – & – & \textbf{0.561$^\dagger$} & \textbf{0.214$^\dagger$} & \textbf{0.502$^\dagger$} & 38.1$^\dagger$ \\
+\bottomrule
+\end{tabular}}
+\par\smallskip\footnotesize Judge acc = (correct + 0.5 partial) / N (local judge, prompt v1). KF recall = share of reference key facts supported by the answer (MiniCheck-7B). Exact repro. = share of answers with ROUGE-L $\geq$ 0.8 against the trained answer. $^\dagger$ = differs from the same model's base (paired bootstrap, Holm-adjusted p < 0.05). Best per column in bold.
+\end{table}

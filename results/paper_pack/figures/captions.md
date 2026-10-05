@@ -1,5 +1,7 @@
 # Figure captions
 
+**F10_accuracy_vs_size**: Figure 10. Accuracy vs model size: bf16 vs 4-bit deployments of the best epoch
+
 **F1_loss_curves**: Figure 1. Training vs validation loss (3-epoch run): validation loss rises after epoch 1
 
 **F2_judge_accuracy_vs_epoch**: Figure 2. Local-judge accuracy vs epoch; open diamonds = 1-epoch run (run 10-03); 95% CI
@@ -13,3 +15,5 @@
 **F6_length_bias**: Figure 6. Length-bias check: accuracy by answer-length quartile, base vs fine-tuned
 
 **F8_seen_vs_unseen_gap**: Figure 8. Memorization vs generalization: seen-facts minus mean unseen-split score per epoch
+
+**F9_exact_paraphrase_unseen**: Figure 9. The three-test picture: exact training questions vs paraphrases vs unseen documents

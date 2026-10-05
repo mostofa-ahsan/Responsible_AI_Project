@@ -1,0 +1,10 @@
+family,epoch,variant,deployment,disk_gb,weights_vram_gb,tokens_per_s,backend,judge_test_trained_exact,kf_test_trained_exact,retained_test_trained_exact,judge_test_seen_facts,kf_test_seen_facts,retained_test_seen_facts,judge_test_heldout_docs,kf_test_heldout_docs,retained_test_heldout_docs,retained_mean
+qwen3-8b,ep1,ep1,bf16 base + LoRA (vLLM),16.47,15.36,1260.8,"vLLM 0.30, bf16, LoRA r16",,,,0.5734767025089605,0.3379928315412187,1.0,0.506,0.34546666666666664,1.0,
+qwen3-8b,ep1,nf4_ep1,NF4 base + LoRA (transformers),16.47,,,"vLLM 0.30, bf16, LoRA r16",,,,,,,,,,
+qwen3-8b,ep1,awq_ep1,merged 4-bit (vLLM),,,,"vLLM 0.30, bf16, LoRA r16",,,,,,,,,,
+gemma-4-e4b-it,ep1,ep1,bf16 base + LoRA (vLLM),16.06,,,"vLLM 0.30, bf16, LoRA r16",,,,0.5949820788530465,0.3590203106332139,1.0,0.5,0.322,1.0,1.0
+gemma-4-e4b-it,ep1,nf4_ep1,NF4 base + LoRA (transformers),16.06,,,"vLLM 0.30, bf16, LoRA r16",,,,,,,,,,
+gemma-4-e4b-it,ep1,awq_ep1,merged 4-bit (vLLM),,,,"vLLM 0.30, bf16, LoRA r16",,,,,,,,,,
+llama-3.1-8b-instruct,ep2,ep2,bf16 base + LoRA (vLLM),16.14,,,"vLLM 0.30, bf16, LoRA r16",,,,0.6738351254480287,0.4870967741935484,1.0,0.465,0.31089999999999995,1.0,1.0
+llama-3.1-8b-instruct,ep2,nf4_ep2,NF4 base + LoRA (transformers),16.14,,,"vLLM 0.30, bf16, LoRA r16",,,,,,,,,,
+llama-3.1-8b-instruct,ep2,awq_ep2,merged 4-bit (vLLM),,,,"vLLM 0.30, bf16, LoRA r16",,,,,,,,,,

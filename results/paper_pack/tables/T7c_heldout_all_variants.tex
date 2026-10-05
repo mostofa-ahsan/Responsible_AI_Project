@@ -1,0 +1,30 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Table 7c. Held-out documents (n = 500), all variants}
+\label{tab:T7c_heldout_all_variants}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llccccccc}
+\toprule
+Model & Variant & Judge acc & KF recall & Contra. & F1 & Exact repro. & ROUGE-L & Words \\
+\midrule
+Qwen3-8B & base & 0.642 & 0.518 & 0.088 & 0.259 & 0.000 & 0.175 & 121.7 \\
+Qwen3-8B & concise base (<= 40 words) & – & – & – & 0.283$^\dagger$ & 0.004 & 0.213$^\dagger$ & 24.8$^\dagger$ \\
+Qwen3-8B & 1-epoch (run 10-03) & 0.485$^\dagger$ & 0.341$^\dagger$ & 0.106 & 0.355$^\dagger$ & \textbf{0.008} & 0.267$^\dagger$ & 34.9$^\dagger$ \\
+Qwen3-8B & ep1 & 0.506$^\dagger$ & 0.345$^\dagger$ & 0.101 & 0.340$^\dagger$ & 0.004 & 0.256$^\dagger$ & 33.2$^\dagger$ \\
+Qwen3-8B & ep2 & 0.477$^\dagger$ & 0.323$^\dagger$ & 0.085 & 0.319$^\dagger$ & 0.002 & 0.233$^\dagger$ & 40.7$^\dagger$ \\
+Qwen3-8B & ep3 & 0.476$^\dagger$ & 0.337$^\dagger$ & 0.091 & 0.315$^\dagger$ & 0.002 & 0.227$^\dagger$ & 39.9$^\dagger$ \\
+Gemma 4 E4B & base & \textbf{0.679} & \textbf{0.541} & \textbf{0.065} & 0.177 & 0.000 & 0.118 & 222.4 \\
+Gemma 4 E4B & 1-epoch (run 10-03) & 0.518$^\dagger$ & 0.357$^\dagger$ & 0.083 & \textbf{0.361$^\dagger$} & 0.004 & \textbf{0.276$^\dagger$} & 31.7$^\dagger$ \\
+Gemma 4 E4B & ep1 & 0.500$^\dagger$ & 0.322$^\dagger$ & 0.096$^\dagger$ & 0.347$^\dagger$ & 0.002 & 0.267$^\dagger$ & 31.6$^\dagger$ \\
+Gemma 4 E4B & ep2 & 0.498$^\dagger$ & 0.327$^\dagger$ & 0.093 & 0.332$^\dagger$ & 0.002 & 0.246$^\dagger$ & 35.0$^\dagger$ \\
+Gemma 4 E4B & ep3 & 0.484$^\dagger$ & 0.335$^\dagger$ & 0.085 & 0.326$^\dagger$ & 0.002 & 0.239$^\dagger$ & 35.9$^\dagger$ \\
+Llama 3.1 8B & base & 0.534 & 0.493 & 0.100 & 0.179 & 0.000 & 0.127 & 212.8 \\
+Llama 3.1 8B & 1-epoch (run 10-03) & 0.485$^\dagger$ & 0.333$^\dagger$ & 0.102 & 0.346$^\dagger$ & 0.002 & 0.259$^\dagger$ & 35.0$^\dagger$ \\
+Llama 3.1 8B & ep1 & 0.460$^\dagger$ & 0.325$^\dagger$ & 0.093 & 0.334$^\dagger$ & 0.002 & 0.248$^\dagger$ & 36.1$^\dagger$ \\
+Llama 3.1 8B & ep2 & 0.465$^\dagger$ & 0.311$^\dagger$ & 0.102 & 0.310$^\dagger$ & 0.002 & 0.222$^\dagger$ & 42.8$^\dagger$ \\
+Llama 3.1 8B & ep3 & 0.462$^\dagger$ & 0.308$^\dagger$ & 0.090 & 0.311$^\dagger$ & 0.002 & 0.226$^\dagger$ & 41.1$^\dagger$ \\
+\bottomrule
+\end{tabular}}
+\par\smallskip\footnotesize Judge acc = (correct + 0.5 partial) / N (local judge, prompt v1). KF recall = share of reference key facts supported by the answer (MiniCheck-7B). Exact repro. = share of answers with ROUGE-L $\geq$ 0.8 against the trained answer. $^\dagger$ = differs from the same model's base (paired bootstrap, Holm-adjusted p < 0.05). Best per column in bold.
+\end{table}
