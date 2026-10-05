@@ -68,3 +68,19 @@ Same recipe as `models_epochs` epoch 1 (QLoRA, cosine schedule over 3 epochs, st
 | – | Validation loss | 2.293 | 2.290 | -0.003 | 0.003 |
 
 Across finished models: 2 of 36 metric × split differences have a 95% CI excluding 0; largest |Δ|: Token F1 0.009, ROUGE-L 0.007, Key-fact recall (minicheck7b) 0.025, Contradiction rate 0.010.
+
+## Judge accuracy (graded later by the same calibrated local judge, prompt v1)
+
+| Model | Split | Seed 42 | Seed 43 | Δ (43 − 42) [95% CI] |
+|---|---|---|---|---|
+| Qwen3-8B | test_indomain | 0.535 | 0.553 | +0.018 [-0.010, +0.044] |
+| Qwen3-8B | test_heldout_docs | 0.506 | 0.471 | -0.035 [-0.063, -0.007] |
+| Qwen3-8B | test_seen_facts | 0.573 | 0.604 | +0.030 [-0.005, +0.068] |
+| Gemma 4 E4B | test_indomain | 0.553 | 0.531 | -0.022 [-0.050, +0.005] |
+| Gemma 4 E4B | test_heldout_docs | 0.500 | 0.495 | -0.005 [-0.030, +0.020] |
+| Gemma 4 E4B | test_seen_facts | 0.595 | 0.572 | -0.023 [-0.059, +0.014] |
+| Llama 3.1 8B | test_indomain | 0.525 | 0.521 | -0.004 [-0.028, +0.021] |
+| Llama 3.1 8B | test_heldout_docs | 0.460 | 0.474 | +0.014 [-0.013, +0.040] |
+| Llama 3.1 8B | test_seen_facts | 0.615 | 0.600 | -0.014 [-0.056, +0.027] |
+
+1 of 9 judge-accuracy differences have a 95% CI excluding 0; largest |Δ| 0.035.

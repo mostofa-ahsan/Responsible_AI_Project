@@ -1,10 +1,10 @@
 family,epoch,variant,deployment,disk_gb,weights_vram_gb,tokens_per_s,backend,judge_test_trained_exact,kf_test_trained_exact,retained_test_trained_exact,judge_test_seen_facts,kf_test_seen_facts,retained_test_seen_facts,judge_test_heldout_docs,kf_test_heldout_docs,retained_test_heldout_docs,retained_mean
-qwen3-8b,ep1,ep1,bf16 base + LoRA (vLLM),16.47,15.36,1260.8,"vLLM 0.30, bf16, LoRA r16",,,,0.5734767025089605,0.3379928315412187,1.0,0.506,0.34546666666666664,1.0,
-qwen3-8b,ep1,nf4_ep1,NF4 base + LoRA (transformers),16.47,,,"vLLM 0.30, bf16, LoRA r16",,,,,,,,,,
-qwen3-8b,ep1,awq_ep1,merged 4-bit (vLLM),,,,"vLLM 0.30, bf16, LoRA r16",,,,,,,,,,
-gemma-4-e4b-it,ep1,ep1,bf16 base + LoRA (vLLM),16.06,,,"vLLM 0.30, bf16, LoRA r16",,,,0.5949820788530465,0.3590203106332139,1.0,0.5,0.322,1.0,1.0
-gemma-4-e4b-it,ep1,nf4_ep1,NF4 base + LoRA (transformers),16.06,,,"vLLM 0.30, bf16, LoRA r16",,,,,,,,,,
-gemma-4-e4b-it,ep1,awq_ep1,merged 4-bit (vLLM),,,,"vLLM 0.30, bf16, LoRA r16",,,,,,,,,,
-llama-3.1-8b-instruct,ep2,ep2,bf16 base + LoRA (vLLM),16.14,,,"vLLM 0.30, bf16, LoRA r16",,,,0.6738351254480287,0.4870967741935484,1.0,0.465,0.31089999999999995,1.0,1.0
-llama-3.1-8b-instruct,ep2,nf4_ep2,NF4 base + LoRA (transformers),16.14,,,"vLLM 0.30, bf16, LoRA r16",,,,,,,,,,
-llama-3.1-8b-instruct,ep2,awq_ep2,merged 4-bit (vLLM),,,,"vLLM 0.30, bf16, LoRA r16",,,,,,,,,,
+qwen3-8b,ep1,ep1,bf16 base + LoRA (vLLM),16.47,15.36,1260.8,"vLLM 0.30, bf16, LoRA r16",0.593,0.3990333333333333,1.0,0.5734767025089605,0.3379928315412187,1.0,0.506,0.34546666666666664,1.0,1.0
+qwen3-8b,ep1,nf4_ep1,NF4 base + LoRA (transformers),16.47,6.35,92.8,"transformers + bitsandbytes NF4 (double quant) + PEFT LoRA, batch 16",0.5901803607214429,0.3985666666666667,0.9952451276921466,0.5967741935483871,0.33829151732377544,1.0406250000000001,0.475,0.3211666666666667,0.9387351778656126,0.9915351018525863
+qwen3-8b,ep1,awq_ep1,merged 4-bit (vLLM),6.11,5.71,1582.0,"vLLM, compressed-tensors AWQ W4A16 asym (group 128)",0.572,0.3981,0.9645868465430016,0.5557553956834532,0.3241338112305854,0.9690984712230216,0.4849699398797595,0.3156999999999999,0.9584386163631611,0.9640413113763948
+gemma-4-e4b-it,ep1,ep1,bf16 base + LoRA (vLLM),16.06,15.27,1894.1,"vLLM 0.30, bf16, LoRA r16",0.563,0.3646333333333333,1.0,0.5949820788530465,0.3590203106332139,1.0,0.5,0.322,1.0,1.0
+gemma-4-e4b-it,ep1,nf4_ep1,NF4 base + LoRA (transformers),16.06,9.52,64.9,"transformers + bitsandbytes NF4 (double quant) + PEFT LoRA, batch 16",0.576,0.3773000000000001,1.0230905861456483,0.5734767025089605,0.3531063321385902,0.963855421686747,0.499,0.32626666666666665,0.998,0.9949820026107984
+gemma-4-e4b-it,ep1,awq_ep1,merged 4-bit (vLLM),10.03,9.72,2307.8,"vLLM, compressed-tensors RTN W4A16 asym (AWQ failed: ValueError)",0.528,0.34823333333333334,0.9378330373001778,0.5501792114695341,0.3280167264038231,0.9246987951807231,0.485,0.3139666666666666,0.97,0.9441772774936336
+llama-3.1-8b-instruct,ep2,ep2,bf16 base + LoRA (vLLM),16.14,15.09,1469.6,"vLLM 0.30, bf16, LoRA r16",0.853,0.7257,1.0,0.6738351254480287,0.4870967741935484,1.0,0.465,0.31089999999999995,1.0,1.0
+llama-3.1-8b-instruct,ep2,nf4_ep2,NF4 base + LoRA (transformers),16.14,5.97,108.9,"transformers + bitsandbytes NF4 (double quant) + PEFT LoRA, batch 16",0.962,0.8209000000000001,1.1277842907385698,0.7222222222222222,0.5385902031063321,1.0718085106382977,0.451,0.31779999999999997,0.9698924731182795,1.0564950914983824
+llama-3.1-8b-instruct,ep2,awq_ep2,merged 4-bit (vLLM),5.75,5.39,1875.0,"vLLM, compressed-tensors AWQ W4A16 asym (group 128)",0.687,0.5730999999999999,0.8053927315357562,0.5956678700361011,0.4222819593787336,0.8839964667025118,0.4408817635270541,0.3134666666666666,0.9481328247893637,0.8791740076758772
