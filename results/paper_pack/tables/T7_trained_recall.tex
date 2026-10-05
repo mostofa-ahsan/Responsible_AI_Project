@@ -8,12 +8,30 @@
 \toprule
 Model & Variant & Judge acc & KF recall & Contra. & F1 & Exact repro. & ROUGE-L & Words \\
 \midrule
-Qwen3-8B & base & – & – & – & 0.266 & 0.000 & 0.186 & 123.9 \\
-Qwen3-8B & concise base (<= 40 words) & – & – & – & 0.313$^\dagger$ & 0.004 & 0.238$^\dagger$ & 24.6$^\dagger$ \\
-Qwen3-8B & 1-epoch (run 10-03) & – & – & – & 0.409$^\dagger$ & 0.016 & 0.325$^\dagger$ & 33.6$^\dagger$ \\
-Qwen3-8B & ep1 & – & – & – & 0.445$^\dagger$ & 0.054$^\dagger$ & 0.368$^\dagger$ & 32.5$^\dagger$ \\
-Qwen3-8B & ep2 & – & – & – & 0.537$^\dagger$ & 0.184$^\dagger$ & 0.474$^\dagger$ & 38.7$^\dagger$ \\
-Qwen3-8B & ep3 & – & – & – & \textbf{0.561$^\dagger$} & \textbf{0.214$^\dagger$} & \textbf{0.502$^\dagger$} & 38.1$^\dagger$ \\
+Qwen3-8B & base & 0.657 & 0.559 & 0.093 & 0.266 & 0.000 & 0.186 & 123.9 \\
+Qwen3-8B & concise base (<= 40 words) & 0.534$^\dagger$ & 0.332$^\dagger$ & 0.096 & 0.313$^\dagger$ & 0.004 & 0.238$^\dagger$ & 24.6$^\dagger$ \\
+Qwen3-8B & 1-epoch (run 10-03) & 0.546$^\dagger$ & 0.361$^\dagger$ & 0.085 & 0.409$^\dagger$ & 0.016 & 0.325$^\dagger$ & 33.6$^\dagger$ \\
+Qwen3-8B & ep1 & 0.593$^\dagger$ & 0.399$^\dagger$ & 0.069 & 0.445$^\dagger$ & 0.054$^\dagger$ & 0.368$^\dagger$ & 32.5$^\dagger$ \\
+Qwen3-8B & ep2 & 0.667 & 0.511$^\dagger$ & 0.048$^\dagger$ & 0.537$^\dagger$ & 0.184$^\dagger$ & 0.474$^\dagger$ & 38.7$^\dagger$ \\
+Qwen3-8B & ep3 & 0.670 & 0.529 & 0.055 & 0.561$^\dagger$ & 0.214$^\dagger$ & 0.502$^\dagger$ & 38.1$^\dagger$ \\
+Qwen3-8B & NF4 base + adapter (ep1) & 0.590$^\dagger$ & 0.399$^\dagger$ & 0.064 & 0.455$^\dagger$ & 0.064$^\dagger$ & 0.379$^\dagger$ & 31.5$^\dagger$ \\
+Qwen3-8B & merged 4-bit (AWQ/W4A16, vLLM) (ep1) & 0.572$^\dagger$ & 0.398$^\dagger$ & 0.076 & 0.426$^\dagger$ & 0.036$^\dagger$ & 0.345$^\dagger$ & 34.2$^\dagger$ \\
+Gemma 4 E4B & base & 0.702 & 0.562 & 0.073 & 0.173 & 0.000 & 0.118 & 227.9 \\
+Gemma 4 E4B & concise base (<= 40 words) & 0.548$^\dagger$ & 0.322$^\dagger$ & 0.078 & 0.290$^\dagger$ & 0.002 & 0.212$^\dagger$ & 28.0$^\dagger$ \\
+Gemma 4 E4B & 1-epoch (run 10-03) & 0.547$^\dagger$ & 0.349$^\dagger$ & 0.080 & 0.405$^\dagger$ & 0.014 & 0.319$^\dagger$ & 30.7$^\dagger$ \\
+Gemma 4 E4B & ep1 & 0.563$^\dagger$ & 0.365$^\dagger$ & 0.073 & 0.422$^\dagger$ & 0.026 & 0.341$^\dagger$ & 30.8$^\dagger$ \\
+Gemma 4 E4B & ep2 & 0.614$^\dagger$ & 0.422$^\dagger$ & 0.068 & 0.467$^\dagger$ & 0.066$^\dagger$ & 0.394$^\dagger$ & 33.6$^\dagger$ \\
+Gemma 4 E4B & ep3 & 0.638$^\dagger$ & 0.432$^\dagger$ & 0.061 & 0.486$^\dagger$ & 0.090$^\dagger$ & 0.413$^\dagger$ & 34.0$^\dagger$ \\
+Gemma 4 E4B & NF4 base + adapter (ep1) & 0.576$^\dagger$ & 0.377$^\dagger$ & 0.071 & 0.427$^\dagger$ & 0.042$^\dagger$ & 0.354$^\dagger$ & 30.9$^\dagger$ \\
+Gemma 4 E4B & merged 4-bit (AWQ/W4A16, vLLM) (ep1) & 0.528$^\dagger$ & 0.348$^\dagger$ & 0.083 & 0.396$^\dagger$ & 0.014 & 0.314$^\dagger$ & 31.7$^\dagger$ \\
+Llama 3.1 8B & base & 0.552 & 0.517 & 0.100 & 0.179 & 0.000 & 0.129 & 222.1 \\
+Llama 3.1 8B & concise base (<= 40 words) & 0.495$^\dagger$ & 0.369$^\dagger$ & 0.105 & 0.315$^\dagger$ & 0.000 & 0.231$^\dagger$ & 37.8$^\dagger$ \\
+Llama 3.1 8B & 1-epoch (run 10-03) & 0.571 & 0.378$^\dagger$ & 0.072 & 0.431$^\dagger$ & 0.040$^\dagger$ & 0.351$^\dagger$ & 33.5$^\dagger$ \\
+Llama 3.1 8B & ep1 & 0.607$^\dagger$ & 0.430$^\dagger$ & 0.058$^\dagger$ & 0.481$^\dagger$ & 0.080$^\dagger$ & 0.413$^\dagger$ & 35.1$^\dagger$ \\
+Llama 3.1 8B & ep2 & 0.853$^\dagger$ & 0.726$^\dagger$ & 0.029$^\dagger$ & 0.811$^\dagger$ & 0.658$^\dagger$ & 0.788$^\dagger$ & 38.8$^\dagger$ \\
+Llama 3.1 8B & ep3 & 0.896$^\dagger$ & 0.751$^\dagger$ & 0.019$^\dagger$ & 0.856$^\dagger$ & 0.742$^\dagger$ & 0.839$^\dagger$ & 38.1$^\dagger$ \\
+Llama 3.1 8B & NF4 base + adapter (ep2) & \textbf{0.962$^\dagger$} & \textbf{0.821$^\dagger$} & \textbf{0.009$^\dagger$} & \textbf{0.943$^\dagger$} & \textbf{0.900$^\dagger$} & \textbf{0.934$^\dagger$} & 38.2$^\dagger$ \\
+Llama 3.1 8B & merged 4-bit (AWQ/W4A16, vLLM) (ep2) & 0.687$^\dagger$ & 0.573$^\dagger$ & 0.045$^\dagger$ & 0.651$^\dagger$ & 0.342$^\dagger$ & 0.609$^\dagger$ & 39.6$^\dagger$ \\
 \bottomrule
 \end{tabular}}
 \par\smallskip\footnotesize Judge acc = (correct + 0.5 partial) / N (local judge, prompt v1). KF recall = share of reference key facts supported by the answer (MiniCheck-7B). Exact repro. = share of answers with ROUGE-L $\geq$ 0.8 against the trained answer. $^\dagger$ = differs from the same model's base (paired bootstrap, Holm-adjusted p < 0.05). Best per column in bold.
