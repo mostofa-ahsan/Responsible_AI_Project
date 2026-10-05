@@ -48,3 +48,13 @@ results/local_eval/*.tmp
 models_seeds*/
 results/seed_replication/.done/
 results/.gpu_pause
+
+# trained_eval (added by git_local_commit.sh): metrics in, answers/caches/quantized models out
+!results/trained_eval/
+!results/trained_eval/per_item/
+!results/trained_eval/per_item/*.jsonl
+results/trained_eval/.done/
+results/trained_eval/answers/
+results/trained_eval/raw/
+results/trained_eval/cache/
+models_quant/

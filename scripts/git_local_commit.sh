@@ -21,6 +21,9 @@ results/local_eval/*.tmp
 !data/eval_keyfacts/*.jsonl
 EOF
 fi
+if ! grep -q "trained_eval (added" .gitignore; then
+  printf '\n# trained_eval (added by git_local_commit.sh): metrics in, answers/caches/quantized models out\n!results/trained_eval/\n!results/trained_eval/per_item/\n!results/trained_eval/per_item/*.jsonl\nresults/trained_eval/.done/\nresults/trained_eval/answers/\nresults/trained_eval/raw/\nresults/trained_eval/cache/\nmodels_quant/\n' >> .gitignore
+fi
 if ! grep -q "^models_seeds" .gitignore; then
   printf '\n# seed replication: adapters stay local, summaries are committed\nmodels_seeds*/\nresults/seed_replication/.done/\nresults/.gpu_pause\n' >> .gitignore
 fi
@@ -28,11 +31,14 @@ fi
 for f in $(find results/local_eval results/paper_pack results/seed_replication data/eval_keyfacts -type f -size +90M 2>/dev/null); do
   grep -qxF "$f" .git/info/exclude || echo "$f" >> .git/info/exclude
 done
-git add .gitignore CLAUDE.md README.md src/local_*.py src/seed_eval.py src/train_epochs.py src/vllm_json_worker.py \
-        src/vllm_shims scripts/run_all_localeval.sh scripts/localeval_commit.sh scripts/git_local_commit.sh \
-        scripts/gpu_watchdog.sh scripts/resume_after_crash.sh scripts/seeds_queue.sh \
-        results/local_eval results/paper_pack results/seed_replication data/eval_keyfacts results/run_epochs/PROGRESS.md \
-        2>/dev/null
+paths=(.gitignore CLAUDE.md README.md src/local_*.py src/seed_eval.py src/train_epochs.py src/vllm_json_worker.py
+       src/vllm_shims scripts/run_all_localeval.sh scripts/localeval_commit.sh scripts/git_local_commit.sh
+       scripts/gpu_watchdog.sh scripts/resume_after_crash.sh scripts/seeds_queue.sh
+       results/local_eval results/paper_pack results/seed_replication data/eval_keyfacts results/run_epochs/PROGRESS.md
+       src/trained_eval.py src/trained_quant.py src/vllm_multi_generate.py scripts/run_trained_eval.sh
+       results/trained_eval data/splits/test_trained_exact.jsonl)
+existing=(); for p in "${paths[@]}"; do [ -e "$p" ] && existing+=("$p"); done   # git add aborts on a missing path
+git add "${existing[@]}" 2>&1 | grep -v "^$" | head -3
 bad=$(git diff --cached --name-only | grep -E '\.(safetensors|bin|pt|gguf)$|judge_cache/|/\.done/|\.gpu_pause')
 if [ -n "$bad" ]; then echo "$bad" | xargs git reset -q HEAD --; fi
 if git diff --cached --quiet; then echo "git: nothing new to commit"; exit 0; fi
