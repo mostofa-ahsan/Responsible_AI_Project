@@ -1,0 +1,9 @@
+{
+  "run": false,
+  "minutes_left": 336,
+  "free_gb": 19.8,
+  "reasons": [
+    "the judge weights were deleted after S4 by design, so RAG answers could not be graded with the same calibrated judge in this run; re-downloading it (15 GB) plus the retrieval models does not fit the disk reserve next to MiniCheck-7B"
+  ],
+  "future_work": "closed-book vs RAG baseline (BM25 + dense + Qwen3-Reranker, recall@5 92%) graded by the same local judge and checkers"
+}
