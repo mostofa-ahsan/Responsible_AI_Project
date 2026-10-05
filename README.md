@@ -19,6 +19,10 @@ tmux new -s localeval 'bash scripts/run_all_localeval.sh'   # resumable; markers
 tail -f logs/localeval.log
 ```
 
+After a crash or reboot, run `bash scripts/resume_after_crash.sh`: it restarts the GPU watchdog
+(`scripts/gpu_watchdog.sh`, logs/gpu_temp.log, thermal pause at >= 84 C), the local evaluation if unfinished,
+and the seed-43 replication queue (`scripts/seeds_queue.sh`, results/seed_replication/SUMMARY.md).
+
 Stages: S1 judge calibration against the Opus grades (`src/local_judge.py calibrate`), S2 full grading
 (`grade`), S3/S4 key-fact and claim decomposition (`src/local_facts.py`), S5 MiniCheck-7B / Flan-T5 / DeBERTa NLI
 (`src/local_checks.py`), S6 statistics (`src/local_stats.py`), S7 paper pack (`src/local_pack.py`). Models run

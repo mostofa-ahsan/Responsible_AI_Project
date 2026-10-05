@@ -32,22 +32,22 @@ Adapters: `models_epochs/<model>/epoch{1,2,3}/adapter`; logs: `models_epochs/<mo
 
 ## Local evaluation
 
-_Added 2026-10-04 11:15 by src/local_pack.py; local judge mistral-small-3.2-24b-awq; details in results/local_eval/SUMMARY.md and results/paper_pack/._
+_Added 2026-10-04 21:38 by src/local_pack.py; local judge mistral-small-3.2-24b-awq; details in results/local_eval/SUMMARY.md and results/paper_pack/._
 
 | Model | Variant | test_indomain judge acc / KF recall | test_heldout_docs judge acc / KF recall | test_seen_facts judge acc / KF recall |
 |---|---|---|---|---|
-| qwen3-8b | base | 0.669 / – | 0.642 / – | 0.649 / – |
-| qwen3-8b | 1-epoch (run 10-03) | 0.534 / – | 0.485 / – | 0.561 / – |
-| qwen3-8b | ep1 | 0.535 / – | 0.506 / – | 0.573 / – |
-| qwen3-8b | ep2 | 0.508 / – | 0.477 / – | 0.590 / – |
-| qwen3-8b | ep3 | 0.536 / – | 0.476 / – | 0.584 / – |
-| gemma-4-e4b-it | base | 0.731 / – | 0.679 / – | 0.668 / – |
-| gemma-4-e4b-it | 1-epoch (run 10-03) | 0.543 / – | 0.518 / – | 0.584 / – |
-| gemma-4-e4b-it | ep1 | 0.553 / – | 0.500 / – | 0.595 / – |
-| gemma-4-e4b-it | ep2 | 0.530 / – | 0.498 / – | 0.599 / – |
-| gemma-4-e4b-it | ep3 | 0.532 / – | 0.484 / – | 0.629 / – |
-| llama-3.1-8b-instruct | base | 0.575 / – | 0.534 / – | 0.522 / – |
-| llama-3.1-8b-instruct | 1-epoch (run 10-03) | 0.520 / – | 0.485 / – | 0.595 / – |
-| llama-3.1-8b-instruct | ep1 | 0.525 / – | 0.460 / – | 0.615 / – |
-| llama-3.1-8b-instruct | ep2 | 0.496 / – | 0.465 / – | 0.674 / – |
-| llama-3.1-8b-instruct | ep3 | 0.514 / – | 0.462 / – | 0.654 / – |
+| qwen3-8b | base | 0.669 / 0.564 | 0.642 / 0.518 | 0.649 / 0.523 |
+| qwen3-8b | 1-epoch (run 10-03) | 0.534 / 0.387 | 0.485 / 0.341 | 0.561 / 0.352 |
+| qwen3-8b | ep1 | 0.535 / 0.360 | 0.506 / 0.345 | 0.573 / 0.338 |
+| qwen3-8b | ep2 | 0.508 / 0.381 | 0.477 / 0.323 | 0.590 / 0.426 |
+| qwen3-8b | ep3 | 0.536 / 0.385 | 0.476 / 0.337 | 0.584 / 0.407 |
+| gemma-4-e4b-it | base | 0.731 / 0.574 | 0.679 / 0.541 | 0.668 / 0.530 |
+| gemma-4-e4b-it | 1-epoch (run 10-03) | 0.543 / 0.380 | 0.518 / 0.357 | 0.584 / 0.350 |
+| gemma-4-e4b-it | ep1 | 0.553 / 0.371 | 0.500 / 0.322 | 0.595 / 0.359 |
+| gemma-4-e4b-it | ep2 | 0.530 / 0.364 | 0.498 / 0.327 | 0.599 / 0.386 |
+| gemma-4-e4b-it | ep3 | 0.532 / 0.369 | 0.484 / 0.335 | 0.629 / 0.402 |
+| llama-3.1-8b-instruct | base | 0.575 / 0.555 | 0.534 / 0.493 | 0.522 / 0.498 |
+| llama-3.1-8b-instruct | 1-epoch (run 10-03) | 0.520 / 0.375 | 0.485 / 0.333 | 0.595 / 0.358 |
+| llama-3.1-8b-instruct | ep1 | 0.525 / 0.372 | 0.460 / 0.325 | 0.615 / 0.387 |
+| llama-3.1-8b-instruct | ep2 | 0.496 / 0.371 | 0.465 / 0.311 | 0.674 / 0.487 |
+| llama-3.1-8b-instruct | ep3 | 0.514 / 0.371 | 0.462 / 0.308 | 0.654 / 0.485 |

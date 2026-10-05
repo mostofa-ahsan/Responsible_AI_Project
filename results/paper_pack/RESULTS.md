@@ -8,7 +8,7 @@ Three open models (Qwen3-8B, Gemma 4 E4B, Llama 3.1 8B) were QLoRA fine-tuned on
 
 ## Metrics
 
-(1) A local LLM judge (mistral-small-3.2-24b-awq, 4-bit, guided JSON, temperature 0) grades each answer against the reference with the same rubric as the earlier Opus 5.5 judge (correct / partial / incorrect; accuracy = (correct + 0.5 partial) / N) and flags hallucinated specifics. (2) Key-fact recall: each reference answer is split into 1–5 atomic facts; flant5 decides whether the answer supports each fact. (3) Contradiction rate: DeBERTa-v3-large NLI marks reference facts the answer contradicts. (4) Token F1 and ROUGE-L against the reference. 95% CIs by bootstrap (2,000 resamples); paired tests against the same model's base on identical items with Holm correction (Table 5).
+(1) A local LLM judge (mistral-small-3.2-24b-awq, 4-bit, guided JSON, temperature 0) grades each answer against the reference with the same rubric as the earlier Opus 5.5 judge (correct / partial / incorrect; accuracy = (correct + 0.5 partial) / N) and flags hallucinated specifics. (2) Key-fact recall: each reference answer is split into 1–5 atomic facts; minicheck7b decides whether the answer supports each fact. (3) Contradiction rate: DeBERTa-v3-large NLI marks reference facts the answer contradicts. (4) Token F1 and ROUGE-L against the reference. 95% CIs by bootstrap (2,000 resamples); paired tests against the same model's base on identical items with Holm correction (Table 5).
 
 ## Results
 
@@ -16,11 +16,11 @@ Three open models (Qwen3-8B, Gemma 4 E4B, Llama 3.1 8B) were QLoRA fine-tuned on
 - **In-domain (unseen chunks)**: judge accuracy base → ep1 / ep2 / ep3: Qwen3-8B 0.669 → 0.535 / 0.508 / 0.536; Gemma 4 E4B 0.731 → 0.553 / 0.530 / 0.532; Llama 3.1 8B 0.575 → 0.525 / 0.496 / 0.514.
 - **Seen facts (paraphrased)**: judge accuracy base → ep1 / ep2 / ep3: Qwen3-8B 0.649 → 0.573 / 0.590 / 0.584; Gemma 4 E4B 0.668 → 0.595 / 0.599 / 0.629; Llama 3.1 8B 0.522 → 0.615 / 0.674 / 0.654.
 
-- **Style vs facts, Held-out documents (base → ep3)**: Qwen3-8B F1 0.259 → 0.315, key-fact recall – → –, contradiction – → –; Gemma 4 E4B F1 0.177 → 0.326, key-fact recall – → –, contradiction – → –; Llama 3.1 8B F1 0.179 → 0.311, key-fact recall – → –, contradiction – → – (Figure 3, Figure 4).
-- **Style vs facts, Seen facts (paraphrased) (base → ep3)**: Qwen3-8B F1 0.213 → 0.357, key-fact recall – → –, contradiction – → –; Gemma 4 E4B F1 0.151 → 0.368, key-fact recall – → –, contradiction – → –; Llama 3.1 8B F1 0.154 → 0.473, key-fact recall – → –, contradiction – → – (Figure 3, Figure 4).
+- **Style vs facts, Held-out documents (base → ep3)**: Qwen3-8B F1 0.259 → 0.315, key-fact recall 0.518 → 0.337, contradiction 0.088 → 0.091; Gemma 4 E4B F1 0.177 → 0.326, key-fact recall 0.541 → 0.335, contradiction 0.065 → 0.085; Llama 3.1 8B F1 0.179 → 0.311, key-fact recall 0.493 → 0.308, contradiction 0.100 → 0.090 (Figure 3, Figure 4).
+- **Style vs facts, Seen facts (paraphrased) (base → ep3)**: Qwen3-8B F1 0.213 → 0.357, key-fact recall 0.523 → 0.407, contradiction 0.108 → 0.078; Gemma 4 E4B F1 0.151 → 0.368, key-fact recall 0.530 → 0.402, contradiction 0.063 → 0.086; Llama 3.1 8B F1 0.154 → 0.473, key-fact recall 0.498 → 0.485, contradiction 0.083 → 0.058 (Figure 3, Figure 4).
 
 - judge accuracy: 35 of 36 fine-tuned-vs-base comparisons significant after Holm correction (31 lower than base, 4 higher).
-- key-fact recall: 0 of 36 fine-tuned-vs-base comparisons significant after Holm correction (0 lower than base, 0 higher).
+- key-fact recall: 34 of 36 fine-tuned-vs-base comparisons significant after Holm correction (34 lower than base, 0 higher).
 - contradiction rate: 0 of 36 fine-tuned-vs-base comparisons significant after Holm correction (0 lower than base, 0 higher).
 - token F1: 36 of 36 fine-tuned-vs-base comparisons significant after Holm correction (0 lower than base, 36 higher).
 
@@ -33,8 +33,12 @@ Three open models (Qwen3-8B, Gemma 4 E4B, Llama 3.1 8B) were QLoRA fine-tuned on
 ## Validation
 
 On 6673 held-out Opus-graded answers the local judge agrees with Opus 5.5 on 0.646 of 3-class grades (Cohen's κ 0.453, quadratic κ 0.644, binary κ 0.482 correct-vs-rest and 0.606 incorrect-vs-rest). At the system level it correlates with Opus accuracy at r = 0.900 (ρ = 0.806) and reproduces 8 of 9 base→fine-tuned delta signs (Table 4, Figure 5). Gate (max binary κ ≥ 0.5 and all 9 signs): passed.
+Key-fact recall separates Opus-correct from other answers with AUC 0.852.
+Any contradicted key fact correlates with an Opus 'incorrect' grade at r_pb = 0.320 (n = 7674).
 Across the 18 Opus-graded system × split cells, token F1 correlates with Opus accuracy at r = -0.701.
-Phase 2c claim checks cover 0 of 19,185 answers; 'unsupported' claims are not necessarily false, only 'contradicted' ones count as errors.
+Across the 18 Opus-graded system × split cells, key-fact recall correlates with Opus accuracy at r = 0.925.
+MiniCheck-7B and Flan-T5 agree on 0.849 of 67,500 fact decisions (κ 0.684).
+Phase 2c claim checks cover 16,082 of 19,185 answers; 'unsupported' claims are not necessarily false, only 'contradicted' ones count as errors.
 
 ## Limitations
 
@@ -43,3 +47,4 @@ Phase 2c claim checks cover 0 of 19,185 answers; 'unsupported' claims are not ne
 - The 3-epoch run's epoch 1 is not the 1-epoch model: its cosine schedule spans 3 epochs, so at the end of epoch 1 the learning rate is still high. Both are reported separately.
 - Key facts and claims are decomposed by the local judge model; key-fact recall depends on the checker's threshold (p ≥ 0.5); NLI contradiction on long answers uses sentence windows.
 - Opus grades exist only for the base and 1-epoch systems, so validation of the epoch-2/3 numbers is indirect.
+- Single training seed: a seed-43 replication of epoch 1 is queued (`scripts/seeds_queue.sh`); see `results/seed_replication/SUMMARY.md`.

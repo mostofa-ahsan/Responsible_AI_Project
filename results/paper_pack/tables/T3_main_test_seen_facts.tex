@@ -8,21 +8,21 @@
 \toprule
 Model & Variant & Judge acc & Halluc. & KF recall & Contra. & F1 & ROUGE-L \\
 \midrule
-Qwen3-8B & base & 0.649 & 0.297 & – & – & 0.213 & 0.141 \\
-Qwen3-8B & 1-epoch (run 10-03) & 0.561$^\dagger$ & 0.262 & – & – & 0.326$^\dagger$ & 0.240$^\dagger$ \\
-Qwen3-8B & ep1 & 0.573$^\dagger$ & 0.287 & – & – & 0.336$^\dagger$ & 0.255$^\dagger$ \\
-Qwen3-8B & ep2 & 0.590$^\dagger$ & 0.323 & – & – & 0.366$^\dagger$ & 0.283$^\dagger$ \\
-Qwen3-8B & ep3 & 0.584$^\dagger$ & 0.341 & – & – & 0.357$^\dagger$ & 0.279$^\dagger$ \\
-Gemma 4 E4B & base & 0.668 & \textbf{0.168} & – & – & 0.151 & 0.101 \\
-Gemma 4 E4B & 1-epoch (run 10-03) & 0.584$^\dagger$ & 0.233 & – & – & 0.316$^\dagger$ & 0.236$^\dagger$ \\
-Gemma 4 E4B & ep1 & 0.595$^\dagger$ & 0.262 & – & – & 0.340$^\dagger$ & 0.256$^\dagger$ \\
-Gemma 4 E4B & ep2 & 0.599$^\dagger$ & 0.247 & – & – & 0.359$^\dagger$ & 0.272$^\dagger$ \\
-Gemma 4 E4B & ep3 & 0.629 & 0.269 & – & – & 0.368$^\dagger$ & 0.279$^\dagger$ \\
-Llama 3.1 8B & base & 0.522 & 0.448 & – & – & 0.154 & 0.107 \\
-Llama 3.1 8B & 1-epoch (run 10-03) & 0.595$^\dagger$ & 0.255$^\dagger$ & – & – & 0.342$^\dagger$ & 0.260$^\dagger$ \\
-Llama 3.1 8B & ep1 & 0.615$^\dagger$ & 0.287$^\dagger$ & – & – & 0.363$^\dagger$ & 0.281$^\dagger$ \\
-Llama 3.1 8B & ep2 & \textbf{0.674$^\dagger$} & 0.269$^\dagger$ & – & – & 0.463$^\dagger$ & 0.397$^\dagger$ \\
-Llama 3.1 8B & ep3 & 0.654$^\dagger$ & 0.308$^\dagger$ & – & – & \textbf{0.473$^\dagger$} & \textbf{0.411$^\dagger$} \\
+Qwen3-8B & base & 0.649 & 0.297 & 0.523 & 0.108 & 0.213 & 0.141 \\
+Qwen3-8B & 1-epoch (run 10-03) & 0.561$^\dagger$ & 0.262 & 0.352$^\dagger$ & 0.092 & 0.326$^\dagger$ & 0.240$^\dagger$ \\
+Qwen3-8B & ep1 & 0.573$^\dagger$ & 0.287 & 0.338$^\dagger$ & 0.086 & 0.336$^\dagger$ & 0.255$^\dagger$ \\
+Qwen3-8B & ep2 & 0.590$^\dagger$ & 0.323 & 0.426$^\dagger$ & 0.083 & 0.366$^\dagger$ & 0.283$^\dagger$ \\
+Qwen3-8B & ep3 & 0.584$^\dagger$ & 0.341 & 0.407$^\dagger$ & 0.078 & 0.357$^\dagger$ & 0.279$^\dagger$ \\
+Gemma 4 E4B & base & 0.668 & \textbf{0.168} & \textbf{0.530} & 0.063 & 0.151 & 0.101 \\
+Gemma 4 E4B & 1-epoch (run 10-03) & 0.584$^\dagger$ & 0.233 & 0.350$^\dagger$ & 0.080 & 0.316$^\dagger$ & 0.236$^\dagger$ \\
+Gemma 4 E4B & ep1 & 0.595$^\dagger$ & 0.262 & 0.359$^\dagger$ & 0.085 & 0.340$^\dagger$ & 0.256$^\dagger$ \\
+Gemma 4 E4B & ep2 & 0.599$^\dagger$ & 0.247 & 0.386$^\dagger$ & 0.090 & 0.359$^\dagger$ & 0.272$^\dagger$ \\
+Gemma 4 E4B & ep3 & 0.629 & 0.269 & 0.402$^\dagger$ & 0.086 & 0.368$^\dagger$ & 0.279$^\dagger$ \\
+Llama 3.1 8B & base & 0.522 & 0.448 & 0.498 & 0.083 & 0.154 & 0.107 \\
+Llama 3.1 8B & 1-epoch (run 10-03) & 0.595$^\dagger$ & 0.255$^\dagger$ & 0.358$^\dagger$ & 0.099 & 0.342$^\dagger$ & 0.260$^\dagger$ \\
+Llama 3.1 8B & ep1 & 0.615$^\dagger$ & 0.287$^\dagger$ & 0.387$^\dagger$ & 0.078 & 0.363$^\dagger$ & 0.281$^\dagger$ \\
+Llama 3.1 8B & ep2 & \textbf{0.674$^\dagger$} & 0.269$^\dagger$ & 0.487 & 0.065 & 0.463$^\dagger$ & 0.397$^\dagger$ \\
+Llama 3.1 8B & ep3 & 0.654$^\dagger$ & 0.308$^\dagger$ & 0.485 & \textbf{0.058} & \textbf{0.473$^\dagger$} & \textbf{0.411$^\dagger$} \\
 \bottomrule
 \end{tabular}}
 \par\smallskip\footnotesize Best value per column in bold (lowest for hallucination / contradiction). $^\dagger$ = differs from the same family's base, paired bootstrap, Holm-adjusted p < 0.05. Judge acc = (correct + 0.5 partial) / N.
