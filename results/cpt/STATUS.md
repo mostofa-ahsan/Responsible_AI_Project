@@ -1,6 +1,6 @@
 # Arm C (mixed continued pretraining): STATUS
 
-_Written 2026-10-06 15:03._
+_Written 2026-10-06 15:04._
 
 | Stage | Result | Wall time (min) | Note |
 |---|---|---|---|
@@ -31,6 +31,7 @@ _Written 2026-10-06 15:03._
 - Llama 3.1 8B: rank 128, micro-batch 4, epochs 1 (149.6 min, val QA 1.7109, held-out ppl 9.974), 2 (148.4 min, val QA 1.9057, held-out ppl 10.553); base held-out ppl 10.834
 - Qwen3-8B: rank 128, micro-batch 4, epochs 1 (282.4 min, val QA 1.6974, held-out ppl 8.911); base held-out ppl 10.365
 - Gemma 4 E4B: rank 64, micro-batch 1, epochs 1 (242.3 min, val QA 1.7509, held-out ppl 10.247); base held-out ppl 46.472
+- GPU during this run: max 58 °C (2026-10-06 14:58:13), max power draw 262 W (2026-10-06 09:25:11), power limit 260–260 W; thermal pauses: 0.
 - Disk free at the end: 11.4 GB.
 - Git: branch exp/cpt-mixed; 0 failed push attempt(s) recorded (see logs/cpt.log).
 

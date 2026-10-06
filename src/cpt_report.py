@@ -235,7 +235,7 @@ def cmd_status(a):
     st = CP / "stage_status.tsv"
     rows = [l.split("\t") for l in st.read_text().splitlines()] if st.exists() else []
     L = []
-    start = next((r[2] for r in rows if r and r[0] == "power_limit"), None)
+    start = next((r[1] for r in rows if r and r[0] == "power_limit"), None)      # power_limit <date> <watts>
     over = []
     g = repo_path("logs/gpu_temp.log")
     temps, pws, lims = [], [], []
