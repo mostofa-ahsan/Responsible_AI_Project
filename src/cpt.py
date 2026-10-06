@@ -304,6 +304,16 @@ def fallback(stage, what, why):
     log().info(f"[{stage}] FALLBACK: {what} ({why})")
 
 
+def judge_local():
+    from huggingface_hub import snapshot_download
+    from local_common import JUDGES
+    try:
+        p = Path(snapshot_download(JUDGES["A"]["model"], allow_patterns=["*.safetensors"], local_files_only=True))
+        return len(list(p.glob("*.safetensors"))) >= 4
+    except Exception:
+        return False
+
+
 def cmd_judge(a):
     import local_checks as L
     import local_judge as J
@@ -312,7 +322,7 @@ def cmd_judge(a):
     deadline = deadline_from_env(180)
     if L.minicheck_local():
         delete_hf_model(L.MC7B, "C4")
-    if free_gb() < 10 + 16:
+    if not judge_local() and free_gb() < 10 + 16:          # headroom only matters if it still has to be downloaded
         raise SystemExit(f"only {free_gb():.1f} GB free for the judge")
     if not download(JUDGES["A"]["model"], "C4"):
         fallback("C4", "judge grades pending", "judge download failed 3 times")
@@ -349,7 +359,10 @@ def cmd_checks_final(a):
     import local_checks as L
     from local_common import JUDGES
     from trained_eval import delete_hf_model, free_gb
-    delete_hf_model(JUDGES["A"]["model"], "C5")
+    if (CP / ".done" / "C4_judge").exists():
+        delete_hf_model(JUDGES["A"]["model"], "C5")   # only once grading succeeded (never lose an ungraded judge)
+    else:
+        fallback("C5", "judge kept on disk", "C4 did not finish; deleting the judge now would force another download")
     systems = new_systems()
     pairs = fact_pairs(systems)
     have = {(r["split"], r["qa_id"], r["system"], r["k"]) for r in read_jsonl(PI / "support_minicheck7b.jsonl")}

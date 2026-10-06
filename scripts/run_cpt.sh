@@ -9,7 +9,6 @@
 set +e
 cd "$(dirname "$0")/.." || exit 1
 export LLM_OFFLINE=1 TOKENIZERS_PARALLELISM=false
-export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True   # less fragmentation near the 24 GB limit (no numeric change)
 PY=.venv/bin/python
 LOG=logs/cpt.log
 DONE=results/cpt/.done
@@ -114,7 +113,8 @@ for m in meta-llama/Llama-3.1-8B-Instruct Qwen/Qwen3-8B google/gemma-4-E4B-it; d
       while [ $tries -lt 3 ]; do
         tries=$((tries + 1))
         note "C3_$s: training epoch $ep (try $tries, micro-batch $mb, rank $rank)"
-        timeout --kill-after=60 $((box_end - $(date +%s))) $PY src/train_cpt.py --model "$m" --micro-batch $mb \
+        # expandable_segments: less fragmentation near the 24 GB limit (training only; it broke vLLM engine start-up)
+        PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True timeout --kill-after=60 $((box_end - $(date +%s))) $PY src/train_cpt.py --model "$m" --micro-batch $mb \
           --rank $rank --alpha $alpha >> "$LOG" 2>&1
         rc=$?
         [ -f "$dir/epoch$ep/adapter/adapter_config.json" ] && { ok=1; break; }
