@@ -892,6 +892,11 @@ def progress_and_readme(d):
     (`scripts/gpu_watchdog.sh`, logs/gpu_temp.log, thermal pause at >= 84 C), the local evaluation if unfinished,
     and the seed-43 replication queue (`scripts/seeds_queue.sh`, results/seed_replication/SUMMARY.md).
 
+    Arm C (mixed continued pretraining, branch exp/cpt-mixed): `tmux new -s cpt 'bash scripts/run_cpt.sh'`
+    (corpus src/build_cpt_mix.py, training src/train_cpt.py, evaluation src/cpt.py, report src/cpt_report.py; status in
+    results/cpt/STATUS.md). After a crash or reboot run `bash scripts/resume_cpt_after_crash.sh`: it restarts the
+    watchdog and the orchestrator, which skips finished stages and resumes training from the last checkpoint.
+
     Stages: S1 judge calibration against the Opus grades (`src/local_judge.py calibrate`), S2 full grading
     (`grade`), S3/S4 key-fact and claim decomposition (`src/local_facts.py`), S5 MiniCheck-7B / Flan-T5 / DeBERTa NLI
     (`src/local_checks.py`), S6 statistics (`src/local_stats.py`), S7 paper pack (`src/local_pack.py`). Models run
