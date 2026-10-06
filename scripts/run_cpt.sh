@@ -9,6 +9,7 @@
 set +e
 cd "$(dirname "$0")/.." || exit 1
 export LLM_OFFLINE=1 TOKENIZERS_PARALLELISM=false
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True   # less fragmentation near the 24 GB limit (no numeric change)
 PY=.venv/bin/python
 LOG=logs/cpt.log
 DONE=results/cpt/.done

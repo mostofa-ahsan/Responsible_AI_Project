@@ -7,3 +7,8 @@ C3_llama-3.1-8b-instruct	done	324
 C3_qwen3-8b	decision	2026-10-06 08:52:06	epoch 2 not started: 3805s left in the 6 h box, epoch needs ~18391s (finished epochs kept)
 C3_qwen3-8b	decision	2026-10-06 08:52:58	epoch 1 ran at ~16 s/step (282 min) vs ~8.4 s/step for Llama, steady through the epoch; peak VRAM 22.6 of 24 GB at micro-batch 4, so the WSL driver likely spilled into shared system memory. Only epoch 1 fits the 6 h box. A rerun should use micro-batch 2 (same effective batch 16)
 C3_qwen3-8b	done	299	
+C3_gemma-4-e4b-it	decision	2026-10-06 09:32:00	at r=128, micro-batch 1 Gemma filled 24.3 of 24.6 GB VRAM and spilled into shared memory (33 s/step, 177 W): one epoch ~9.8 h > the 6 h box. Treated as the OOM condition -> spec fallback LoRA r=64, alpha=128 (REPORT IN PAPER); also PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True (allocator only). Box start unchanged (08:54)
+power_limit	2026-10-06 09:32:01	260.00
+C3_gemma-4-e4b-it	decision	2026-10-06 09:32:03	deleted MiniCheck-7B early (free disk < 15 GB); key-fact recall for later models moves to Stage 4
+C3_gemma-4-e4b-it	decision	2026-10-06 09:52:14	restarted fresh (r=64): the Trainer does not compute the token count for Gemma 4 (model_accepts_loss_kwargs=False), so its loss was a per-example mean at micro-batch 1 instead of the token-level mean used for Llama/Qwen; fixed by forcing the token count (train_cpt.py) so all models share the same loss weighting. Box start unchanged
+power_limit	2026-10-06 09:52:14	260.00

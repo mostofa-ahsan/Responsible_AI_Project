@@ -213,7 +213,12 @@ def main():
                          eval_dataset={"val_qa": Dataset.from_list(val_rows), "heldout_raw": Dataset.from_list(ho_rows)},
                          data_collator=collate, callbacks=[Progress(), KeepBf16()])
 
-    log.info(f"{fam}: trainable params {n_train:,}; model_accepts_loss_kwargs={trainer.model_accepts_loss_kwargs}")
+    # The token-level mean needs num_items_in_batch, which the Trainer only computes when it believes the model accepts
+    # loss kwargs (True for Llama/Qwen, False for Gemma 4). compute_loss never forwards kwargs to the model, so force it:
+    # every model then gets the same token-weighted loss (otherwise micro-batch 1 would weight every example equally).
+    detected = trainer.model_accepts_loss_kwargs
+    trainer.model_accepts_loss_kwargs = True
+    log.info(f"{fam}: trainable params {n_train:,}; model_accepts_loss_kwargs detected={detected}, forced=True")
 
     def evaluate():
         r = trainer.evaluate()
