@@ -21,3 +21,4 @@ C4_judge	failed	0	exit 1
 C4_judge	decision	2026-10-06 14:22:30	second C4 attempt failed its own disk pre-check (it required 26 GB free although the judge was already cached) and C5 deleted the judge again. Fixed: the headroom check applies only when the judge is not cached, and C5 deletes the judge only after C4 succeeded. Judge downloaded a THIRD time (2.2 min). The rule 'each big model downloaded at most once' was therefore not met for the judge
 power_limit	2026-10-06 14:22:31	260.00
 C4_judge	done	36	
+C5_checks_final	done	4	
