@@ -4,3 +4,6 @@ C1b_checks_concise	done	5
 C2_build_mix	done	0	built and audited before launch
 C3_llama-3.1-8b-instruct	decision	2026-10-06 03:51:15	epoch 3 not started: 2364s left in the 6 h box, epoch needs ~10024s (finished epochs kept)
 C3_llama-3.1-8b-instruct	done	324	
+C3_qwen3-8b	decision	2026-10-06 08:52:06	epoch 2 not started: 3805s left in the 6 h box, epoch needs ~18391s (finished epochs kept)
+C3_qwen3-8b	decision	2026-10-06 08:52:58	epoch 1 ran at ~16 s/step (282 min) vs ~8.4 s/step for Llama, steady through the epoch; peak VRAM 22.6 of 24 GB at micro-batch 4, so the WSL driver likely spilled into shared system memory. Only epoch 1 fits the 6 h box. A rerun should use micro-batch 2 (same effective batch 16)
+C3_qwen3-8b	done	299	
