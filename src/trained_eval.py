@@ -155,7 +155,7 @@ def cmd_testset():
 
 # ------------------------------------------------------------------ generation
 
-def run_multi(model, rows, out, lora, stats_path, label, quantization=None, gpu_util=0.85):
+def run_multi(model, rows, out, lora, stats_path, label, quantization=None, gpu_util=0.85, max_lora_rank=16):
     """rows: [{"id", "system", "question", "adapter"}]; resumable (ids already in out are skipped)."""
     have = {r["id"] for r in read_jsonl(out)}
     todo = [r for r in rows if r["id"] not in have]
@@ -167,7 +167,7 @@ def run_multi(model, rows, out, lora, stats_path, label, quantization=None, gpu_
            "--output", str(out), "--stats", str(stats_path), "--max-new-tokens", str(cfg()["eval"]["max_new_tokens"]),
            "--gpu-memory-utilization", str(gpu_util)]
     if lora:
-        cmd.append("--lora")
+        cmd += ["--lora", "--max-lora-rank", str(max_lora_rank)]
     if quantization:
         cmd += ["--quantization", quantization]
     log().info(f"[{label}] vLLM: {len(todo)} prompts ({model}{', LoRA' if lora else ''})")

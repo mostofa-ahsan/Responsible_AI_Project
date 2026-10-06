@@ -24,11 +24,14 @@ fi
 if ! grep -q "trained_eval (added" .gitignore; then
   printf '\n# trained_eval (added by git_local_commit.sh): metrics in, answers/caches/quantized models out\n!results/trained_eval/\n!results/trained_eval/per_item/\n!results/trained_eval/per_item/*.jsonl\nresults/trained_eval/.done/\nresults/trained_eval/answers/\nresults/trained_eval/raw/\nresults/trained_eval/cache/\nmodels_quant/\n' >> .gitignore
 fi
+if ! grep -q "cpt (added" .gitignore; then
+  printf '\n# cpt (added by git_local_commit.sh): summaries + per-item results in; answers, caches, corpus, adapters out\n!results/cpt/\n!results/cpt/per_item/\n!results/cpt/per_item/*.jsonl\nresults/cpt/.done/\nresults/cpt/answers/\nresults/cpt/raw/\nresults/cpt/cache/\nmodels_cpt*/\ndata/cpt*/\n' >> .gitignore
+fi
 if ! grep -q "^models_seeds" .gitignore; then
   printf '\n# seed replication: adapters stay local, summaries are committed\nmodels_seeds*/\nresults/seed_replication/.done/\nresults/.gpu_pause\n' >> .gitignore
 fi
 # GitHub rejects files > 100 MB: keep any such file out
-for f in $(find results/local_eval results/paper_pack results/seed_replication data/eval_keyfacts -type f -size +90M 2>/dev/null); do
+for f in $(find results/local_eval results/paper_pack results/seed_replication results/trained_eval results/cpt data/eval_keyfacts -type f -size +45M 2>/dev/null); do
   grep -qxF "$f" .git/info/exclude || echo "$f" >> .git/info/exclude
 done
 paths=(.gitignore CLAUDE.md README.md src/local_*.py src/seed_eval.py src/train_epochs.py src/vllm_json_worker.py
@@ -36,7 +39,9 @@ paths=(.gitignore CLAUDE.md README.md src/local_*.py src/seed_eval.py src/train_
        scripts/gpu_watchdog.sh scripts/resume_after_crash.sh scripts/seeds_queue.sh
        results/local_eval results/paper_pack results/seed_replication data/eval_keyfacts results/run_epochs/PROGRESS.md
        src/trained_eval.py src/trained_quant.py src/vllm_multi_generate.py scripts/run_trained_eval.sh
-       results/trained_eval data/splits/test_trained_exact.jsonl)
+       results/trained_eval data/splits/test_trained_exact.jsonl
+       src/build_cpt_mix.py src/train_cpt.py src/cpt.py src/cpt_report.py scripts/run_cpt.sh
+       scripts/resume_cpt_after_crash.sh results/cpt)
 existing=(); for p in "${paths[@]}"; do [ -e "$p" ] && existing+=("$p"); done   # git add aborts on a missing path
 git add "${existing[@]}" 2>&1 | grep -v "^$" | head -3
 bad=$(git diff --cached --name-only | grep -E '\.(safetensors|bin|pt|gguf)$|judge_cache/|/\.done/|\.gpu_pause')

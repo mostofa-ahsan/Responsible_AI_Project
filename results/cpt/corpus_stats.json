@@ -1,0 +1,122 @@
+{
+  "llama-3.1-8b-instruct": {
+    "raw_sequences": 3547,
+    "raw_tokens": 3627805,
+    "heldout_ppl_sequences": 200,
+    "epochs": {
+      "1": {
+        "sequences": 16912,
+        "raw_sequences": 3547,
+        "qa_examples": 13360,
+        "qa_duplicates_for_batch_alignment": 5,
+        "raw_tokens_in_sequences": 3631352,
+        "qa_tokens": 1693169,
+        "qa_loss_tokens": 653884,
+        "steps": 1057
+      },
+      "2": {
+        "sequences": 16912,
+        "raw_sequences": 3547,
+        "qa_examples": 13360,
+        "qa_duplicates_for_batch_alignment": 5,
+        "raw_tokens_in_sequences": 3631352,
+        "qa_tokens": 1700676,
+        "qa_loss_tokens": 653884,
+        "steps": 1057
+      },
+      "3": {
+        "sequences": 16912,
+        "raw_sequences": 3547,
+        "qa_examples": 13360,
+        "qa_duplicates_for_batch_alignment": 5,
+        "raw_tokens_in_sequences": 3631352,
+        "qa_tokens": 1693163,
+        "qa_loss_tokens": 653884,
+        "steps": 1057
+      }
+    },
+    "raw_to_qa_token_ratio": "0.68 / 0.32",
+    "raw_to_qa_loss_token_ratio": "0.85 / 0.15",
+    "prefix_mismatches": 0
+  },
+  "qwen3-8b": {
+    "raw_sequences": 3644,
+    "raw_tokens": 3730635,
+    "heldout_ppl_sequences": 200,
+    "epochs": {
+      "1": {
+        "sequences": 17008,
+        "raw_sequences": 3644,
+        "qa_examples": 13360,
+        "qa_duplicates_for_batch_alignment": 4,
+        "raw_tokens_in_sequences": 3730635,
+        "qa_tokens": 1474399,
+        "qa_loss_tokens": 673106,
+        "steps": 1063
+      },
+      "2": {
+        "sequences": 17008,
+        "raw_sequences": 3644,
+        "qa_examples": 13360,
+        "qa_duplicates_for_batch_alignment": 4,
+        "raw_tokens_in_sequences": 3730635,
+        "qa_tokens": 1481905,
+        "qa_loss_tokens": 673106,
+        "steps": 1063
+      },
+      "3": {
+        "sequences": 17008,
+        "raw_sequences": 3644,
+        "qa_examples": 13360,
+        "qa_duplicates_for_batch_alignment": 4,
+        "raw_tokens_in_sequences": 3730635,
+        "qa_tokens": 1474393,
+        "qa_loss_tokens": 673106,
+        "steps": 1063
+      }
+    },
+    "raw_to_qa_token_ratio": "0.72 / 0.28",
+    "raw_to_qa_loss_token_ratio": "0.85 / 0.15",
+    "prefix_mismatches": 0
+  },
+  "gemma-4-e4b-it": {
+    "raw_sequences": 3667,
+    "raw_tokens": 3750685,
+    "heldout_ppl_sequences": 200,
+    "epochs": {
+      "1": {
+        "sequences": 17040,
+        "raw_sequences": 3667,
+        "qa_examples": 13360,
+        "qa_duplicates_for_batch_alignment": 13,
+        "raw_tokens_in_sequences": 3754352,
+        "qa_tokens": 1396032,
+        "qa_loss_tokens": 665142,
+        "steps": 1065
+      },
+      "2": {
+        "sequences": 17040,
+        "raw_sequences": 3667,
+        "qa_examples": 13360,
+        "qa_duplicates_for_batch_alignment": 13,
+        "raw_tokens_in_sequences": 3754352,
+        "qa_tokens": 1403438,
+        "qa_loss_tokens": 665142,
+        "steps": 1065
+      },
+      "3": {
+        "sequences": 17040,
+        "raw_sequences": 3667,
+        "qa_examples": 13360,
+        "qa_duplicates_for_batch_alignment": 13,
+        "raw_tokens_in_sequences": 3754352,
+        "qa_tokens": 1396025,
+        "qa_loss_tokens": 665142,
+        "steps": 1065
+      }
+    },
+    "raw_to_qa_token_ratio": "0.73 / 0.27",
+    "raw_to_qa_loss_token_ratio": "0.85 / 0.15",
+    "prefix_mismatches": 0
+  }
+}

@@ -1,0 +1,26 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Table 7 (arm C). Held-out documents (n = 500)}
+\label{tab:T7_cpt_heldout_docs}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llccccc}
+\toprule
+Model & System & Judge acc & KF recall & Contra. & F1 & Exact repro. \\
+\midrule
+Llama 3.1 8B & base & 0.534 & 0.493 & 0.100 & 0.179 & 0.000 \\
+Llama 3.1 8B & QA-only ep1 & 0.460$^\dagger$ & 0.325$^\dagger$ & 0.093 & 0.334$^\dagger$ & 0.002 \\
+Llama 3.1 8B & QA-only ep2 & 0.465$^\dagger$ & 0.311$^\dagger$ & 0.102 & 0.310$^\dagger$ & 0.002 \\
+Llama 3.1 8B & QA-only ep3 & 0.462$^\dagger$ & 0.308$^\dagger$ & 0.090 & 0.311$^\dagger$ & 0.002 \\
+Qwen3-8B & base & 0.642 & 0.518 & 0.088 & 0.259 & 0.000 \\
+Qwen3-8B & QA-only ep1 & 0.506$^\dagger$ & 0.345$^\dagger$ & 0.101 & 0.340$^\dagger$ & \textbf{0.004} \\
+Qwen3-8B & QA-only ep2 & 0.477$^\dagger$ & 0.323$^\dagger$ & 0.085 & 0.319$^\dagger$ & 0.002 \\
+Qwen3-8B & QA-only ep3 & 0.476$^\dagger$ & 0.337$^\dagger$ & 0.091 & 0.315$^\dagger$ & 0.002 \\
+Gemma 4 E4B & base & \textbf{0.679} & \textbf{0.541} & \textbf{0.065} & 0.177 & 0.000 \\
+Gemma 4 E4B & QA-only ep1 & 0.500$^\dagger$ & 0.322$^\dagger$ & 0.096 & \textbf{0.347$^\dagger$} & 0.002 \\
+Gemma 4 E4B & QA-only ep2 & 0.498$^\dagger$ & 0.327$^\dagger$ & 0.093 & 0.332$^\dagger$ & 0.002 \\
+Gemma 4 E4B & QA-only ep3 & 0.484$^\dagger$ & 0.335$^\dagger$ & 0.085 & 0.326$^\dagger$ & 0.002 \\
+\bottomrule
+\end{tabular}}
+\par\smallskip\footnotesize QA-only = closed-book QLoRA r16 on QA pairs (models\_epochs); mixed CPT = arm C, QLoRA on raw training-document text + QA. $^\dagger$ differs from the same model's base, ‡ from QA-only at the same epoch (paired bootstrap, Holm-adjusted p < 0.05). Judge acc = (correct + 0.5 partial) / N; KF recall: MiniCheck-7B; Contra.: DeBERTa NLI; Exact repro. = ROUGE-L $\geq$ 0.8 vs the trained answer. '–' = not measured (see STATUS.md).
+\end{table}

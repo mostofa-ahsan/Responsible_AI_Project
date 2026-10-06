@@ -778,10 +778,11 @@ def results_md(d):
           "threshold (p ≥ 0.5); NLI contradiction on long answers uses sentence windows.",
           "- Opus grades exist only for the base and 1-epoch systems, so validation of the epoch-2/3 numbers is indirect.",
           seed_note()]
-    sec = repo_path("results/trained_eval/RESULTS_section.md")     # written by src/trained_eval.py pack
-    if sec.exists():
-        lim = L.index("## Limitations") if "## Limitations" in L else len(L)
-        L = L[:lim] + sec.read_text().splitlines() + [""] + L[lim:]
+    for sec in (repo_path("results/trained_eval/RESULTS_section.md"),    # src/trained_eval.py pack
+                repo_path("results/cpt/RESULTS_section.md")):             # src/cpt_report.py
+        if sec.exists():
+            lim = L.index("## Limitations") if "## Limitations" in L else len(L)
+            L = L[:lim] + sec.read_text().splitlines() + [""] + L[lim:]
     if PROBLEMS:
         L += ["", "_Pack generation problems: " + "; ".join(PROBLEMS) + "_"]
     (PACK / "RESULTS.md").write_text("\n".join(L) + "\n")

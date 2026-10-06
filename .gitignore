@@ -58,3 +58,14 @@ results/trained_eval/answers/
 results/trained_eval/raw/
 results/trained_eval/cache/
 models_quant/
+
+# cpt (added by git_local_commit.sh): summaries + per-item results in; answers, caches, corpus, adapters out
+!results/cpt/
+!results/cpt/per_item/
+!results/cpt/per_item/*.jsonl
+results/cpt/.done/
+results/cpt/answers/
+results/cpt/raw/
+results/cpt/cache/
+models_cpt*/
+data/cpt*/
