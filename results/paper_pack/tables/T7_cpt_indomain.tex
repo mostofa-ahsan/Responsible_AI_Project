@@ -9,17 +9,24 @@
 Model & System & Judge acc & KF recall & Contra. & F1 & Exact repro. \\
 \midrule
 Llama 3.1 8B & base & 0.575 & 0.555 & 0.091 & 0.182 & 0.000 \\
+Llama 3.1 8B & concise base ($\leq$ 40 words) & 0.510$^\dagger$ & 0.418$^\dagger$ & 0.102 & 0.322$^\dagger$ & 0.000 \\
 Llama 3.1 8B & QA-only ep1 & 0.525$^\dagger$ & 0.372$^\dagger$ & 0.087 & 0.358$^\dagger$ & 0.002 \\
 Llama 3.1 8B & QA-only ep2 & 0.496$^\dagger$ & 0.371$^\dagger$ & 0.093 & 0.338$^\dagger$ & 0.000 \\
 Llama 3.1 8B & QA-only ep3 & 0.514$^\dagger$ & 0.371$^\dagger$ & 0.077 & 0.334$^\dagger$ & 0.000 \\
+Llama 3.1 8B & mixed CPT ep1 & 0.539 & 0.374$^\dagger$ & 0.069 & \textbf{0.380$^\dagger$‡} & 0.002 \\
+Llama 3.1 8B & mixed CPT ep2 & 0.528 & 0.373$^\dagger$ & 0.085 & 0.352$^\dagger$‡ & 0.000 \\
 Qwen3-8B & base & 0.669 & 0.564 & 0.096 & 0.265 & 0.000 \\
+Qwen3-8B & concise base ($\leq$ 40 words) & 0.548$^\dagger$ & 0.365$^\dagger$ & 0.096 & 0.305$^\dagger$ & 0.000 \\
 Qwen3-8B & QA-only ep1 & 0.535$^\dagger$ & 0.360$^\dagger$ & 0.070 & 0.363$^\dagger$ & 0.002 \\
 Qwen3-8B & QA-only ep2 & 0.508$^\dagger$ & 0.381$^\dagger$ & 0.085 & 0.343$^\dagger$ & 0.000 \\
 Qwen3-8B & QA-only ep3 & 0.536$^\dagger$ & 0.385$^\dagger$ & 0.079 & 0.343$^\dagger$ & 0.000 \\
+Qwen3-8B & mixed CPT ep1 & 0.557$^\dagger$ & 0.372$^\dagger$ & 0.075 & 0.378$^\dagger$‡ & 0.004 \\
 Gemma 4 E4B & base & \textbf{0.731} & \textbf{0.574} & 0.078 & 0.177 & 0.000 \\
-Gemma 4 E4B & QA-only ep1 & 0.553$^\dagger$ & 0.371$^\dagger$ & \textbf{0.069} & \textbf{0.369$^\dagger$} & \textbf{0.006} \\
+Gemma 4 E4B & concise base ($\leq$ 40 words) & 0.595$^\dagger$ & 0.367$^\dagger$ & \textbf{0.067} & 0.287$^\dagger$ & 0.000 \\
+Gemma 4 E4B & QA-only ep1 & 0.553$^\dagger$ & 0.371$^\dagger$ & 0.069 & 0.369$^\dagger$ & 0.006 \\
 Gemma 4 E4B & QA-only ep2 & 0.530$^\dagger$ & 0.364$^\dagger$ & 0.070 & 0.351$^\dagger$ & 0.000 \\
 Gemma 4 E4B & QA-only ep3 & 0.532$^\dagger$ & 0.369$^\dagger$ & 0.076 & 0.340$^\dagger$ & 0.000 \\
+Gemma 4 E4B & mixed CPT ep1 & 0.547$^\dagger$ & 0.365$^\dagger$ & 0.073 & 0.377$^\dagger$ & \textbf{0.008} \\
 \bottomrule
 \end{tabular}}
 \par\smallskip\footnotesize QA-only = closed-book QLoRA r16 on QA pairs (models\_epochs); mixed CPT = arm C, QLoRA on raw training-document text + QA. $^\dagger$ differs from the same model's base, ‡ from QA-only at the same epoch (paired bootstrap, Holm-adjusted p < 0.05). Judge acc = (correct + 0.5 partial) / N; KF recall: MiniCheck-7B; Contra.: DeBERTa NLI; Exact repro. = ROUGE-L $\geq$ 0.8 vs the trained answer. '–' = not measured (see STATUS.md).
