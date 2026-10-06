@@ -12,3 +12,5 @@ power_limit	2026-10-06 09:32:01	260.00
 C3_gemma-4-e4b-it	decision	2026-10-06 09:32:03	deleted MiniCheck-7B early (free disk < 15 GB); key-fact recall for later models moves to Stage 4
 C3_gemma-4-e4b-it	decision	2026-10-06 09:52:14	restarted fresh (r=64): the Trainer does not compute the token count for Gemma 4 (model_accepts_loss_kwargs=False), so its loss was a per-example mean at micro-batch 1 instead of the token-level mean used for Llama/Qwen; fixed by forcing the token count (train_cpt.py) so all models share the same loss weighting. Box start unchanged
 power_limit	2026-10-06 09:52:14	260.00
+C3_gemma-4-e4b-it	decision	2026-10-06 14:09:31	epoch 2 not started: 2723s left in the 6 h box, epoch needs ~15864s (finished epochs kept)
+C3_gemma-4-e4b-it	done	315	

@@ -1,6 +1,6 @@
 # Arm C (mixed continued pretraining): interim results
 
-_Updated 2026-10-06 08:54 by `src/cpt.py interim`. Judge grades come in Stage 4; '–' = not yet measured. Key-fact recall: MiniCheck-7B on the cached key facts. Exact repro. = ROUGE-L ≥ 0.8 vs the trained answer._
+_Updated 2026-10-06 14:10 by `src/cpt.py interim`. Judge grades come in Stage 4; '–' = not yet measured. Key-fact recall: MiniCheck-7B on the cached key facts. Exact repro. = ROUGE-L ≥ 0.8 vs the trained answer._
 
 ## Llama 3.1 8B (LoRA r=128, micro-batch 4)
 
@@ -74,4 +74,38 @@ _Updated 2026-10-06 08:54 by `src/cpt.py interim`. Judge grades come in Stage 4;
 | heldout_docs | ep2 | 0.319 | 0.233 | 40.7 | 0.002 | 0.323 | 0.085 |
 | heldout_docs | ep3 | 0.315 | 0.227 | 39.9 | 0.002 | 0.337 | 0.091 |
 | heldout_docs | cpt_ep1 | 0.355 | 0.274 | 32.8 | 0.004 | 0.323 | 0.087 |
+
+## Gemma 4 E4B (LoRA r=64, micro-batch 1)
+
+| Epoch | minutes | train loss (raw / QA) | val QA loss | held-out ppl | peak VRAM (GB) |
+|---|---|---|---|---|---|
+| 0 (base) | – | – | 4.357 | 46.472 | – |
+| 1 | 242.3 | 2.145 / 1.875 | 1.751 | 10.247 | 23.1 |
+
+| Test | Variant | F1 | ROUGE-L | Words | Exact repro. | KF recall | Contra. |
+|---|---|---|---|---|---|---|---|
+| trained_exact | base | 0.173 | 0.118 | 227.9 | 0.000 | 0.562 | 0.073 |
+| trained_exact | concise40 | 0.289 | 0.214 | 26.4 | 0.002 | 0.316 | 0.082 |
+| trained_exact | ep1 | 0.422 | 0.341 | 30.8 | 0.026 | 0.365 | 0.073 |
+| trained_exact | ep2 | 0.467 | 0.394 | 33.6 | 0.066 | 0.422 | 0.068 |
+| trained_exact | ep3 | 0.486 | 0.413 | 34.0 | 0.090 | 0.432 | 0.061 |
+| trained_exact | cpt_ep1 | 0.394 | 0.312 | 29.7 | 0.010 | – | 0.076 |
+| seen_facts | base | 0.151 | 0.101 | 237.5 | 0.000 | 0.530 | 0.063 |
+| seen_facts | concise40 | 0.248 | 0.179 | 26.6 | 0.000 | 0.303 | 0.077 |
+| seen_facts | ep1 | 0.340 | 0.256 | 34.3 | 0.014 | 0.359 | 0.085 |
+| seen_facts | ep2 | 0.359 | 0.272 | 36.6 | 0.018 | 0.386 | 0.090 |
+| seen_facts | ep3 | 0.368 | 0.279 | 37.6 | 0.018 | 0.402 | 0.086 |
+| seen_facts | cpt_ep1 | 0.305 | 0.224 | 33.0 | 0.004 | – | 0.100 |
+| indomain | base | 0.177 | 0.120 | 227.9 | 0.000 | 0.574 | 0.078 |
+| indomain | concise40 | 0.287 | 0.211 | 26.6 | 0.000 | 0.367 | 0.067 |
+| indomain | ep1 | 0.369 | 0.280 | 31.2 | 0.006 | 0.371 | 0.069 |
+| indomain | ep2 | 0.351 | 0.263 | 34.9 | 0.000 | 0.364 | 0.070 |
+| indomain | ep3 | 0.340 | 0.252 | 35.0 | 0.000 | 0.369 | 0.076 |
+| indomain | cpt_ep1 | 0.377 | 0.292 | 31.2 | 0.008 | – | 0.073 |
+| heldout_docs | base | 0.177 | 0.118 | 222.4 | 0.000 | 0.541 | 0.065 |
+| heldout_docs | concise40 | 0.276 | 0.204 | 27.0 | 0.000 | 0.343 | 0.068 |
+| heldout_docs | ep1 | 0.347 | 0.267 | 31.6 | 0.002 | 0.322 | 0.096 |
+| heldout_docs | ep2 | 0.332 | 0.246 | 35.0 | 0.002 | 0.327 | 0.093 |
+| heldout_docs | ep3 | 0.326 | 0.239 | 35.9 | 0.002 | 0.335 | 0.085 |
+| heldout_docs | cpt_ep1 | 0.363 | 0.278 | 31.0 | 0.008 | – | 0.082 |
 
