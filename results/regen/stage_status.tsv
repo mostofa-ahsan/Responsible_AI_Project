@@ -17,3 +17,4 @@ R_stats_final	done	0
 R_materials_final	done	0	
 DEP_build_qwen3-8b	failed	0	exit 1
 DEP_build_qwen3-8b	done	9	
+DEP_build_gemma-4-e4b-it	done	5	

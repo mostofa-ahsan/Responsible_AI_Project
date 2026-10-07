@@ -7,5 +7,14 @@
     "tokens_per_s": 1603.6,
     "base": "NF4-dequantized (training base)",
     "adapter_epoch": "ep3"
+  },
+  "gemma-4-e4b-it__awq_ep3__mb": {
+    "method": "RTN W4A16 asym (AWQ failed: ValueError)",
+    "size_gb": 10.03,
+    "quant_minutes": 0.7,
+    "weights_vram_gb": 9.72,
+    "tokens_per_s": 2327.7,
+    "base": "NF4-dequantized (training base)",
+    "adapter_epoch": "ep3"
   }
 }
