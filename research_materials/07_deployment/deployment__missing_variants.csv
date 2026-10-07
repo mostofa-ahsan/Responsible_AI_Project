@@ -1,3 +1,3 @@
 variant,status,why
 GGUF Q4_K_M (llama.cpp),not built,"llama.cpp is not installed; the only local GGUF route is Ollama, whose model store belongs to another project on this machine (not touched); a GGUF export needs the merged bf16 model on disk (~16 GB) plus the Q4_K_M file; 31.6 GB free; there is no CUDA toolkit (nvcc) to build llama.cpp's GPU backend, so a GGUF run would be CPU-only (hours for 3 x 1,279 answers) and not comparable in speed"
-merged 4-bit (AWQ/RTN) on the matching NF4-dequantized base,pending,see results/regen/STATUS.md
+merged 4-bit (AWQ/RTN) on the matching NF4-dequantized base,done,see sheet matching_base_variants
