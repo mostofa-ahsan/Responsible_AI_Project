@@ -14,3 +14,4 @@ R_grade_rest	done	104
 R_checks_rest	done	40	
 deployment_variants_matching_base	pending	2026-10-07 02:01:19	merged AWQ/RTN/GGUF on the dequantized base need the dequantized checkpoint + llm-compressor + a further judge/MiniCheck swap; resume: see STATUS.md
 R_stats_final	done	0	
+R_materials_final	done	0	

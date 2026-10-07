@@ -1,6 +1,6 @@
 # research_materials
 
-_Built 2026-10-06 23:35 by `python src/build_research_materials.py` (rerunnable; every number is read from result files). Main numbers: adapters served on their training base (NF4-dequantized); earlier bf16-served results carry the suffix `__bf16serve`._
+_Built 2026-10-07 02:02 by `python src/build_research_materials.py` (rerunnable; every number is read from result files). Main numbers: adapters served on their training base (NF4-dequantized); earlier bf16-served results carry the suffix `__bf16serve`._
 
 | File | Description | Paper | Sources |
 |---|---|---|---|

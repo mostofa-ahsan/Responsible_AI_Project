@@ -105,7 +105,7 @@
     "T6": [
       {
         "split": "test_heldout_docs",
-        "qa_id": "building-responsible-ai:0050:q1"
+        "qa_id": "building-responsible-ai:0050:q3"
       },
       {
         "split": "test_indomain",
