@@ -1,0 +1,813 @@
+{
+  "qwen3-8b": {
+    "model": "Qwen/Qwen3-8B",
+    "adapter": "/home/ahsan_linux/Responsible_AI_Project/models_epochs/qwen3-8b/epoch3/adapter",
+    "prefix_mismatch_in_training_tokenizer": 0,
+    "items_identical_prompt": 20,
+    "items": 20,
+    "diffs_first_10": [
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ],
+    "train_prompt_text_example": "<|im_start|>system\nYou are an expert on responsible AI in higher education. Answer accurately and concisely.<|im_end|>\n<|im_start|>user\nWhat shapes students' adoption of generative AI in a unified socio-cognitive model for engineering education, making their behavioural intentions contextually and socially embedded?<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+    "vllm_prompt_text_example": "<|im_start|>system\nYou are an expert on responsible AI in higher education. Answer accurately and concisely.<|im_end|>\n<|im_start|>user\nWhat shapes students' adoption of generative AI in a unified socio-cognitive model for engineering education, making their behavioural intentions contextually and socially embedded?<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+    "train_supervised_tail_example": [
+      "Ġembedded",
+      ".",
+      "<|im_end|>",
+      "Ċ"
+    ],
+    "vllm_output_tail_example": [
+      "Ġsocially",
+      "Ġembedded",
+      ".",
+      "<|im_end|>"
+    ],
+    "vllm_finish_reasons": [
+      "stop"
+    ],
+    "loss_nf4_train_format": [
+      0.04752605780959129,
+      0.0763409435749054,
+      0.03754045441746712,
+      0.05763373523950577,
+      0.04922264441847801,
+      0.0831630676984787,
+      0.04949766770005226,
+      0.20932339131832123,
+      0.026541735976934433,
+      0.03273015841841698,
+      0.0484461672604084,
+      0.05174259468913078,
+      0.14461450278759003,
+      0.05284706503152847,
+      0.03875480219721794,
+      0.17804138362407684,
+      0.13369211554527283,
+      0.04250558093190193,
+      0.058227378875017166,
+      0.016985440626740456
+    ],
+    "loss_nf4_vllm_format": [
+      0.04752605780959129,
+      0.0763409435749054,
+      0.03754045441746712,
+      0.05763373523950577,
+      0.04922264441847801,
+      0.0831630676984787,
+      0.04949766770005226,
+      0.20932339131832123,
+      0.026541735976934433,
+      0.03273015841841698,
+      0.0484461672604084,
+      0.05174259468913078,
+      0.14461450278759003,
+      0.05284706503152847,
+      0.03875480219721794,
+      0.17804138362407684,
+      0.13369211554527283,
+      0.04250558093190193,
+      0.058227378875017166,
+      0.016985440626740456
+    ],
+    "loss_bf16_vllm_format": [
+      0.09716445207595825,
+      0.16790184378623962,
+      0.16669213771820068,
+      0.1490805596113205,
+      0.14296843111515045,
+      0.2705264389514923,
+      0.22845694422721863,
+      0.32681989669799805,
+      0.11536577343940735,
+      0.3087010085582733,
+      0.16202041506767273,
+      0.10666602849960327,
+      0.24696671962738037,
+      0.1646251529455185,
+      0.13830216228961945,
+      0.3621581792831421,
+      0.24801258742809296,
+      0.16851972043514252,
+      0.22122769057750702,
+      0.08796416968107224
+    ],
+    "rougeL_hf_nf4_train_format": [
+      1.0,
+      0.958,
+      1.0,
+      1.0,
+      0.87
+    ],
+    "rougeL_hf_nf4_vllm_format": [
+      1.0,
+      0.958,
+      1.0,
+      1.0,
+      0.87
+    ],
+    "rougeL_hf_bf16_vllm_format": [
+      0.816,
+      0.786,
+      0.214,
+      0.794,
+      0.703
+    ],
+    "rougeL_vllm_fresh_5": [
+      0.784,
+      0.786,
+      0.214,
+      0.897,
+      0.658
+    ],
+    "rougeL_vllm_fresh_20": [
+      0.784,
+      0.786,
+      0.214,
+      0.897,
+      0.658,
+      0.257,
+      0.862,
+      0.481,
+      0.485,
+      0.209,
+      0.208,
+      0.179,
+      0.364,
+      0.324,
+      0.234,
+      0.141,
+      0.508,
+      0.659,
+      0.256,
+      0.976
+    ],
+    "rougeL_production_20": [
+      0.816,
+      0.786,
+      0.214,
+      0.897,
+      0.703,
+      0.257,
+      0.618,
+      0.481,
+      0.514,
+      0.234,
+      0.211,
+      0.179,
+      0.457,
+      0.324,
+      0.225,
+      0.151,
+      0.508,
+      0.659,
+      0.234,
+      0.976
+    ],
+    "examples": [
+      {
+        "qa_id": "social-and-cognitive-drivers-of-generative-ai:0035:q0",
+        "reference": "Adoption is shaped by the interplay of cognitive evaluations, namely usefulness and ease of use, and social influences, namely subjective norms and peer validation. This highlights that students' behavioural intentions toward AI are contextually and socially embedded.",
+        "hf_nf4_train": "Adoption is shaped by the interplay of cognitive evaluations, namely usefulness and ease of use, and social influences, namely subjective norms and peer validation. This highlights that students' behavioural intentions toward AI are contextually and socially embedded.",
+        "hf_nf4_vllm": "Adoption is shaped by the interplay of cognitive evaluations, namely usefulness and ease of use, and social influences, namely subjective norms and peer validation. This highlights that students' behavioural intentions toward AI are contextually and socially embedded.",
+        "hf_bf16_vllm": "Adoption is shaped by the interplay of cognitive evaluations, such as perceived usefulness and ease of use, and social influences, such as peer and instructor endorsement. This highlights that students' behavioural intentions toward AI are contextually and socially embedded.",
+        "vllm": "Adoption is shaped by the interplay of cognitive evaluations, such as perceived usefulness and ease of use, and social influences, such as peer and instructor endorsement. This highlights that students' behavioural intentions are contextually and socially embedded."
+      },
+      {
+        "qa_id": "effects-of-an-ai-supported-inquiry-model-on-ai:0008:q4",
+        "reference": "The QUEST + AI framework operationalizes its AI literacy theory of change by aligning each inquiry step and AI coaching role with specific AI literacy mechanisms.",
+        "hf_nf4_train": "The QUEST + AI framework operationalizes its theory of change by aligning each inquiry step and AI coaching role with specific AI literacy mechanisms.",
+        "hf_nf4_vllm": "The QUEST + AI framework operationalizes its theory of change by aligning each inquiry step and AI coaching role with specific AI literacy mechanisms.",
+        "hf_bf16_vllm": "The QUEST + AI framework operationalizes its theory of change by aligning each inquiry step and AI coaching function with specific AI literacy mechanisms, including application, creation, evaluation, collaboration, contextualization, and autonomy.",
+        "vllm": "The QUEST + AI framework operationalizes its theory of change by aligning each inquiry step and AI coaching function with specific AI literacy mechanisms, including application, creation, evaluation, collaboration, contextualization, and autonomy."
+      },
+      {
+        "qa_id": "reliable-but-not-rigorous-evaluating-chatgpt-s:0003:q0",
+        "reference": "AI inherits biases from its training data, potentially disadvantaging students with nonstandard writing styles or linguistic backgrounds. Algorithmic bias is therefore a central concern requiring continual human oversight.",
+        "hf_nf4_train": "AI inherits biases from its training data, potentially disadvantaging students with nonstandard writing styles or linguistic backgrounds. Algorithmic bias is therefore a central concern requiring continual human oversight.",
+        "hf_nf4_vllm": "AI inherits biases from its training data, potentially disadvantaging students with nonstandard writing styles or linguistic backgrounds. Algorithmic bias is therefore a central concern requiring continual human oversight.",
+        "hf_bf16_vllm": "Algorithmic bias is a central concern because AI systems may perpetuate existing inequalities, particularly in grading and assessment. This necessitates transparent and auditable AI models to ensure fairness.",
+        "vllm": "Algorithmic bias is a central concern because AI systems may perpetuate existing inequalities, particularly in grading and assessment. This necessitates transparent and auditable AI models to ensure fairness."
+      },
+      {
+        "qa_id": "the-trustworthy-ai-maturity-model-taimm:0023:q0",
+        "reference": "TAIMM's questionnaires rely on manual input and subjective assessment. This may lead to inconsistencies in interpretation, especially across organisations with varying expertise in AI ethics or regulatory compliance.",
+        "hf_nf4_train": "TAIMM's questionnaires rely on manual input and subjective assessment. This may lead to inconsistencies in interpretation, especially across organisations with varying expertise in AI ethics or regulatory compliance.",
+        "hf_nf4_vllm": "TAIMM's questionnaires rely on manual input and subjective assessment. This may lead to inconsistencies in interpretation, especially across organisations with varying expertise in AI ethics or regulatory compliance.",
+        "hf_bf16_vllm": "TAIMM's questionnaires rely on manual input and subjective assessment, which may introduce human bias. This could lead to inconsistencies in scoring, particularly across organisations with varying expertise in ethical AI or regulatory compliance.",
+        "vllm": "TAIMM's questionnaires rely on manual input and subjective assessment. This may lead to inconsistencies in interpretation, especially across organisations with varying expertise in ethics, law, or system design."
+      },
+      {
+        "qa_id": "ethical-and-legal-dilemmas:0018:q2",
+        "reference": "In 2019, the National Policy for Digital Transformation and AI established ethical principles to guide AI development. This was followed by the National Digital Strategy in 2023, which prioritized the responsible adoption, implementation, and democratization of AI.",
+        "hf_nf4_train": "In 2019, the National Policy for Digital Transformation and AI established ethical principles to guide AI development. In 2023, the National Digital Strategy prioritized the responsible adoption, implementation, and democratization of AI.",
+        "hf_nf4_vllm": "In 2019, the National Policy for Digital Transformation and AI established ethical principles to guide AI development. In 2023, the National Digital Strategy prioritized the responsible adoption, implementation, and democratization of AI.",
+        "hf_bf16_vllm": "In 2019, the National Policy for Digital Transformation and AI established ethical principles to guide the development and use of AI. In 2023, the National Digital Strategy prioritized the responsible adoption of AI to support sustainable development.",
+        "vllm": "In 2019, the National Policy for Digital Transformation and AI established ethical principles to guide the development and use of AI. In 2023, the National Digital Strategy prioritized the responsible and secure adoption of AI to support economic sectors and public services."
+      }
+    ],
+    "minutes": 2.4
+  },
+  "gemma-4-e4b-it": {
+    "model": "google/gemma-4-E4B-it",
+    "adapter": "/home/ahsan_linux/Responsible_AI_Project/models_epochs/gemma-4-e4b-it/epoch3/adapter",
+    "prefix_mismatch_in_training_tokenizer": 0,
+    "items_identical_prompt": 0,
+    "items": 20,
+    "diffs_first_10": [
+      [
+        {
+          "op": "insert",
+          "train_pos": [
+            20,
+            20
+          ],
+          "vllm_pos": [
+            20,
+            21
+          ],
+          "train_tokens": [],
+          "vllm_tokens": [
+            "▁"
+          ]
+        }
+      ],
+      [
+        {
+          "op": "insert",
+          "train_pos": [
+            20,
+            20
+          ],
+          "vllm_pos": [
+            20,
+            21
+          ],
+          "train_tokens": [],
+          "vllm_tokens": [
+            "▁"
+          ]
+        }
+      ],
+      [
+        {
+          "op": "insert",
+          "train_pos": [
+            20,
+            20
+          ],
+          "vllm_pos": [
+            20,
+            21
+          ],
+          "train_tokens": [],
+          "vllm_tokens": [
+            "▁"
+          ]
+        }
+      ],
+      [
+        {
+          "op": "insert",
+          "train_pos": [
+            20,
+            20
+          ],
+          "vllm_pos": [
+            20,
+            21
+          ],
+          "train_tokens": [],
+          "vllm_tokens": [
+            "▁"
+          ]
+        }
+      ],
+      [
+        {
+          "op": "insert",
+          "train_pos": [
+            20,
+            20
+          ],
+          "vllm_pos": [
+            20,
+            21
+          ],
+          "train_tokens": [],
+          "vllm_tokens": [
+            "▁"
+          ]
+        }
+      ],
+      [
+        {
+          "op": "insert",
+          "train_pos": [
+            20,
+            20
+          ],
+          "vllm_pos": [
+            20,
+            21
+          ],
+          "train_tokens": [],
+          "vllm_tokens": [
+            "▁"
+          ]
+        }
+      ],
+      [
+        {
+          "op": "insert",
+          "train_pos": [
+            20,
+            20
+          ],
+          "vllm_pos": [
+            20,
+            21
+          ],
+          "train_tokens": [],
+          "vllm_tokens": [
+            "▁"
+          ]
+        }
+      ],
+      [
+        {
+          "op": "insert",
+          "train_pos": [
+            20,
+            20
+          ],
+          "vllm_pos": [
+            20,
+            21
+          ],
+          "train_tokens": [],
+          "vllm_tokens": [
+            "▁"
+          ]
+        }
+      ],
+      [
+        {
+          "op": "insert",
+          "train_pos": [
+            20,
+            20
+          ],
+          "vllm_pos": [
+            20,
+            21
+          ],
+          "train_tokens": [],
+          "vllm_tokens": [
+            "▁"
+          ]
+        }
+      ],
+      [
+        {
+          "op": "insert",
+          "train_pos": [
+            20,
+            20
+          ],
+          "vllm_pos": [
+            20,
+            21
+          ],
+          "train_tokens": [],
+          "vllm_tokens": [
+            "▁"
+          ]
+        }
+      ]
+    ],
+    "train_prompt_text_example": "<bos><|turn>system\nYou are an expert on responsible AI in higher education. Answer accurately and concisely.<turn|>\n<|turn>user\nWhat shapes students' adoption of generative AI in a unified socio-cognitive model for engineering education, making their behavioural intentions contextually and socially embedded?<turn|>\n<|turn>model\n",
+    "vllm_prompt_text_example": "<bos><|turn>system\nYou are an expert on responsible AI in higher education. Answer accurately and concisely. <turn|>\n<|turn>user\nWhat shapes students' adoption of generative AI in a unified socio-cognitive model for engineering education, making their behavioural intentions contextually and socially embedded?<turn|>\n<|turn>model\n",
+    "train_supervised_tail_example": [
+      "▁embedded",
+      ".",
+      "<turn|>",
+      "\n"
+    ],
+    "vllm_output_tail_example": [
+      "▁behavioural",
+      "▁intentions",
+      ".",
+      "<turn|>"
+    ],
+    "vllm_finish_reasons": [
+      "stop"
+    ],
+    "loss_nf4_train_format": [
+      0.05721145495772362,
+      0.02417871728539467,
+      0.054337210953235626,
+      0.10479191690683365,
+      0.034082043915987015,
+      0.09967201203107834,
+      0.19189748167991638,
+      0.0983710065484047,
+      0.028276849538087845,
+      0.014172510243952274,
+      0.029198767617344856,
+      0.01669834740459919,
+      0.09263045340776443,
+      0.006043381989002228,
+      0.010466017760336399,
+      0.10833290964365005,
+      0.018622519448399544,
+      0.012120911851525307,
+      0.009431205689907074,
+      0.036779627203941345
+    ],
+    "loss_nf4_vllm_format": [
+      0.058167461305856705,
+      0.027037402614951134,
+      0.05627487972378731,
+      0.0995856523513794,
+      0.03398212045431137,
+      0.10024800151586533,
+      0.2231074869632721,
+      0.106190025806427,
+      0.02750837430357933,
+      0.013023599982261658,
+      0.026981130242347717,
+      0.017241254448890686,
+      0.09297794848680496,
+      0.006879280786961317,
+      0.011066521517932415,
+      0.11119356006383896,
+      0.018375152722001076,
+      0.012368242256343365,
+      0.0105637451633811,
+      0.03511213883757591
+    ],
+    "loss_bf16_vllm_format": [
+      0.282973051071167,
+      0.0434761568903923,
+      0.4354602098464966,
+      0.47860896587371826,
+      0.2967686951160431,
+      0.4913473427295685,
+      0.6284552216529846,
+      0.43862128257751465,
+      0.3991856276988983,
+      0.3725399672985077,
+      0.34089598059654236,
+      0.23370328545570374,
+      0.45308396220207214,
+      0.6467733383178711,
+      0.26687493920326233,
+      0.4640132486820221,
+      0.26739242672920227,
+      0.324142724275589,
+      0.44829192757606506,
+      0.24774067103862762
+    ],
+    "rougeL_hf_nf4_train_format": [
+      0.932,
+      1.0,
+      1.0,
+      0.271,
+      1.0
+    ],
+    "rougeL_hf_nf4_vllm_format": [
+      0.932,
+      1.0,
+      1.0,
+      0.271,
+      1.0
+    ],
+    "rougeL_hf_bf16_vllm_format": [
+      0.286,
+      1.0,
+      0.179,
+      0.351,
+      0.746
+    ],
+    "rougeL_vllm_fresh_5": [
+      0.237,
+      1.0,
+      0.179,
+      0.351,
+      0.746
+    ],
+    "rougeL_vllm_fresh_20": [
+      0.237,
+      1.0,
+      0.179,
+      0.351,
+      0.746,
+      0.282,
+      0.786,
+      0.273,
+      0.154,
+      0.173,
+      0.385,
+      0.168,
+      0.27,
+      0.491,
+      0.278,
+      0.333,
+      0.545,
+      0.29,
+      0.167,
+      0.239
+    ],
+    "rougeL_production_20": [
+      0.237,
+      1.0,
+      0.179,
+      0.333,
+      0.746,
+      0.282,
+      0.786,
+      0.356,
+      0.154,
+      0.173,
+      0.304,
+      0.18,
+      0.27,
+      0.491,
+      0.278,
+      0.333,
+      0.545,
+      0.29,
+      0.449,
+      0.239
+    ],
+    "examples": [
+      {
+        "qa_id": "social-and-cognitive-drivers-of-generative-ai:0035:q0",
+        "reference": "Adoption is shaped by the interplay of cognitive evaluations, namely usefulness and ease of use, and social influences, namely subjective norms and peer validation. This highlights that students' behavioural intentions toward AI are contextually and socially embedded.",
+        "hf_nf4_train": "Adoption is shaped by the interplay of cognitive evaluations, namely usefulness and ease of use, and social influences, namely subjective norm and image. This highlights that students' behavioural intentions toward AI are contextually and socially embedded.",
+        "hf_nf4_vllm": "Adoption is shaped by the interplay of cognitive evaluations, namely usefulness and ease of use, and social influences, namely subjective norm and image. This highlights that students' behavioural intentions toward AI are contextually and socially embedded.",
+        "hf_bf16_vllm": "The unified model integrates the Technology Acceptance Model (TAM), the Theory of Planned Behaviour (TPB), and the Information Quality (IQ) framework. It positions perceived usefulness, ease of use, social influence, and information quality as key determinants of students' behavioural intentions, while accounting for contextual and social embedding.",
+        "vllm": "The unified model integrates the Technology Acceptance Model (TAM), the Theory of Planned Behaviour (TPB), and the Social Cognitive Theory (SCT). This synthesis captures the interplay between cognitive evaluations, social expectations, and individual agency in shaping students' behavioural intentions."
+      },
+      {
+        "qa_id": "effects-of-an-ai-supported-inquiry-model-on-ai:0008:q4",
+        "reference": "The QUEST + AI framework operationalizes its AI literacy theory of change by aligning each inquiry step and AI coaching role with specific AI literacy mechanisms.",
+        "hf_nf4_train": "The QUEST + AI framework operationalizes its AI literacy theory of change by aligning each inquiry step and AI coaching role with specific AI literacy mechanisms.",
+        "hf_nf4_vllm": "The QUEST + AI framework operationalizes its AI literacy theory of change by aligning each inquiry step and AI coaching role with specific AI literacy mechanisms.",
+        "hf_bf16_vllm": "The QUEST + AI framework operationalizes its AI literacy theory of change by aligning each inquiry step and AI coaching role with specific AI literacy mechanisms.",
+        "vllm": "The QUEST + AI framework operationalizes its AI literacy theory of change by aligning each inquiry step and AI coaching role with specific AI literacy mechanisms."
+      },
+      {
+        "qa_id": "reliable-but-not-rigorous-evaluating-chatgpt-s:0003:q0",
+        "reference": "AI inherits biases from its training data, potentially disadvantaging students with nonstandard writing styles or linguistic backgrounds. Algorithmic bias is therefore a central concern requiring continual human oversight.",
+        "hf_nf4_train": "AI inherits biases from its training data, potentially disadvantaging students with nonstandard writing styles or linguistic backgrounds. Algorithmic bias is therefore a central concern requiring continual human oversight.",
+        "hf_nf4_vllm": "AI inherits biases from its training data, potentially disadvantaging students with nonstandard writing styles or linguistic backgrounds. Algorithmic bias is therefore a central concern requiring continual human oversight.",
+        "hf_bf16_vllm": "Algorithmic bias is a central concern because AI systems may inadvertently perpetuate existing biases, leading to unfair or discriminatory evaluations. Mitigating it requires continuous refinement of algorithms, diverse and representative training data, and transparent communication about the evaluation process.",
+        "vllm": "Algorithmic bias is a central concern because AI systems may inadvertently perpetuate existing biases, leading to unfair or discriminatory evaluations. Mitigating it requires continuous refinement of algorithms, diverse and representative training data, and transparent communication about the evaluation process."
+      },
+      {
+        "qa_id": "the-trustworthy-ai-maturity-model-taimm:0023:q0",
+        "reference": "TAIMM's questionnaires rely on manual input and subjective assessment. This may lead to inconsistencies in interpretation, especially across organisations with varying expertise in AI ethics or regulatory compliance.",
+        "hf_nf4_train": "TAIMM relies on manual questionnaire-based assessment, which may introduce subjectivity. It also uses semantic questionnaires rather than grounded metrics, which may make it difficult to compare results across organisations.",
+        "hf_nf4_vllm": "TAIMM relies on manual questionnaire-based assessment, which may introduce subjectivity. It also uses semantic questionnaires rather than grounded metrics, which may make it difficult to compare results across organisations.",
+        "hf_bf16_vllm": "TAIMM relies on self-assessment, which may introduce subjective judgements. The assessment process is not standardized, which can lead to inconsistencies in how organisations evaluate their AI systems.",
+        "vllm": "TAIMM relies on self-assessment, which may introduce subjective judgements. The assessment process is not standardized, which can lead to inconsistencies in how organisations evaluate their AI systems."
+      },
+      {
+        "qa_id": "ethical-and-legal-dilemmas:0018:q2",
+        "reference": "In 2019, the National Policy for Digital Transformation and AI established ethical principles to guide AI development. This was followed by the National Digital Strategy in 2023, which prioritized the responsible adoption, implementation, and democratization of AI.",
+        "hf_nf4_train": "In 2019, the National Policy for Digital Transformation and AI established ethical principles to guide AI development. This was followed by the National Digital Strategy in 2023, which prioritized the responsible adoption, implementation, and democratization of AI.",
+        "hf_nf4_vllm": "In 2019, the National Policy for Digital Transformation and AI established ethical principles to guide AI development. This was followed by the National Digital Strategy in 2023, which prioritized the responsible adoption, implementation, and democratization of AI.",
+        "hf_bf16_vllm": "Colombia's 2019 National Policy for Digital Transformation and AI established ethical principles to guide AI development. The 2023 National Digital Strategy prioritized the responsible and inclusive development of AI.",
+        "vllm": "Colombia's 2019 National Policy for Digital Transformation and AI established ethical principles to guide AI development. The 2023 National Digital Strategy prioritized the responsible and inclusive development of AI."
+      }
+    ],
+    "minutes": 1.9
+  },
+  "llama-3.1-8b-instruct": {
+    "model": "meta-llama/Llama-3.1-8B-Instruct",
+    "adapter": "/home/ahsan_linux/Responsible_AI_Project/models_epochs/llama-3.1-8b-instruct/epoch3/adapter",
+    "prefix_mismatch_in_training_tokenizer": 0,
+    "items_identical_prompt": 20,
+    "items": 20,
+    "diffs_first_10": [
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ],
+    "train_prompt_text_example": "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nCutting Knowledge Date: December 2023\nToday Date: 26 Jul 2024\n\nYou are an expert on responsible AI in higher education. Answer accurately and concisely.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nWhat shapes students' adoption of generative AI in a unified socio-cognitive model for engineering education, making their behavioural intentions contextually and socially embedded?<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+    "vllm_prompt_text_example": "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nCutting Knowledge Date: December 2023\nToday Date: 26 Jul 2024\n\nYou are an expert on responsible AI in higher education. Answer accurately and concisely.<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nWhat shapes students' adoption of generative AI in a unified socio-cognitive model for engineering education, making their behavioural intentions contextually and socially embedded?<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
+    "train_supervised_tail_example": [
+      "Ġsocially",
+      "Ġembedded",
+      ".",
+      "<|eot_id|>"
+    ],
+    "vllm_output_tail_example": [
+      "Ġsocially",
+      "Ġembedded",
+      ".",
+      "<|eot_id|>"
+    ],
+    "vllm_finish_reasons": [
+      "stop"
+    ],
+    "loss_nf4_train_format": [
+      0.02168465405702591,
+      0.012393860146403313,
+      0.010891103185713291,
+      0.009336944669485092,
+      0.005353841930627823,
+      0.007695571053773165,
+      0.02862892486155033,
+      0.008919503539800644,
+      0.002663443563506007,
+      0.004649406298995018,
+      0.004184293560683727,
+      0.010426027700304985,
+      0.005780985578894615,
+      0.0016594979679211974,
+      0.005623284727334976,
+      0.06550580263137817,
+      0.011603808030486107,
+      0.0034016240388154984,
+      0.004695611540228128,
+      0.005783628206700087
+    ],
+    "loss_nf4_vllm_format": [
+      0.02168465405702591,
+      0.012393860146403313,
+      0.010891103185713291,
+      0.009336944669485092,
+      0.005353841930627823,
+      0.007695571053773165,
+      0.02862892486155033,
+      0.008919503539800644,
+      0.002663443563506007,
+      0.004649406298995018,
+      0.004184293560683727,
+      0.010426027700304985,
+      0.005780985578894615,
+      0.0016594979679211974,
+      0.005623284727334976,
+      0.06550580263137817,
+      0.011603808030486107,
+      0.0034016240388154984,
+      0.004695611540228128,
+      0.005783628206700087
+    ],
+    "loss_bf16_vllm_format": [
+      0.031832318753004074,
+      0.09365435689687729,
+      0.03597990423440933,
+      0.01244024932384491,
+      0.041931234300136566,
+      0.05163061246275902,
+      0.15531113743782043,
+      0.09273774921894073,
+      0.06597026437520981,
+      0.038965579122304916,
+      0.028728561475872993,
+      0.05412398278713226,
+      0.01802038960158825,
+      0.05217938497662544,
+      0.09783922135829926,
+      0.15297529101371765,
+      0.054124798625707626,
+      0.014990005642175674,
+      0.016328826546669006,
+      0.0141548290848732
+    ],
+    "rougeL_hf_nf4_train_format": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "rougeL_hf_nf4_vllm_format": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "rougeL_hf_bf16_vllm_format": [
+      1.0,
+      0.958,
+      1.0,
+      1.0,
+      0.87
+    ],
+    "rougeL_vllm_fresh_5": [
+      1.0,
+      0.958,
+      1.0,
+      1.0,
+      0.87
+    ],
+    "rougeL_vllm_fresh_20": [
+      1.0,
+      0.958,
+      1.0,
+      1.0,
+      0.87,
+      1.0,
+      0.73,
+      0.96,
+      0.151,
+      1.0,
+      0.23,
+      0.388,
+      1.0,
+      0.629,
+      0.914,
+      0.12,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "rougeL_production_20": [
+      1.0,
+      0.958,
+      1.0,
+      1.0,
+      0.87,
+      1.0,
+      0.657,
+      0.96,
+      0.151,
+      1.0,
+      0.23,
+      0.376,
+      1.0,
+      0.629,
+      0.914,
+      0.14,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "examples": [
+      {
+        "qa_id": "social-and-cognitive-drivers-of-generative-ai:0035:q0",
+        "reference": "Adoption is shaped by the interplay of cognitive evaluations, namely usefulness and ease of use, and social influences, namely subjective norms and peer validation. This highlights that students' behavioural intentions toward AI are contextually and socially embedded.",
+        "hf_nf4_train": "Adoption is shaped by the interplay of cognitive evaluations, namely usefulness and ease of use, and social influences, namely subjective norms and peer validation. This highlights that students' behavioural intentions toward AI are contextually and socially embedded.",
+        "hf_nf4_vllm": "Adoption is shaped by the interplay of cognitive evaluations, namely usefulness and ease of use, and social influences, namely subjective norms and peer validation. This highlights that students' behavioural intentions toward AI are contextually and socially embedded.",
+        "hf_bf16_vllm": "Adoption is shaped by the interplay of cognitive evaluations, namely usefulness and ease of use, and social influences, namely subjective norms and peer validation. This highlights that students' behavioural intentions toward AI are contextually and socially embedded.",
+        "vllm": "Adoption is shaped by the interplay of cognitive evaluations, namely usefulness and ease of use, and social influences, namely subjective norms and peer validation. This highlights that students' behavioural intentions toward AI are contextually and socially embedded."
+      },
+      {
+        "qa_id": "effects-of-an-ai-supported-inquiry-model-on-ai:0008:q4",
+        "reference": "The QUEST + AI framework operationalizes its AI literacy theory of change by aligning each inquiry step and AI coaching role with specific AI literacy mechanisms.",
+        "hf_nf4_train": "The QUEST + AI framework operationalizes its AI literacy theory of change by aligning each inquiry step and AI coaching role with specific AI literacy mechanisms.",
+        "hf_nf4_vllm": "The QUEST + AI framework operationalizes its AI literacy theory of change by aligning each inquiry step and AI coaching role with specific AI literacy mechanisms.",
+        "hf_bf16_vllm": "The QUEST + AI framework operationalizes its theory of change by aligning each inquiry step and AI coaching role with specific AI literacy mechanisms.",
+        "vllm": "The QUEST + AI framework operationalizes its theory of change by aligning each inquiry step and AI coaching role with specific AI literacy mechanisms."
+      },
+      {
+        "qa_id": "reliable-but-not-rigorous-evaluating-chatgpt-s:0003:q0",
+        "reference": "AI inherits biases from its training data, potentially disadvantaging students with nonstandard writing styles or linguistic backgrounds. Algorithmic bias is therefore a central concern requiring continual human oversight.",
+        "hf_nf4_train": "AI inherits biases from its training data, potentially disadvantaging students with nonstandard writing styles or linguistic backgrounds. Algorithmic bias is therefore a central concern requiring continual human oversight.",
+        "hf_nf4_vllm": "AI inherits biases from its training data, potentially disadvantaging students with nonstandard writing styles or linguistic backgrounds. Algorithmic bias is therefore a central concern requiring continual human oversight.",
+        "hf_bf16_vllm": "AI inherits biases from its training data, potentially disadvantaging students with nonstandard writing styles or linguistic backgrounds. Algorithmic bias is therefore a central concern requiring continual human oversight.",
+        "vllm": "AI inherits biases from its training data, potentially disadvantaging students with nonstandard writing styles or linguistic backgrounds. Algorithmic bias is therefore a central concern requiring continual human oversight."
+      },
+      {
+        "qa_id": "the-trustworthy-ai-maturity-model-taimm:0023:q0",
+        "reference": "TAIMM's questionnaires rely on manual input and subjective assessment. This may lead to inconsistencies in interpretation, especially across organisations with varying expertise in AI ethics or regulatory compliance.",
+        "hf_nf4_train": "TAIMM's questionnaires rely on manual input and subjective assessment. This may lead to inconsistencies in interpretation, especially across organisations with varying expertise in AI ethics or regulatory compliance.",
+        "hf_nf4_vllm": "TAIMM's questionnaires rely on manual input and subjective assessment. This may lead to inconsistencies in interpretation, especially across organisations with varying expertise in AI ethics or regulatory compliance.",
+        "hf_bf16_vllm": "TAIMM's questionnaires rely on manual input and subjective assessment. This may lead to inconsistencies in interpretation, especially across organisations with varying expertise in AI ethics or regulatory compliance.",
+        "vllm": "TAIMM's questionnaires rely on manual input and subjective assessment. This may lead to inconsistencies in interpretation, especially across organisations with varying expertise in AI ethics or regulatory compliance."
+      },
+      {
+        "qa_id": "ethical-and-legal-dilemmas:0018:q2",
+        "reference": "In 2019, the National Policy for Digital Transformation and AI established ethical principles to guide AI development. This was followed by the National Digital Strategy in 2023, which prioritized the responsible adoption, implementation, and democratization of AI.",
+        "hf_nf4_train": "In 2019, the National Policy for Digital Transformation and AI established ethical principles to guide AI development. This was followed by the National Digital Strategy in 2023, which prioritized the responsible adoption, implementation, and democratization of AI.",
+        "hf_nf4_vllm": "In 2019, the National Policy for Digital Transformation and AI established ethical principles to guide AI development. This was followed by the National Digital Strategy in 2023, which prioritized the responsible adoption, implementation, and democratization of AI.",
+        "hf_bf16_vllm": "In 2019, the National Policy for Digital Transformation and AI established ethical principles to guide AI development. In 2023, the National Digital Strategy prioritized the responsible adoption, implementation, and democratization of AI.",
+        "vllm": "In 2019, the National Policy for Digital Transformation and AI established ethical principles to guide AI development. In 2023, the National Digital Strategy prioritized the responsible adoption, implementation, and democratization of AI."
+      }
+    ],
+    "minutes": 1.2
+  }
+}

@@ -1,0 +1,5 @@
+{"model": "qwen3-8b", "adapter": "models_epochs/qwen3-8b/epoch3/adapter", "items": 20,
+ "method": "load NF4 (double quant, bf16 compute, as in training), bitsandbytes.functional.dequantize_4bit every Linear4bit weight to bf16, plain bf16 Linear layers, then the LoRA adapter (HF transformers)",
+ "answer_loss_nf4_dequantized_bf16": 0.0719,
+ "note": "measured in this session (src/diag_format.py items, seed 0); compare loss_nf4_train_format and loss_bf16_vllm_format in format_check.json",
+ "vllm_bitsandbytes": "vLLM 0.30 rejects quantization='bitsandbytes' ('Unknown quantization method'), so vLLM cannot serve an NF4 base directly"}
