@@ -32,7 +32,7 @@ Adapters: `models_epochs/<model>/epoch{1,2,3}/adapter`; logs: `models_epochs/<mo
 
 ## Local evaluation
 
-_Added 2026-10-06 23:35 by src/local_pack.py; local judge mistral-small-3.2-24b-awq; details in results/local_eval/SUMMARY.md and results/paper_pack/._
+_Added 2026-10-07 02:02 by src/local_pack.py; local judge mistral-small-3.2-24b-awq; details in results/local_eval/SUMMARY.md and results/paper_pack/._
 
 | Model | Variant | test_indomain judge acc / KF recall | test_heldout_docs judge acc / KF recall | test_seen_facts judge acc / KF recall |
 |---|---|---|---|---|

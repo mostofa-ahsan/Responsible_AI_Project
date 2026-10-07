@@ -13,23 +13,23 @@ Qwen3-8B & concise base ($\leq$ 40 words) & 0.582$^\dagger$ & 0.316$^\dagger$ & 
 Qwen3-8B & QA-only ep1 & 0.599 & 0.338$^\dagger$ & 0.078 & 0.351$^\dagger$ & 0.014 \\
 Qwen3-8B & QA-only ep2 & 0.627 & 0.404$^\dagger$ & 0.091 & 0.387$^\dagger$ & 0.061$^\dagger$ \\
 Qwen3-8B & QA-only ep3 & 0.619 & 0.402$^\dagger$ & 0.077 & 0.374$^\dagger$ & 0.050 \\
-Qwen3-8B & mixed CPT ep1 & – & – & – & 0.311$^\dagger$‡ & 0.011 \\
-Qwen3-8B & base on NF4 weights (control) & – & – & – & 0.216 & 0.000 \\
+Qwen3-8B & mixed CPT ep1 & 0.566$^\dagger$ & 0.331$^\dagger$ & 0.089 & 0.311$^\dagger$‡ & 0.011 \\
+Qwen3-8B & base on NF4 weights (control) & 0.658 & 0.512 & 0.111 & 0.216 & 0.000 \\
 Gemma 4 E4B & base & 0.668 & 0.530 & 0.063 & 0.151 & 0.000 \\
 Gemma 4 E4B & concise base ($\leq$ 40 words) & 0.595$^\dagger$ & 0.303$^\dagger$ & 0.077 & 0.248$^\dagger$ & 0.000 \\
 Gemma 4 E4B & QA-only ep1 & 0.593$^\dagger$ & 0.366$^\dagger$ & 0.087 & 0.343$^\dagger$ & 0.018 \\
 Gemma 4 E4B & QA-only ep2 & 0.622 & 0.414$^\dagger$ & 0.084 & 0.398$^\dagger$ & 0.075$^\dagger$ \\
 Gemma 4 E4B & QA-only ep3 & 0.613 & 0.435$^\dagger$ & 0.072 & 0.393$^\dagger$ & 0.075$^\dagger$ \\
-Gemma 4 E4B & mixed CPT ep1 & – & – & – & 0.297$^\dagger$‡ & 0.004 \\
-Gemma 4 E4B & base on NF4 weights (control) & – & – & – & 0.160$^\dagger$ & 0.000 \\
+Gemma 4 E4B & mixed CPT ep1 & 0.547$^\dagger$ & 0.314$^\dagger$ & 0.085 & 0.297$^\dagger$‡ & 0.004 \\
+Gemma 4 E4B & base on NF4 weights (control) & 0.672 & 0.520 & 0.061 & 0.160$^\dagger$ & 0.000 \\
 Llama 3.1 8B & base & 0.522 & 0.498 & 0.083 & 0.154 & 0.000 \\
 Llama 3.1 8B & concise base ($\leq$ 40 words) & 0.530 & 0.356$^\dagger$ & 0.115 & 0.265$^\dagger$ & 0.000 \\
 Llama 3.1 8B & QA-only ep1 & 0.609$^\dagger$ & 0.407$^\dagger$ & 0.073 & 0.372$^\dagger$ & 0.043 \\
 Llama 3.1 8B & QA-only ep2 & \textbf{0.719$^\dagger$} & 0.544 & 0.046 & 0.544$^\dagger$§ & 0.265$^\dagger$§ \\
-Llama 3.1 8B & QA-only ep3 & \textbf{0.719$^\dagger$§} & \textbf{0.555§} & \textbf{0.045} & \textbf{0.548$^\dagger$§} & \textbf{0.269$^\dagger$§} \\
-Llama 3.1 8B & mixed CPT ep1 & – & – & – & 0.326$^\dagger$‡ & 0.018 \\
-Llama 3.1 8B & mixed CPT ep2 & – & – & – & 0.439$^\dagger$‡§ & 0.122$^\dagger$‡ \\
-Llama 3.1 8B & base on NF4 weights (control) & – & – & – & 0.158 & 0.000 \\
+Llama 3.1 8B & QA-only ep3 & \textbf{0.719$^\dagger$§} & \textbf{0.555} & \textbf{0.045} & \textbf{0.548$^\dagger$§} & \textbf{0.269$^\dagger$§} \\
+Llama 3.1 8B & mixed CPT ep1 & 0.557 & 0.369$^\dagger$ & 0.067 & 0.326$^\dagger$‡ & 0.018 \\
+Llama 3.1 8B & mixed CPT ep2 & 0.667$^\dagger$ & 0.444‡ & 0.066 & 0.439$^\dagger$‡§ & 0.122$^\dagger$‡ \\
+Llama 3.1 8B & base on NF4 weights (control) & 0.552 & 0.491 & 0.085 & 0.158 & 0.000 \\
 \bottomrule
 \end{tabular}}
 \par\smallskip\footnotesize Adapters are served on the NF4-dequantized base they were trained on (QLoRA). $^\dagger$ differs from base, ‡ mixed CPT differs from QA-only at the same epoch, § differs from the same adapter served on the bf16 base (paired bootstrap, Holm-adjusted p < 0.05). '–' = not measured.

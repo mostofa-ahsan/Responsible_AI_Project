@@ -1,14 +1,14 @@
 {
   "qwen3-8b": {
     "qa": "ep3",
-    "cpt": null
+    "cpt": "cpt_ep1"
   },
   "gemma-4-e4b-it": {
     "qa": "ep3",
-    "cpt": null
+    "cpt": "cpt_ep1"
   },
   "llama-3.1-8b-instruct": {
     "qa": "ep2",
-    "cpt": null
+    "cpt": "cpt_ep2"
   }
 }
