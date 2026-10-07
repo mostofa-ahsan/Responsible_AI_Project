@@ -3,10 +3,26 @@
 | Model | System | Judge acc | KF recall | Contra. | F1 | Exact repro. |
 |---|---|---|---|---|---|---|
 | Qwen3-8B | base | 0.642 | 0.518 | 0.088 | 0.259 | 0.000 |
-| Qwen3-8B | concise base (≤ 40 words) | 0.547† | 0.347† | 0.097 | 0.291† | **0.004** |
+| Qwen3-8B | concise base (≤ 40 words) | 0.547† | 0.347† | 0.097 | 0.291† | 0.004 |
+| Qwen3-8B | QA-only ep1 | 0.486† | 0.311† | 0.095 | 0.333† | 0.004 |
+| Qwen3-8B | QA-only ep2 | 0.439† | 0.300† | 0.101 | 0.307†§ | 0.000 |
+| Qwen3-8B | QA-only ep3 | 0.431† | 0.303† | 0.102 | 0.306† | 0.000 |
+| Qwen3-8B | mixed CPT ep1 | – | – | – | 0.356†‡ | 0.006 |
+| Qwen3-8B | base on NF4 weights (control) | – | – | – | 0.261 | 0.000 |
 | Gemma 4 E4B | base | **0.679** | **0.541** | **0.065** | 0.177 | 0.000 |
 | Gemma 4 E4B | concise base (≤ 40 words) | 0.564† | 0.343† | 0.068 | 0.276† | 0.000 |
+| Gemma 4 E4B | QA-only ep1 | 0.493† | 0.318† | 0.090 | 0.341† | 0.002 |
+| Gemma 4 E4B | QA-only ep2 | 0.472† | 0.304† | 0.093 | 0.309†§ | 0.002 |
+| Gemma 4 E4B | QA-only ep3 | 0.449† | 0.285†§ | 0.099† | 0.301†§ | 0.000 |
+| Gemma 4 E4B | mixed CPT ep1 | – | – | – | **0.361†‡** | **0.008** |
+| Gemma 4 E4B | base on NF4 weights (control) | – | – | – | 0.188† | 0.000 |
 | Llama 3.1 8B | base | 0.534 | 0.493 | 0.100 | 0.179 | 0.000 |
-| Llama 3.1 8B | concise base (≤ 40 words) | 0.506 | 0.375† | 0.102 | **0.311†** | 0.000 |
+| Llama 3.1 8B | concise base (≤ 40 words) | 0.506 | 0.375† | 0.102 | 0.311† | 0.000 |
+| Llama 3.1 8B | QA-only ep1 | 0.445† | 0.313† | 0.094 | 0.324† | 0.002 |
+| Llama 3.1 8B | QA-only ep2 | 0.452† | 0.300† | 0.090 | 0.312† | 0.000 |
+| Llama 3.1 8B | QA-only ep3 | 0.440† | 0.311† | 0.090 | 0.305† | 0.000 |
+| Llama 3.1 8B | mixed CPT ep1 | – | – | – | 0.349†‡ | 0.006 |
+| Llama 3.1 8B | mixed CPT ep2 | – | – | – | 0.314† | 0.002 |
+| Llama 3.1 8B | base on NF4 weights (control) | – | – | – | 0.187† | 0.000 |
 
 Adapters are served on the NF4-dequantized base they were trained on (QLoRA). † differs from base, ‡ mixed CPT differs from QA-only at the same epoch, § differs from the same adapter served on the bf16 base (paired bootstrap, Holm-adjusted p < 0.05). '–' = not measured.
