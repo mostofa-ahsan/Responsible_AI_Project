@@ -1,6 +1,6 @@
 # Matching-base regeneration + research_materials: STATUS
 
-_Written 2026-10-06 23:35. Start 2026-10-06 21:38:46; checkpoint 2026-10-07 00:33:46; hard limit 2026-10-07 03:38:46._
+_Written 2026-10-07 00:23. Start 2026-10-06 21:38:46; checkpoint 2026-10-07 00:33:46; hard limit 2026-10-07 03:38:46._
 
 | Stage | Result | Minutes | Note |
 |---|---|---|---|
@@ -25,7 +25,7 @@ _Written 2026-10-06 23:35. Start 2026-10-06 21:38:46; checkpoint 2026-10-07 00:3
 
 - P1 (Qwen + Gemma QA-only ep1-3): 6 systems, 10,674 answers, 10,670 judge-graded, 10,674 with MiniCheck-7B checks
 - P2 (Llama QA-only ep1-3): 3 systems, 5,337 answers, 5,337 judge-graded, 5,337 with MiniCheck-7B checks
-- P3 (mixed-CPT adapters): 4 systems, 7,116 answers, 0 judge-graded, 0 with MiniCheck-7B checks
+- P3 (mixed-CPT adapters): 4 systems, 7,116 answers, 7,113 judge-graded, 0 with MiniCheck-7B checks
 - P4 (base on NF4 weights (control)): 3 systems, 5,337 answers, 0 judge-graded, 0 with MiniCheck-7B checks
 - D (1-epoch run, seed 43, Gemma base/concise re-render): 8 systems, 14,232 answers, 0 judge-graded, 0 with MiniCheck-7B checks
 
@@ -36,5 +36,5 @@ _Written 2026-10-06 23:35. Start 2026-10-06 21:38:46; checkpoint 2026-10-07 00:3
 - Resume anything unfinished: `bash scripts/resume_regen_after_crash.sh` (skips finished stages). Single steps: `python src/regen.py dequant|gen --model <m>`, `python src/regen.py grade|checks --tier P12|rest`, `python src/regen.py stats`, `python src/build_research_materials.py`.
 - Deployment variants on the matching base (merged AWQ/RTN/GGUF): not run; they need the dequantized checkpoint, llm-compressor (src/trained_quant.py with --model models_dequant/<m>) and a further judge + MiniCheck swap.
 - GPU since start: max 56 °C, max power draw 261 W.
-- Disk free now: 13.3 GB.
+- Disk free now: 13.7 GB.
 - Failed push attempts: 0.

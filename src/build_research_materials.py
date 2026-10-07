@@ -774,8 +774,22 @@ def deployment():
                              "why": "; ".join(json.loads((TE / "gguf_skipped.json").read_text())["reasons"]) if (TE / "gguf_skipped.json").exists() else "not run"},
                             {"variant": "merged 4-bit (AWQ/RTN) on the matching NF4-dequantized base", "status": "pending",
                              "why": "see results/regen/STATUS.md"}])
+    mb = json.loads((RG / "deploy_stats.json").read_text()) if (RG / "deploy_stats.json").exists() else {}
+    mt = pd.read_csv(RG / "metrics_by_system.csv") if (RG / "metrics_by_system.csv").exists() else pd.DataFrame()
+    mrows = []
+    for k, v in mb.items():
+        fam, var, _ = k.split("__")
+        row = {"system": k, **v}
+        for s in TESTS:
+            r = mt[(mt.system == f"{fam}__{var}") & (mt.split == s)] if len(mt) else mt
+            row[f"judge_{TLAB[s]}"] = float(r.judge_lenient.iloc[0]) if len(r) else None
+            ref = mt[(mt.system == f"{fam}__{v['adapter_epoch']}") & (mt.split == s)] if len(mt) else mt
+            row[f"judge_{TLAB[s]}_adapter_on_training_base"] = float(ref.judge_lenient.iloc[0]) if len(ref) else None
+        mrows.append(row)
+    if mb:
+        missing.loc[missing.variant.str.contains("matching"), ["status", "why"]] = ["done", "see sheet matching_base_variants"]
     write_xlsx(d / "deployment.xlsx", {"deployment": dep, "backend_stats": pd.DataFrame([{"system": k, **v} for k, v in st.items()]),
-                                       "missing_variants": missing},
+                                       "matching_base_variants": pd.DataFrame(mrows), "missing_variants": missing},
                ["Deployment variants of each model's best epoch from the earlier deployment run (NF4 + adapter in transformers; "
                 "merged 4-bit served by vLLM, merged into the bf16 base). Missing variants listed with the reason."],
                "Deployment variants", "Discussion / deployment, Figure 8", "results/trained_eval/deployment.csv, deploy_stats.json")

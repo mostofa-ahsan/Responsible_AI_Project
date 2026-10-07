@@ -143,6 +143,11 @@ def main():
     model.save_pretrained(args.out, save_compressed=True)
     tok.save_pretrained(args.out)
     for extra in ("chat_template.jinja", "preprocessor_config.json", "processor_config.json", "generation_config.json"):
+        if os.path.isdir(args.model) and os.path.exists(os.path.join(args.model, extra)):   # local base (dequantized)
+            if not os.path.exists(os.path.join(args.out, extra)):
+                import shutil
+                shutil.copy(os.path.join(args.model, extra), os.path.join(args.out, extra))
+            continue
         try:
             from huggingface_hub import hf_hub_download
             p = hf_hub_download(args.model, extra)

@@ -80,7 +80,9 @@ def tier_systems(tier, fam=None):
             out += [(f, "ft1run", "mb"), (f, "seed43_ep1", "mb")]
             if f == "gemma-4-e4b-it":
                 out += [(f, "base", "rr"), (f, "concise40", "rr")]
-    return [s for s in out if s[1] == "nf4base" or s[2] == "rr" or adapter_path(s[0], s[1]).exists()]
+        if tier == "DEP":
+            out += [(f, d.name.split("__")[1], "mb") for d in sorted(ANS.glob(f"{f}__awq_*__mb"))]
+    return [s for s in out if s[1] == "nf4base" or s[2] == "rr" or s[1].startswith("awq_") or adapter_path(s[0], s[1]).exists()]
 
 
 def sid(fam, var, suf):
@@ -344,7 +346,7 @@ def cmd_grade(a):
         if not download(JUDGES["A"]["model"], tag="R grade"):
             raise SystemExit("judge download failed 3 times")
     ch = json.loads((OUT / "judge_choice.json").read_text())
-    tiers = ["P1", "P2"] if a.tier == "P12" else ["P3", "P4", "D"]
+    tiers = {"P12": ["P1", "P2"], "DEP": ["DEP"]}.get(a.tier, ["P3", "P4", "D"])
     out = {(r["split"], r["qa_id"], r["system"]): r for r in read_jsonl(PI / "judge_grades.jsonl")}
     for t in tiers:                                         # priority order
         pairs = [p for p in pairs_for(tier_systems(t)) if (p["split"], p["qa_id"], p["system"]) not in out]
@@ -378,7 +380,7 @@ def cmd_checks(a):
     if not L.minicheck_local():
         if free_gb() < 10 + 16 or not download(L.MC7B, ["*.json", "*.py", "*.model", "*.safetensors"], "R checks"):
             raise SystemExit("MiniCheck-7B not available (disk or download)")
-    tiers = ["P1", "P2"] if a.tier == "P12" else ["P3", "P4", "D"]
+    tiers = {"P12": ["P1", "P2"], "DEP": ["DEP"]}.get(a.tier, ["P3", "P4", "D"])
     kf = {s: {r["qa_id"]: r["facts"] for r in read_jsonl(KEYFACTS / f"{s}.jsonl")} for s in TESTS}
     pairs = []
     for f, var, suf in [s for t in tiers for s in tier_systems(t)]:
@@ -406,6 +408,53 @@ def cmd_checks(a):
     miss = sum(1 for p in pairs if (p[1], p[2], p[3], p[4]) not in have)
     if miss > 0.05 * len(pairs):
         raise SystemExit(f"MiniCheck covered only {len(pairs) - miss}/{len(pairs)}")
+
+
+def cmd_deploy(a):
+    """Merged 4-bit deployment variant of the best QA-only epoch on the MATCHING base: rebuild + verify the dequantized
+    NF4 base, merge the adapter into it in memory, quantize (llm-compressor AWQ W4A16; RTN fallback, recorded), serve with
+    vLLM on the 4 test types (pre-tokenized prompts), record size / weights VRAM / tokens per second, delete everything."""
+    from transformers import AutoTokenizer
+    fam = a.model
+    best = json.loads((RG / "best_epochs.json").read_text())[fam]["qa"]
+    var = f"awq_{best}"
+    if all(len(preds(fam, var, "mb", s)) >= len(all_items()[s]) for s in TESTS):
+        return
+    cmd_dequant(a)
+    q = repo_path("models_quant") / f"{fam}_{var}_mb"
+    if not (q / "quant_info.json").exists():
+        env = dict(os.environ, LLM_OFFLINE="1", PYTHONPATH=str(repo_path("models_quant/overlay")))
+        env.pop("PYTORCH_CUDA_ALLOC_CONF", None)
+        with repo_path("logs/regen_worker.log").open("a") as lf:
+            rc = subprocess.run([str(VLLM_PY), str(repo_path("src/trained_quant.py")), "--model", str(DQ / fam), "--adapter",
+                                 str(adapter_path(fam, best)), "--out", str(q), "--system", cfg()["train"]["system_prompt"]],
+                                env=env, stdout=lf, stderr=lf).returncode
+        if rc != 0 or not (q / "quant_info.json").exists():
+            shutil.rmtree(DQ / fam, ignore_errors=True)
+            raise SystemExit(f"{fam}: quantization failed (exit {rc})")
+    shutil.rmtree(DQ / fam, ignore_errors=True)
+    info = json.loads((q / "quant_info.json").read_text())
+    tok = AutoTokenizer.from_pretrained(MODEL_ID[fam])
+    system = cfg()["train"]["system_prompt"]
+    rows = [{"id": f"{sid(fam, var, 'mb')}|{s}|{qq}", "system": system, "question": r["question"],
+             "prompt_token_ids": prompt_ids(tok, system, r["question"]), "adapter": None}
+            for s in TESTS for qq, r in all_items()[s].items()]
+    raw = RG / "raw" / f"{fam}__{var}__mb.jsonl"
+    left = run_worker(q, rows, raw, f"DEP {fam} {var}", 16)
+    write_answers(raw)
+    st = json.loads(Path(str(raw) + ".stats.json").read_text()) if Path(str(raw) + ".stats.json").exists() else {}
+    import re
+    txt = repo_path("logs/regen_worker.log").read_text(errors="ignore")
+    gib = re.findall(r"Model loading took ([0-9.]+) GiB", txt[txt.rfind(f" DEP {fam} {var}: "):])
+    d = json.loads((RG / "deploy_stats.json").read_text()) if (RG / "deploy_stats.json").exists() else {}
+    d[sid(fam, var, "mb")] = {"method": info["method"], "size_gb": info["size_gb"], "quant_minutes": info["minutes"],
+                              "weights_vram_gb": float(gib[0]) if gib else None,
+                              "tokens_per_s": round(st["output_tokens"] / st["seconds"], 1) if st.get("seconds") else None,
+                              "base": "NF4-dequantized (training base)", "adapter_epoch": best}
+    (RG / "deploy_stats.json").write_text(json.dumps(d, indent=2))
+    shutil.rmtree(q, ignore_errors=True)
+    if left:
+        raise SystemExit(f"{fam}: {left} answers missing")
 
 
 def main():

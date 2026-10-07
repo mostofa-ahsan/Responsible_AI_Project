@@ -46,7 +46,7 @@ paths=(.gitignore CLAUDE.md README.md src/local_*.py src/seed_eval.py src/train_
        src/build_cpt_mix.py src/train_cpt.py src/cpt.py src/cpt_report.py scripts/run_cpt.sh
        scripts/resume_cpt_after_crash.sh results/cpt
        src/regen.py src/regen_report.py src/build_research_materials.py src/diag_format.py src/diag_vllm_prompts.py
-       src/vllm_multi_generate.py scripts/run_regen.sh scripts/resume_regen_after_crash.sh results/regen
+       src/vllm_multi_generate.py scripts/run_regen.sh scripts/run_regen_deploy.sh scripts/resume_regen_after_crash.sh results/regen
        results/diagnostics research_materials)
 existing=(); for p in "${paths[@]}"; do [ -e "$p" ] && existing+=("$p"); done   # git add aborts on a missing path
 git add "${existing[@]}" 2>&1 | grep -v "^$" | head -3
