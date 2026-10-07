@@ -1,7 +1,5 @@
 # Figure captions
 
-**F10_cpt_losses_perplexity**: Figure 10 (arm C). RAW and QA training loss, val QA loss, and perplexity on held-out documents
-
 **F1_loss_curves**: Figure 1. Training vs validation loss (3-epoch run): validation loss rises after epoch 1
 
 **F2_judge_accuracy_vs_epoch**: Figure 2. Local-judge accuracy vs epoch; open diamonds = 1-epoch run (run 10-03); 95% CI
@@ -15,5 +13,3 @@
 **F6_length_bias**: Figure 6. Length-bias check: accuracy by answer-length quartile, base vs fine-tuned
 
 **F8_seen_vs_unseen_gap**: Figure 8. Memorization vs generalization: seen-facts minus mean unseen-split score per epoch
-
-**F9_cpt_four_tests**: Figure 9 (arm C). Four test types: base vs QA-only vs mixed continued pretraining

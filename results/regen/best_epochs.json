@@ -1,0 +1,14 @@
+{
+  "qwen3-8b": {
+    "qa": null,
+    "cpt": null
+  },
+  "gemma-4-e4b-it": {
+    "qa": null,
+    "cpt": null
+  },
+  "llama-3.1-8b-instruct": {
+    "qa": null,
+    "cpt": null
+  }
+}

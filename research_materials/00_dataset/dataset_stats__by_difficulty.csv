@@ -1,0 +1,4 @@
+difficulty,test_heldout_docs,test_indomain,test_seen_facts,test_trained_exact,train,val
+easy,529,266,88,161,2236,139
+hard,277,161,60,106,1454,88
+medium,680,364,131,233,2990,166

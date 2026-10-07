@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\small
+\caption{In-domain (unseen chunks): adapters served on their training base}
+\label{tab:T7_matching_indomain}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llccccc}
+\toprule
+Model & System & Judge acc & KF recall & Contra. & F1 & Exact repro. \\
+\midrule
+Qwen3-8B & base & 0.669 & 0.564 & 0.096 & 0.265 & \textbf{0.000} \\
+Qwen3-8B & concise base ($\leq$ 40 words) & 0.548$^\dagger$ & 0.365$^\dagger$ & 0.096 & 0.305$^\dagger$ & \textbf{0.000} \\
+Gemma 4 E4B & base & \textbf{0.731} & \textbf{0.574} & 0.078 & 0.177 & \textbf{0.000} \\
+Gemma 4 E4B & concise base ($\leq$ 40 words) & 0.595$^\dagger$ & 0.367$^\dagger$ & \textbf{0.067} & 0.287$^\dagger$ & \textbf{0.000} \\
+Llama 3.1 8B & base & 0.575 & 0.555 & 0.091 & 0.182 & \textbf{0.000} \\
+Llama 3.1 8B & concise base ($\leq$ 40 words) & 0.510$^\dagger$ & 0.418$^\dagger$ & 0.102 & \textbf{0.322$^\dagger$} & \textbf{0.000} \\
+\bottomrule
+\end{tabular}}
+\par\smallskip\footnotesize Adapters are served on the NF4-dequantized base they were trained on (QLoRA). $^\dagger$ differs from base, ‡ mixed CPT differs from QA-only at the same epoch, § differs from the same adapter served on the bf16 base (paired bootstrap, Holm-adjusted p < 0.05). '–' = not measured.
+\end{table}

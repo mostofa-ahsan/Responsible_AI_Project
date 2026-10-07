@@ -1,0 +1,10 @@
+family,split,delta_opus,delta_local,opus_delta_ci,opus_significant,sign_match
+qwen3-8b,test_indomain,-0.1172,-0.1356,"[-0.1517, -0.0851]",True,True
+qwen3-8b,test_heldout_docs,-0.1428,-0.161,"[-0.1724, -0.1115]",True,True
+qwen3-8b,test_seen_facts,-0.0762,-0.0884,"[-0.1152, -0.0329]",True,True
+gemma-4-e4b-it,test_indomain,-0.1496,-0.1913,"[-0.1816, -0.1172]",True,True
+gemma-4-e4b-it,test_heldout_docs,-0.1483,-0.1529,"[-0.1816, -0.1184]",True,True
+gemma-4-e4b-it,test_seen_facts,-0.1008,-0.0782,"[-0.1481, -0.0514]",True,True
+llama-3.1-8b-instruct,test_indomain,-0.0793,-0.0588,"[-0.1115, -0.0448]",True,True
+llama-3.1-8b-instruct,test_heldout_docs,-0.1056,-0.0473,"[-0.1333, -0.0713]",True,True
+llama-3.1-8b-instruct,test_seen_facts,-0.0124,0.072,"[-0.0576, 0.035]",False,False

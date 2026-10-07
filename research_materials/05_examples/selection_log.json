@@ -1,0 +1,23 @@
+{
+  "rules": {
+    "T5": "fine-tuned (best QA-only, training base) correct; base partial/incorrect; key-fact recall gain >= 0.5; no contradicted fact; >= 3 per model; coverage of dimensions and q_types maximized; preference for exact items whose reworded pair is also correct; seed 7",
+    "T6": "one item per test type (held-out, in-domain, exact) answered and graded by every listed system; seeded choice"
+  },
+  "picked": {
+    "T5": [],
+    "T6": [
+      {
+        "split": "test_heldout_docs",
+        "qa_id": "building-responsible-ai:0050:q1"
+      },
+      {
+        "split": "test_indomain",
+        "qa_id": "exploring-perspectives-toward-generative:0019:q0"
+      },
+      {
+        "split": "test_trained_exact",
+        "qa_id": "artificial-intelligence-and-higher-education:0044:q0"
+      }
+    ]
+  }
+}

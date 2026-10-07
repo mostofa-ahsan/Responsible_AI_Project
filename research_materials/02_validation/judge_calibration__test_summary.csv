@@ -1,0 +1,13 @@
+metric,value
+n,6673
+agreement_3class,0.6457
+kappa,0.4528
+kappa_quadratic,0.6445
+kappa_bin_correct,0.4822
+kappa_bin_incorrect,0.6064
+system_pearson,0.9
+system_spearman,0.806
+delta_signs_match,8
+significant_delta_signs_match,8
+prompt,v1
+passes_gate,True

@@ -1,0 +1,5 @@
+run,base,lora_r,lora_alpha,dropout,lr,schedule,warmup,effective_batch,max_seq,seed,data,micro_batch
+QA-only (closed-book QLoRA),"NF4 4-bit, double quant, bf16 compute",16,32,0.05,0.0002,cosine,0.03,16,1024,42,"QA pairs + paraphrases, answer-only loss",
+mixed CPT (Qwen3-8B),"NF4 4-bit, double quant, bf16 compute",128,256,0.05,0.0001,cosine over 3 epochs,0.03,16,1024,42,raw training-document text + QA,4.0
+mixed CPT (Gemma 4 E4B),"NF4 4-bit, double quant, bf16 compute",64,128,0.05,0.0001,cosine over 3 epochs,0.03,16,1024,42,raw training-document text + QA,1.0
+mixed CPT (Llama 3.1 8B),"NF4 4-bit, double quant, bf16 compute",128,256,0.05,0.0001,cosine over 3 epochs,0.03,16,1024,42,raw training-document text + QA,4.0

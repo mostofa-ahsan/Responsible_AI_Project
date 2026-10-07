@@ -73,7 +73,7 @@ stage() {   # stage NAME BOX_MIN LIMIT_EPOCH cmd...   (not started if it cannot 
   pkill -f "^[^ ]*python[^ ]* src/vllm_(multi_generate|json_worker).py" 2>/dev/null
   return $rc
 }
-PRE=$((CHECKPOINT - 35 * 60))      # pre-checkpoint work must leave 35 min for stats + research_materials + push
+PRE=$((CHECKPOINT - 12 * 60))      # pre-checkpoint work must leave 12 min for stats + research_materials + push (~8 min)
 
 # ---- Part A, generation: one dequantized base at a time (16 GB each; MiniCheck-7B removed first for disk)
 if [ ! -f "$DONE/R1_gemma-4-e4b-it" ] || [ ! -f "$DONE/R1_llama-3.1-8b-instruct" ] || [ ! -f "$DONE/R1_qwen3-8b" ]; then
@@ -87,7 +87,7 @@ for m in qwen3-8b gemma-4-e4b-it llama-3.1-8b-instruct; do
   $PY src/regen.py purge_dequant --model $m >> "$LOG" 2>&1
 done
 # ---- grade + check P1-P2 before the checkpoint
-stage R_grade_P12 90 $((PRE - 20 * 60)) $PY src/regen.py grade --tier P12
+stage R_grade_P12 90 $((PRE - 22 * 60)) $PY src/regen.py grade --tier P12
 stage R_checks_P12 30 $PRE $PY src/regen.py checks --tier P12
 # ---- checkpoint: stats + first research_materials build, commit, push
 rm -f "$DONE/R_stats_1" "$DONE/R_materials_1"

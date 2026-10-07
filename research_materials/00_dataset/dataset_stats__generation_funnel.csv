@@ -1,0 +1,15 @@
+step,count
+documents (books / articles),100
+pages,10161
+chunks (all),6406
+chunks selected for mining,2708
+knowledge units,16003
+QA pairs generated,11630
+QA pairs passing filters,9350
+rejected: low_value (multi-label),1637
+rejected: not_standalone (multi-label),492
+rejected: duplicate (multi-label),430
+rejected: grounding (multi-label),149
+rejected: garbled_question (multi-label),95
+rejected: format (multi-label),50
+rejected: meta_text (multi-label),1

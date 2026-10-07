@@ -1,0 +1,41 @@
+{
+  "train_docs": 80,
+  "heldout_docs": 14,
+  "heldout_docs_in_raw": [],
+  "heldout_docs_in_qa": [],
+  "test_or_val_qa_ids_in_qa": [],
+  "seen_facts_questions_in_qa": 0,
+  "note": "test_trained_exact items are TRAIN items by design (trained-question recall test).",
+  "question_13gram_overlap_with_raw": {
+    "test_indomain": {
+      "questions": 791,
+      "with_any_13gram_in_raw": 8,
+      "share": 0.0101,
+      "mean_13gram_share": 0.0024
+    },
+    "test_heldout_docs": {
+      "questions": 1486,
+      "with_any_13gram_in_raw": 0,
+      "share": 0.0,
+      "mean_13gram_share": 0.0
+    },
+    "test_seen_facts": {
+      "questions": 279,
+      "with_any_13gram_in_raw": 0,
+      "share": 0.0,
+      "mean_13gram_share": 0.0
+    },
+    "test_trained_exact": {
+      "questions": 500,
+      "with_any_13gram_in_raw": 2,
+      "share": 0.004,
+      "mean_13gram_share": 0.0006
+    }
+  },
+  "passed": true,
+  "failed_checks": [],
+  "split_document_overlap": {
+    "test_heldout_docs": 0
+  },
+  "note_test_indomain": "in-domain questions come from unseen chunks of training documents (by design)"
+}

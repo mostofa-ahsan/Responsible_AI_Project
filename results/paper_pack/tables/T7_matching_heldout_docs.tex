@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Held-out documents: adapters served on their training base}
+\label{tab:T7_matching_heldout_docs}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llccccc}
+\toprule
+Model & System & Judge acc & KF recall & Contra. & F1 & Exact repro. \\
+\midrule
+Qwen3-8B & base & 0.642 & 0.518 & 0.088 & 0.259 & 0.000 \\
+Qwen3-8B & concise base ($\leq$ 40 words) & 0.547$^\dagger$ & 0.347$^\dagger$ & 0.097 & 0.291$^\dagger$ & \textbf{0.004} \\
+Gemma 4 E4B & base & \textbf{0.679} & \textbf{0.541} & \textbf{0.065} & 0.177 & 0.000 \\
+Gemma 4 E4B & concise base ($\leq$ 40 words) & 0.564$^\dagger$ & 0.343$^\dagger$ & 0.068 & 0.276$^\dagger$ & 0.000 \\
+Llama 3.1 8B & base & 0.534 & 0.493 & 0.100 & 0.179 & 0.000 \\
+Llama 3.1 8B & concise base ($\leq$ 40 words) & 0.506 & 0.375$^\dagger$ & 0.102 & \textbf{0.311$^\dagger$} & 0.000 \\
+\bottomrule
+\end{tabular}}
+\par\smallskip\footnotesize Adapters are served on the NF4-dequantized base they were trained on (QLoRA). $^\dagger$ differs from base, ‡ mixed CPT differs from QA-only at the same epoch, § differs from the same adapter served on the bf16 base (paired bootstrap, Holm-adjusted p < 0.05). '–' = not measured.
+\end{table}

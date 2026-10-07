@@ -1,0 +1,52 @@
+check,statistic,value
+n_opus_items,value,7674.0
+auc_keyfact_recall_vs_opus_correct,value,0.8523
+auc_keyfact_recall_vs_opus_not_incorrect,value,0.8344
+auc_keyfact_recall_secondary_vs_opus_correct,value,0.8231
+auc_keyfact_recall_secondary_vs_opus_not_incorrect,value,0.8021
+pointbiserial_any_contradiction_vs_opus_incorrect,r,0.3204
+pointbiserial_any_contradiction_vs_opus_incorrect,p,1.0332301734357596e-182
+pointbiserial_any_contradiction_vs_opus_incorrect,n,7674.0
+pointbiserial_contradiction_rate_vs_opus_incorrect,r,0.3508
+pointbiserial_contradiction_rate_vs_opus_incorrect,p,4.383875489483203e-221
+pointbiserial_contradiction_rate_vs_opus_incorrect,n,7674.0
+pointbiserial_claim_contradicted_rate_vs_opus_incorrect,r,0.2723
+pointbiserial_claim_contradicted_rate_vs_opus_incorrect,p,3.927417424499431e-109
+pointbiserial_claim_contradicted_rate_vs_opus_incorrect,n,6395.0
+pointbiserial_hallucination_vs_opus_incorrect,r,0.3872
+pointbiserial_hallucination_vs_opus_incorrect,p,1.1395689751416124e-272
+pointbiserial_hallucination_vs_opus_incorrect,n,7667.0
+pointbiserial_any_contradiction_vs_opus_unsupported_any (seen facts),r,0.0995
+pointbiserial_any_contradiction_vs_opus_unsupported_any (seen facts),p,4.526058340563754e-05
+pointbiserial_any_contradiction_vs_opus_unsupported_any (seen facts),n,1674.0
+pointbiserial_hallucination_vs_opus_unsupported_any (seen facts),r,0.2289
+pointbiserial_hallucination_vs_opus_unsupported_any (seen facts),p,2.478032747348789e-21
+pointbiserial_hallucination_vs_opus_unsupported_any (seen facts),n,1673.0
+pointbiserial_claim_unsupported_rate_vs_opus_unsupported_any (seen facts),r,0.4798
+pointbiserial_claim_unsupported_rate_vs_opus_unsupported_any (seen facts),p,7.198256824987186e-81
+pointbiserial_claim_unsupported_rate_vs_opus_unsupported_any (seen facts),n,1389.0
+item_kappa_local_vs_opus_all_items,value,0.4505
+system_judge_lenient_vs_opus_lenient,pearson,0.8885
+system_judge_lenient_vs_opus_lenient,spearman,0.7998
+system_judge_lenient_vs_opus_lenient,n_cells,18.0
+system_keyfact_recall_vs_opus_lenient,pearson,0.9253
+system_keyfact_recall_vs_opus_lenient,spearman,0.9876
+system_keyfact_recall_vs_opus_lenient,n_cells,18.0
+system_contradiction_rate_vs_opus_lenient,pearson,-0.3034
+system_contradiction_rate_vs_opus_lenient,spearman,-0.3209
+system_contradiction_rate_vs_opus_lenient,n_cells,18.0
+system_token_f1_vs_opus_lenient,pearson,-0.7011
+system_token_f1_vs_opus_lenient,spearman,-0.6698
+system_token_f1_vs_opus_lenient,n_cells,18.0
+system_rouge_l_vs_opus_lenient,pearson,-0.7284
+system_rouge_l_vs_opus_lenient,spearman,-0.6594
+system_rouge_l_vs_opus_lenient,n_cells,18.0
+checker_answer_level_recall_pearson,value,0.7614
+checker_fact_level_minicheck7b_vs_flant5,n_pairs,67500.0
+checker_fact_level_minicheck7b_vs_flant5,agreement,0.8491
+checker_fact_level_minicheck7b_vs_flant5,kappa,0.6843
+checker_fact_level_minicheck7b_vs_flant5,pearson_prob,0.8008
+checker_fact_level_minicheck7b_vs_flant5,support_rate_minicheck7b,0.3919
+checker_fact_level_minicheck7b_vs_flant5,support_rate_flant5,0.3976
+phase2c_coverage,answers_with_claim_checks,16082.0
+phase2c_coverage,answers_total,19185.0

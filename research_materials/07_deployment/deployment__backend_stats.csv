@@ -1,0 +1,7 @@
+system,backend,seconds,output_tokens,tokens_per_s,peak_vram_gb,weights_vram_gb,size_gb,quant_minutes
+qwen3-8b__nf4_ep1,"transformers + bitsandbytes NF4 (double quant) + PEFT LoRA, batch 16",557.2,51693,92.8,6.85,6.35,,
+gemma-4-e4b-it__nf4_ep1,"transformers + bitsandbytes NF4 (double quant) + PEFT LoRA, batch 16",789.1,51234,64.9,9.85,9.52,,
+llama-3.1-8b-instruct__nf4_ep2,"transformers + bitsandbytes NF4 (double quant) + PEFT LoRA, batch 16",577.0,62856,108.9,6.57,5.97,,
+qwen3-8b__awq_ep1,"vLLM, compressed-tensors AWQ W4A16 asym (group 128)",35.4,56003,1582.0,,5.71,6.11,5.8
+gemma-4-e4b-it__awq_ep1,"vLLM, compressed-tensors RTN W4A16 asym (AWQ failed: ValueError)",22.7,52386,2307.8,,9.72,10.03,0.8
+llama-3.1-8b-instruct__awq_ep2,"vLLM, compressed-tensors AWQ W4A16 asym (group 128)",35.2,66001,1875.0,,5.39,5.75,5.3

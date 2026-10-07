@@ -1,0 +1,12 @@
+dimension,test_heldout_docs,test_indomain,test_seen_facts,test_trained_exact,train,val
+assessment,89,47,12,24,306,17
+equity_accessibility,188,58,25,45,605,20
+faculty_readiness,17,72,23,37,502,36
+general,186,96,30,57,764,51
+governance,234,127,48,86,1148,63
+leadership_strategy,79,50,15,26,351,34
+monitoring_improvement,91,42,21,36,479,22
+privacy_security,105,47,19,34,461,26
+procurement_technology,75,31,10,16,214,15
+student_ai_literacy,81,76,25,46,611,40
+teaching_learning,341,145,51,93,1239,69

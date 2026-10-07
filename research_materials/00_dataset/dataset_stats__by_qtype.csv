@@ -1,0 +1,5 @@
+q_type,test_heldout_docs,test_indomain,test_seen_facts,test_trained_exact,train,val
+application,278,162,63,109,1464,88
+definition,422,184,71,131,1757,117
+explanation,407,237,75,134,1776,85
+factual,379,208,70,126,1683,103

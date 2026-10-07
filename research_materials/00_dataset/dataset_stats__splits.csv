@@ -1,0 +1,7 @@
+split,qa_pairs,documents,eval_subset
+train,6680,80,
+val,393,43,
+test_indomain,791,56,500.0
+test_heldout_docs,1486,14,500.0
+test_seen_facts,279,63,279.0
+test_trained_exact,500,78,500.0
