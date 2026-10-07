@@ -16,5 +16,14 @@
     "tokens_per_s": 2327.7,
     "base": "NF4-dequantized (training base)",
     "adapter_epoch": "ep3"
+  },
+  "llama-3.1-8b-instruct__awq_ep2__mb": {
+    "method": "AWQ W4A16 asym (group 128)",
+    "size_gb": 5.75,
+    "quant_minutes": 5.2,
+    "weights_vram_gb": 5.39,
+    "tokens_per_s": 1859.3,
+    "base": "NF4-dequantized (training base)",
+    "adapter_epoch": "ep2"
   }
 }
