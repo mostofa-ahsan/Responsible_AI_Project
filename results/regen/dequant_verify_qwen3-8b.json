@@ -1,0 +1,11 @@
+{
+  "model": "Qwen/Qwen3-8B",
+  "adapter_for_check": "/home/ahsan_linux/Responsible_AI_Project/models_epochs/qwen3-8b/epoch3/adapter",
+  "items": 20,
+  "dequantized_linear_layers": 252,
+  "answer_loss_nf4": 0.07177,
+  "answer_loss_dequantized_bf16": 0.07189,
+  "relative_difference": 0.00171,
+  "tolerance": 0.02,
+  "passed": true
+}

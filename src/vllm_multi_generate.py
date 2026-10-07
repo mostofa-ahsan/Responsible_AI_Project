@@ -62,9 +62,14 @@ def main():
                     lora_ids.setdefault(ad, len(lora_ids) + 1)
                     lr = LoRARequest(f"a{lora_ids[ad]}", lora_ids[ad], ad)
                 t1 = time.time()
-                outs = llm.chat([[{"role": "system", "content": r["system"]}, {"role": "user", "content": r["question"]}]
-                                 for r in rs], params, lora_request=lr, use_tqdm=True,
-                                chat_template_kwargs={"enable_thinking": False})
+                if all(r.get("prompt_token_ids") for r in rs):     # pre-tokenized with the training chat function
+                    from vllm.inputs import TokensPrompt
+                    outs = llm.generate([TokensPrompt(prompt_token_ids=r["prompt_token_ids"]) for r in rs], params,
+                                        lora_request=lr, use_tqdm=True)
+                else:
+                    outs = llm.chat([[{"role": "system", "content": r["system"]}, {"role": "user", "content": r["question"]}]
+                                     for r in rs], params, lora_request=lr, use_tqdm=True,
+                                    chat_template_kwargs={"enable_thinking": False})
                 gen_s += time.time() - t1
                 for r, o in zip(rs, outs):
                     n = len(o.outputs[0].token_ids)

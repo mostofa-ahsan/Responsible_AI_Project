@@ -69,3 +69,13 @@ results/cpt/raw/
 results/cpt/cache/
 models_cpt*/
 data/cpt*/
+
+# regen (added by git_local_commit.sh): per-item results in; answers, raw output, caches, dequantized bases out
+!results/regen/
+!results/regen/per_item/
+!results/regen/per_item/*.jsonl
+results/regen/.done/
+results/regen/answers/
+results/regen/raw/
+results/regen/cache/
+models_dequant/
