@@ -1,5 +1,15 @@
 # Sources of the example items
 
+- `ai-and-digital-transformation`: nan (2026). *AI and Digital Transformation: Opportunities, Challenges, and Emerging Threats in Technology, Business, and Security*. File: Books_AI/AI and Digital Transformation.pdf — **missing: authors**
+- `ai-and-security-in-china-s-higher-education`: Xiaoshu Xu (2026). *AI and Security in China’s Higher Education*. File: Books_AI/AI and Security in China's Higher Education_26_09_04_15_34_44.pdf
+- `ai-frameworks`: Vikram Dhillon David Metcalf Max Hooper (2025). *AI Frameworks Enabled by Blockchain*. File: Books_AI/AI Frameworks  .pdf
+- `ai-in-higher-education-a-bibliometric-analysis`: Ahmed Lachheb (2025). *AI in higher education: A bibliometric analysis, synthesis, and a critique of research ☆*. File: Research Articles_AI/JA_AI in higher education A bibliometric analysis, synthesis, and a critique of research.pdf
+- `ai-roles`: Jingdong Chen (2025). *AI Roles and Responsibilities in Education*. File: Books_AI/AI Roles.pdf
+- `artificial-intelligence-and-accounting-education`: Md Jahidur Rahman (2027). *Artificial Intelligence and Accounting Education; Policy, Practice and Research*. File: Books_AI/Artificial Intelligence and Accounting Education_26_09_04_15_40_08.pdf
 - `artificial-intelligence-and-higher-education`: Katerina Beta (2026). *Artificial Intelligence and Higher Education; The Impact of AI on Business Students Learning*. File: Books_AI/Artificial Intelligence and Higher Education_26_09_04_15_38_00.pdf
 - `building-responsible-ai`: Toju Duke (2023). *Building Responsible AI Algorithms*. File: Books_AI/Building Responsible AI.pdf
 - `exploring-perspectives-toward-generative`: Aaron A. Funa (2025). *Exploring perspectives toward generative artificial intelligence integration in science education: A cross-generational study*. File: Research Articles_AI/JA_Exploring perspectives toward generative artificial intelligence integration.pdf
+- `factors-affecting-performance-expectancy-and`: Mark Anthony Camilleri (2024). *Factors affecting performance expectancy and intentions to use ChatGPT: Using SmartPLS to advance an information technology acceptance framework*. File: Research Articles_AI/JA_Factors affecting performance expectancy and intentions to use ChatGPT.pdf
+- `innovative-educational`: Ashok Vaseashta (2026). *Innovative Educational Assessment with Generative AI: Opportunities, Challenges, and Practical Case Studies*. File: Books_AI/Innovative Educational.pdf
+- `language-teachers-ai-literacy-a-psychometric`: Salim Nabhan (2026). *Language teachers’ AI literacy: A psychometric study based on the ED-AI framework*. File: Research Articles_AI/JA_Language teachers’ AI literacy A psychometric study based on the.pdf
+- `responsible-ai-in-the-enterprise-practical-ai`: nan (2023). *Responsible AI in the Enterprise*. File: Books_AI/Responsible_AI_in_the_Enterprise_-_Practical_AI_risk_management_for_explainable_auditable_and_safe_models_with_hyperscalers_and_Azure_OpenAI.pdf — **missing: authors**

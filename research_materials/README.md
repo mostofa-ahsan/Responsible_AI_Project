@@ -1,6 +1,6 @@
 # research_materials
 
-_Built 2026-10-06 21:47 by `python src/build_research_materials.py` (rerunnable; every number is read from result files). Main numbers: adapters served on their training base (NF4-dequantized); earlier bf16-served results carry the suffix `__bf16serve`._
+_Built 2026-10-06 23:35 by `python src/build_research_materials.py` (rerunnable; every number is read from result files). Main numbers: adapters served on their training base (NF4-dequantized); earlier bf16-served results carry the suffix `__bf16serve`._
 
 | File | Description | Paper | Sources |
 |---|---|---|---|
@@ -26,6 +26,7 @@ _Built 2026-10-06 21:47 by `python src/build_research_materials.py` (rerunnable;
 | `04_figures/F6_metrics_vs_opus.pdf` | Token F1 (left) and key-fact recall (right) against Opus 5.5 accuracy for the 18 system × test cells graded by Opus (bf16-served base and 1-epoch systems); Pearson r shown. | Figure 6 | see CAPTIONS.md |
 | `04_figures/F7_judge_validation.pdf` | Local judge vs Opus 5.5 on held-out calibration items: confusion matrix (left) and system × test accuracy (right; circles base, triangles 1-epoch fine-tuned). | Figure 7 | see CAPTIONS.md |
 | `04_figures/F8_serving_precision_deployment.pdf` | Left: the best QA-only adapter served on the bf16 base (open) vs on its NF4 training base (filled). Right: deployment variants that exist (earlier deployment run; merged 4-bit variants were merged into the bf16 base). | Figure 8 | see CAPTIONS.md |
+| `04_figures/F9_gain_heatmap.pdf` | Appendix: change in judge accuracy (best QA-only epoch on its training base − base) by question type × readiness dimension, unseen questions (in-domain + held-out), three models pooled. | Figure 9 | see CAPTIONS.md |
 | `04_figures/CAPTIONS.md` | Figure captions | Figures | src/build_research_materials.py |
 | `05_examples/T5_wins.xlsx` | Table 5: fine-tuning wins | Results section, Table 5 | results/regen/master_items.csv.gz |
 | `05_examples/T6_side_by_side.xlsx` | Table 6: side-by-side answers | Results section, Table 6 | results/regen/master_items.csv.gz |
@@ -38,12 +39,11 @@ _Built 2026-10-06 21:47 by `python src/build_research_materials.py` (rerunnable;
 | `05_examples/T6_side_by_side.tex` | Table 6 (LaTeX) | Results section, Tables 5-6 | results/regen/master_items.csv.gz, data/parsed/metadata.csv |
 | `06_diagnostics/format_check.md` | Prompt-format check / dequantized-base verification | Methods (serving precision), appendix | results/diagnostics/format_check.md |
 | `06_diagnostics/dequant_check.json` | Prompt-format check / dequantized-base verification | Methods (serving precision), appendix | results/diagnostics/dequant_check.json |
+| `06_diagnostics/dequant_verify_gemma-4-e4b-it.json` | Prompt-format check / dequantized-base verification | Methods (serving precision), appendix | results/regen/dequant_verify_gemma-4-e4b-it.json |
+| `06_diagnostics/dequant_verify_llama-3.1-8b-instruct.json` | Prompt-format check / dequantized-base verification | Methods (serving precision), appendix | results/regen/dequant_verify_llama-3.1-8b-instruct.json |
 | `06_diagnostics/dequant_verify_qwen3-8b.json` | Prompt-format check / dequantized-base verification | Methods (serving precision), appendix | results/regen/dequant_verify_qwen3-8b.json |
 | `07_deployment/deployment.xlsx` | Deployment variants | Discussion / deployment, Figure 8 | results/trained_eval/deployment.csv, deploy_stats.json |
 
 ## Gaps
 
-- serving_precision: results/regen/serving_precision.csv empty or missing
-- F8: serving_precision.csv missing
-- T5_wins: 0 items, 0 dimensions, 0 q_types (targets 12, >= 4, all)
-- T6d: no counter-example (base correct, fine-tuned incorrect with a contradiction)
+- none

@@ -1,0 +1,11 @@
+{
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "adapter_for_check": "/home/ahsan_linux/Responsible_AI_Project/models_epochs/llama-3.1-8b-instruct/epoch3/adapter",
+  "items": 20,
+  "dequantized_linear_layers": 224,
+  "answer_loss_nf4": 0.01154,
+  "answer_loss_dequantized_bf16": 0.01137,
+  "relative_difference": 0.01491,
+  "tolerance": 0.02,
+  "passed": true
+}

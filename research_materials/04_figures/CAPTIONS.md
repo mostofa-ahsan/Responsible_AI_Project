@@ -13,3 +13,5 @@
 **F7_judge_validation**: Local judge vs Opus 5.5 on held-out calibration items: confusion matrix (left) and system × test accuracy (right; circles base, triangles 1-epoch fine-tuned).
 
 **F8_serving_precision_deployment**: Left: the best QA-only adapter served on the bf16 base (open) vs on its NF4 training base (filled). Right: deployment variants that exist (earlier deployment run; merged 4-bit variants were merged into the bf16 base).
+
+**F9_gain_heatmap**: Appendix: change in judge accuracy (best QA-only epoch on its training base − base) by question type × readiness dimension, unseen questions (in-domain + held-out), three models pooled.

@@ -4,7 +4,104 @@
     "T6": "one item per test type (held-out, in-domain, exact) answered and graded by every listed system; seeded choice"
   },
   "picked": {
-    "T5": [],
+    "T5": [
+      {
+        "system": "qwen3-8b__ep3",
+        "split": "test_trained_exact",
+        "qa_id": "ai-roles:0017:q4",
+        "dimension": "monitoring_improvement",
+        "q_type": "definition",
+        "reworded_also_correct": true
+      },
+      {
+        "system": "qwen3-8b__ep3",
+        "split": "test_trained_exact",
+        "qa_id": "language-teachers-ai-literacy-a-psychometric:0019:q0",
+        "dimension": "faculty_readiness",
+        "q_type": "factual",
+        "reworded_also_correct": true
+      },
+      {
+        "system": "qwen3-8b__ep3",
+        "split": "test_trained_exact",
+        "qa_id": "artificial-intelligence-and-accounting-education:0137:q0",
+        "dimension": "teaching_learning",
+        "q_type": "application",
+        "reworded_also_correct": true
+      },
+      {
+        "system": "gemma-4-e4b-it__ep3",
+        "split": "test_trained_exact",
+        "qa_id": "ai-and-security-in-china-s-higher-education:0070:q1",
+        "dimension": "student_ai_literacy",
+        "q_type": "explanation",
+        "reworded_also_correct": true
+      },
+      {
+        "system": "gemma-4-e4b-it__ep3",
+        "split": "test_trained_exact",
+        "qa_id": "ai-and-digital-transformation:0039:q4",
+        "dimension": "leadership_strategy",
+        "q_type": "application",
+        "reworded_also_correct": true
+      },
+      {
+        "system": "gemma-4-e4b-it__ep3",
+        "split": "test_trained_exact",
+        "qa_id": "factors-affecting-performance-expectancy-and:0000:q4",
+        "dimension": "general",
+        "q_type": "factual",
+        "reworded_also_correct": true
+      },
+      {
+        "system": "llama-3.1-8b-instruct__ep2",
+        "split": "test_trained_exact",
+        "qa_id": "ai-and-security-in-china-s-higher-education:0087:q3",
+        "dimension": "privacy_security",
+        "q_type": "explanation",
+        "reworded_also_correct": true
+      },
+      {
+        "system": "llama-3.1-8b-instruct__ep2",
+        "split": "test_trained_exact",
+        "qa_id": "ai-frameworks:0019:q4",
+        "dimension": "governance",
+        "q_type": "factual",
+        "reworded_also_correct": true
+      },
+      {
+        "system": "llama-3.1-8b-instruct__ep2",
+        "split": "test_trained_exact",
+        "qa_id": "responsible-ai-in-the-enterprise-practical-ai:0088:q2",
+        "dimension": "procurement_technology",
+        "q_type": "factual",
+        "reworded_also_correct": true
+      },
+      {
+        "system": "qwen3-8b__ep3",
+        "split": "test_trained_exact",
+        "qa_id": "ai-in-higher-education-a-bibliometric-analysis:0019:q4",
+        "dimension": "equity_accessibility",
+        "q_type": "factual",
+        "reworded_also_correct": true
+      },
+      {
+        "system": "gemma-4-e4b-it__ep3",
+        "split": "test_trained_exact",
+        "qa_id": "innovative-educational:0063:q2",
+        "dimension": "assessment",
+        "q_type": "definition",
+        "reworded_also_correct": true
+      },
+      {
+        "system": "qwen3-8b__ep3",
+        "split": "test_trained_exact",
+        "qa_id": "ai-frameworks:0019:q4",
+        "dimension": "governance",
+        "q_type": "factual",
+        "reworded_also_correct": true
+      }
+    ],
     "T6": [
       {
         "split": "test_heldout_docs",

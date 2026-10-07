@@ -22,6 +22,7 @@
     "04_figures/F6_metrics_vs_opus.pdf",
     "04_figures/F7_judge_validation.pdf",
     "04_figures/F8_serving_precision_deployment.pdf",
+    "04_figures/F9_gain_heatmap.pdf",
     "04_figures/CAPTIONS.md",
     "05_examples/T5_wins.xlsx",
     "05_examples/T6_side_by_side.xlsx",
@@ -34,14 +35,11 @@
     "05_examples/T6_side_by_side.tex",
     "06_diagnostics/format_check.md",
     "06_diagnostics/dequant_check.json",
+    "06_diagnostics/dequant_verify_gemma-4-e4b-it.json",
+    "06_diagnostics/dequant_verify_llama-3.1-8b-instruct.json",
     "06_diagnostics/dequant_verify_qwen3-8b.json",
     "07_deployment/deployment.xlsx"
   ],
-  "gaps": [
-    "serving_precision: results/regen/serving_precision.csv empty or missing",
-    "F8: serving_precision.csv missing",
-    "T5_wins: 0 items, 0 dimensions, 0 q_types (targets 12, >= 4, all)",
-    "T6d: no counter-example (base correct, fine-tuned incorrect with a contradiction)"
-  ],
+  "gaps": [],
   "errors": []
 }

@@ -1,0 +1,11 @@
+{
+  "model": "google/gemma-4-E4B-it",
+  "adapter_for_check": "/home/ahsan_linux/Responsible_AI_Project/models_epochs/gemma-4-e4b-it/epoch3/adapter",
+  "items": 20,
+  "dequantized_linear_layers": 592,
+  "answer_loss_nf4": 0.05237,
+  "answer_loss_dequantized_bf16": 0.05168,
+  "relative_difference": 0.01305,
+  "tolerance": 0.02,
+  "passed": true
+}
