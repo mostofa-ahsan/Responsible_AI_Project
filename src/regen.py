@@ -420,6 +420,12 @@ def cmd_deploy(a):
     var = f"awq_{best}"
     if all(len(preds(fam, var, "mb", s)) >= len(all_items()[s]) for s in TESTS):
         return
+    import local_checks as L
+    from trained_eval import delete_hf_model, free_gb
+    if L.minicheck_local():                         # disk: the 16 GB dequantized base cannot coexist with MiniCheck-7B
+        delete_hf_model(L.MC7B, "DEP")
+    if free_gb() < 10 + 17:
+        raise SystemExit(f"only {free_gb():.1f} GB free for the dequantized base")
     cmd_dequant(a)
     q = repo_path("models_quant") / f"{fam}_{var}_mb"
     if not (q / "quant_info.json").exists():

@@ -1,0 +1,11 @@
+{
+  "qwen3-8b__awq_ep3__mb": {
+    "method": "AWQ W4A16 asym (group 128)",
+    "size_gb": 6.11,
+    "quant_minutes": 5.7,
+    "weights_vram_gb": 5.71,
+    "tokens_per_s": 1603.6,
+    "base": "NF4-dequantized (training base)",
+    "adapter_epoch": "ep3"
+  }
+}

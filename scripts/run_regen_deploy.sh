@@ -29,12 +29,12 @@ run() {  # run NAME BOX_MIN LIMIT cmd...
 LIM=$((HARD - 25 * 60))       # leave 25 min for the final stats + research_materials + push
 ok=0
 for m in qwen3-8b gemma-4-e4b-it llama-3.1-8b-instruct; do
-  run "DEP_build_$m" 20 $((LIM - 50 * 60)) $PY src/regen.py deploy --model $m && ok=1
+  run "DEP_build_$m" 14 $((LIM - 33 * 60)) $PY src/regen.py deploy --model $m && ok=1
   $PY src/regen.py purge_dequant --model $m >> "$LOG" 2>&1
 done
 if [ $ok -eq 1 ]; then
-  run DEP_grade 30 $((LIM - 20 * 60)) $PY src/regen.py grade --tier DEP
-  run DEP_checks 20 $LIM $PY src/regen.py checks --tier DEP
+  run DEP_grade 25 $((LIM - 10 * 60)) $PY src/regen.py grade --tier DEP
+  run DEP_checks 15 $LIM $PY src/regen.py checks --tier DEP
   if [ -f "$DONE/DEP_checks" ]; then printf 'deployment_variants_matching_base\tdone\t-\tmerged 4-bit of the best QA-only epoch on the NF4-dequantized base (graded + checked)\n' >> "$ST"; fi
 fi
 rm -f "$DONE/DEP_stats" "$DONE/DEP_materials"
