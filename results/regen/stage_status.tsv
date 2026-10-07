@@ -23,3 +23,5 @@ DEP_grade	done	19
 DEP_checks	failed	0	exit 1
 DEP_stats	done	0	
 DEP_materials	done	0	
+DEP_checks	done	8	rerun after fixing the grading-marker name (judge deleted, MiniCheck re-downloaded)
+deployment_variants_matching_base	done	-	merged 4-bit of the best QA-only epoch on the NF4-dequantized base (graded + checked)

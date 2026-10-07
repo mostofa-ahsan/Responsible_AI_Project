@@ -1,40 +1,40 @@
 file,description,paper,sources,bytes,sha256
-00_dataset/dataset_stats.xlsx,Dataset statistics,"Data section, Table 1","data/splits/*.jsonl, data/qa_pairs/full_v1*.jsonl, data/chunks/chunks.jsonl, data/inventory.csv, data/parsed/metadata.csv, logs/llm_usage.jsonl",23434,9877a88733392917
+00_dataset/dataset_stats.xlsx,Dataset statistics,"Data section, Table 1","data/splits/*.jsonl, data/qa_pairs/full_v1*.jsonl, data/chunks/chunks.jsonl, data/inventory.csv, data/parsed/metadata.csv, logs/llm_usage.jsonl",23434,a5a90e45314e5008
 00_dataset/leakage_audit.json,Leakage audit (corpus for mixed CPT; held-out document overlap),Data section,/home/ahsan_linux/Responsible_AI_Project/data/cpt/leakage_audit.json,1101,4b97bf522da46a05
-00_dataset/qa_sample.xlsx,QA pair samples,Appendix (data examples),data/splits/*.jsonl,28268,37c1471d43c5d58c
-01_training/training_runs.xlsx,Training runs,"Method section, Table 2","config.yaml, models*/**/epochs.json, models/*/train_summary.json, results/*/stage_status.tsv",10848,8855792e822b0feb
+00_dataset/qa_sample.xlsx,QA pair samples,Appendix (data examples),data/splits/*.jsonl,28268,10fc88cc320d79e4
+01_training/training_runs.xlsx,Training runs,"Method section, Table 2","config.yaml, models*/**/epochs.json, models/*/train_summary.json, results/*/stage_status.tsv",10851,9a13e7d631ca9ba3
 01_training/model_footprint.csv,"Model footprint: base parameters, LoRA parameters, trainable %, adapter size",Method section,"adapter_model.safetensors files, HF cache base checkpoints",650,ecb7692a4090fdd5
-02_validation/judge_calibration.xlsx,Judge calibration,"Evaluation section, Table 4, Figure 7",results/local_eval/calibration_A.json,11724,2cf5e38bb4ba6ba7
-02_validation/checker_validation.xlsx,Checker validation,"Evaluation section, Table 4",results/local_eval/validation.json,7081,f528644dfa50618e
-02_validation/seed_replication.xlsx,Seed replication,Limitations / robustness,"results/seed_replication/summary.csv, judge_summary.csv",11076,833fefeb6f47cf7e
-03_results/main_results.xlsx,Main results,"Results section, Table 7, Figures 2-5",results/regen/metrics_by_system.csv,54980,49bfa0f5f45eaa5d
-03_results/significance_tests.xlsx,Significance tests,"Results section, Table 7 markers",results/regen/significance.csv,210159,d160c054a0819dd1
-03_results/serving_precision.xlsx,Adapter on the bf16 base vs on its training (NF4) base,"Results section, serving-precision table, Figure 8",results/regen/serving_precision.csv,23324,161e41da766ff2b9
-03_results/length_control.xlsx,Base vs concise base vs best fine-tuned systems (length control),"Results section, Figure 5",results/regen/length_control.csv,8518,adb27f6c7d530d4a
-03_results/robustness_gap.xlsx,Exact minus reworded accuracy on the 279 paired items,"Results section, Figure 4",results/regen/robustness_gap.csv,14629,5620cb59b9f7bb84
-03_results/breakdown_qtype_dimension.xlsx,Breakdown by question type and dimension,"Appendix, Figure 9",results/regen/master_items.csv.gz,106094,0f89fc858ea6bb30
-03_results/per_item_results.csv.gz,"Every answer with its judge grade, key-fact checks, F1/ROUGE-L, length (all systems)",Supplementary data,results/regen/master_items.csv.gz,15525258,4757ed0fc180522f
-04_figures/F2_accuracy_four_tests.pdf,"Judge accuracy (correct + 0.5 partial) on the four test types for the base model, the concise base (≤ 40 words), the best QA-only epoch and the best mixed-CPT epoch (adapters served on their training base); 95% bootstrap CIs.",Figure 2,see CAPTIONS.md,20662,8d2b10bfef287b31
-04_figures/F3_accuracy_and_val_loss_vs_epoch.pdf,"Mean judge accuracy on unseen questions (in-domain + held-out) against epoch (0 = base; coloured, left axis) and validation loss (grey, right axis), QA-only (solid) and mixed CPT (dashed).",Figure 3,see CAPTIONS.md,22322,24c595198f0ef0ae
-04_figures/F4_exact_vs_reworded.pdf,"Exact training question vs its rewording on the 279 paired items (filled: exact, open: reworded) for base, best QA-only and best mixed-CPT systems.",Figure 4,see CAPTIONS.md,20055,8a171279bed542f3
-04_figures/F5_length_decomposition.pdf,Held-out documents: change in judge accuracy from shortening the base answer (concise base − base) and from fine-tuning at matched length (best QA-only − concise base).,Figure 5,see CAPTIONS.md,17013,c61d0dad1f5219bd
-04_figures/F6_metrics_vs_opus.pdf,Token F1 (left) and key-fact recall (right) against Opus 5.5 accuracy for the 18 system × test cells graded by Opus (bf16-served base and 1-epoch systems); Pearson r shown.,Figure 6,see CAPTIONS.md,19541,cfc04aedd7b88307
-04_figures/F7_judge_validation.pdf,"Local judge vs Opus 5.5 on held-out calibration items: confusion matrix (left) and system × test accuracy (right; circles base, triangles 1-epoch fine-tuned).",Figure 7,see CAPTIONS.md,20252,bf03cc3f9f263efc
-04_figures/F8_serving_precision_deployment.pdf,Left: the best QA-only adapter served on the bf16 base (open) vs on its NF4 training base (filled). Right: deployment variants that exist (earlier deployment run; merged 4-bit variants were merged into the bf16 base).,Figure 8,see CAPTIONS.md,25554,4a3c6d295e00f5b9
-04_figures/F9_gain_heatmap.pdf,"Appendix: change in judge accuracy (best QA-only epoch on its training base − base) by question type × readiness dimension, unseen questions (in-domain + held-out), three models pooled.",Figure 9,see CAPTIONS.md,23930,5cbcbc2549c5d330
+02_validation/judge_calibration.xlsx,Judge calibration,"Evaluation section, Table 4, Figure 7",results/local_eval/calibration_A.json,11725,ba3d2d189725a290
+02_validation/checker_validation.xlsx,Checker validation,"Evaluation section, Table 4",results/local_eval/validation.json,7082,309d8ae63c5c908d
+02_validation/seed_replication.xlsx,Seed replication,Limitations / robustness,"results/seed_replication/summary.csv, judge_summary.csv",11077,2fa2496e72c09122
+03_results/main_results.xlsx,Main results,"Results section, Table 7, Figures 2-5",results/regen/metrics_by_system.csv,55061,71815bbcaa0cf06b
+03_results/significance_tests.xlsx,Significance tests,"Results section, Table 7 markers",results/regen/significance.csv,210505,bd802e1fa71af06f
+03_results/serving_precision.xlsx,Adapter on the bf16 base vs on its training (NF4) base,"Results section, serving-precision table, Figure 8",results/regen/serving_precision.csv,23324,eb70b4c27312bf5c
+03_results/length_control.xlsx,Base vs concise base vs best fine-tuned systems (length control),"Results section, Figure 5",results/regen/length_control.csv,8518,b7fb80110cb03af7
+03_results/robustness_gap.xlsx,Exact minus reworded accuracy on the 279 paired items,"Results section, Figure 4",results/regen/robustness_gap.csv,14651,586a7dd799ffb442
+03_results/breakdown_qtype_dimension.xlsx,Breakdown by question type and dimension,"Appendix, Figure 9",results/regen/master_items.csv.gz,106684,d5f024c1d17aeee7
+03_results/per_item_results.csv.gz,"Every answer with its judge grade, key-fact checks, F1/ROUGE-L, length (all systems)",Supplementary data,results/regen/master_items.csv.gz,15522611,5e6bf562cffedcfb
+04_figures/F2_accuracy_four_tests.pdf,"Judge accuracy (correct + 0.5 partial) on the four test types for the base model, the concise base (≤ 40 words), the best QA-only epoch and the best mixed-CPT epoch (adapters served on their training base); 95% bootstrap CIs.",Figure 2,see CAPTIONS.md,20662,284f84ed7e986ec5
+04_figures/F3_accuracy_and_val_loss_vs_epoch.pdf,"Mean judge accuracy on unseen questions (in-domain + held-out) against epoch (0 = base; coloured, left axis) and validation loss (grey, right axis), QA-only (solid) and mixed CPT (dashed).",Figure 3,see CAPTIONS.md,22322,a2d44d9d548db406
+04_figures/F4_exact_vs_reworded.pdf,"Exact training question vs its rewording on the 279 paired items (filled: exact, open: reworded) for base, best QA-only and best mixed-CPT systems.",Figure 4,see CAPTIONS.md,20055,00f461bc9bcd40c4
+04_figures/F5_length_decomposition.pdf,Held-out documents: change in judge accuracy from shortening the base answer (concise base − base) and from fine-tuning at matched length (best QA-only − concise base).,Figure 5,see CAPTIONS.md,17013,c03c0717acb37f7a
+04_figures/F6_metrics_vs_opus.pdf,Token F1 (left) and key-fact recall (right) against Opus 5.5 accuracy for the 18 system × test cells graded by Opus (bf16-served base and 1-epoch systems); Pearson r shown.,Figure 6,see CAPTIONS.md,19541,7e2093af34839281
+04_figures/F7_judge_validation.pdf,"Local judge vs Opus 5.5 on held-out calibration items: confusion matrix (left) and system × test accuracy (right; circles base, triangles 1-epoch fine-tuned).",Figure 7,see CAPTIONS.md,20252,3641e84e3b1ce818
+04_figures/F8_serving_precision_deployment.pdf,Left: the best QA-only adapter served on the bf16 base (open) vs on its NF4 training base (filled). Right: deployment variants that exist (earlier deployment run; merged 4-bit variants were merged into the bf16 base).,Figure 8,see CAPTIONS.md,25554,6b388d1f9f3b4e33
+04_figures/F9_gain_heatmap.pdf,"Appendix: change in judge accuracy (best QA-only epoch on its training base − base) by question type × readiness dimension, unseen questions (in-domain + held-out), three models pooled.",Figure 9,see CAPTIONS.md,23930,0c61668acaeea8c6
 04_figures/CAPTIONS.md,Figure captions,Figures,src/build_research_materials.py,1734,bf71398341689aad
-05_examples/T5_wins.xlsx,Table 5: fine-tuning wins,"Results section, Table 5",results/regen/master_items.csv.gz,11281,ae53a238ba38a282
-05_examples/T6_side_by_side.xlsx,Table 6: side-by-side answers,"Results section, Table 6",results/regen/master_items.csv.gz,12915,306af486c506af1f
+05_examples/T5_wins.xlsx,Table 5: fine-tuning wins,"Results section, Table 5",results/regen/master_items.csv.gz,11282,d3c127c4436e703b
+05_examples/T6_side_by_side.xlsx,Table 6: side-by-side answers,"Results section, Table 6",results/regen/master_items.csv.gz,12881,adbff510ef34c86e
 05_examples/SOURCES.md,Bibliographic data of the source documents of the examples (missing fields flagged),"Results section, Tables 5-6","results/regen/master_items.csv.gz, data/parsed/metadata.csv",3027,f278a7bc45c6af2c
 05_examples/sources.bib,BibTeX of the source documents,"Results section, Tables 5-6","results/regen/master_items.csv.gz, data/parsed/metadata.csv",2953,c76288a29a6552be
 05_examples/selection_log.json,Example selection rules and picks,"Results section, Tables 5-6","results/regen/master_items.csv.gz, data/parsed/metadata.csv",4036,c64ccbca6c94f04a
 05_examples/T5_wins.md,Table 5 (Markdown),"Results section, Tables 5-6","results/regen/master_items.csv.gz, data/parsed/metadata.csv",27421,db18b6b28bbe448e
 05_examples/T5_wins.tex,Table 5 (LaTeX),"Results section, Tables 5-6","results/regen/master_items.csv.gz, data/parsed/metadata.csv",15882,9450a882341622c2
 05_examples/T6_side_by_side.md,Table 6 (Markdown),"Results section, Tables 5-6","results/regen/master_items.csv.gz, data/parsed/metadata.csv",34906,d1b995d141af7280
-05_examples/T6_side_by_side.tex,Table 6 (LaTeX),"Results section, Tables 5-6","results/regen/master_items.csv.gz, data/parsed/metadata.csv",13594,0f951b2b46c4b99d
+05_examples/T6_side_by_side.tex,Table 6 (LaTeX),"Results section, Tables 5-6","results/regen/master_items.csv.gz, data/parsed/metadata.csv",13419,b4d3e925e9b89531
 06_diagnostics/format_check.md,Prompt-format check / dequantized-base verification,"Methods (serving precision), appendix",results/diagnostics/format_check.md,9450,75095e9cab04deb7
 06_diagnostics/dequant_check.json,Prompt-format check / dequantized-base verification,"Methods (serving precision), appendix",results/diagnostics/dequant_check.json,636,bfef2c5b2f85c2d1
 06_diagnostics/dequant_verify_gemma-4-e4b-it.json,Prompt-format check / dequantized-base verification,"Methods (serving precision), appendix",results/regen/dequant_verify_gemma-4-e4b-it.json,346,2202a2f84216368d
 06_diagnostics/dequant_verify_llama-3.1-8b-instruct.json,Prompt-format check / dequantized-base verification,"Methods (serving precision), appendix",results/regen/dequant_verify_llama-3.1-8b-instruct.json,364,8a3c65a0bb214b64
 06_diagnostics/dequant_verify_qwen3-8b.json,Prompt-format check / dequantized-base verification,"Methods (serving precision), appendix",results/regen/dequant_verify_qwen3-8b.json,332,5e26f78853a7fd94
-07_deployment/deployment.xlsx,Deployment variants,"Discussion / deployment, Figure 8","results/trained_eval/deployment.csv, deploy_stats.json",10834,b93322109dfff67f
+07_deployment/deployment.xlsx,Deployment variants,"Discussion / deployment, Figure 8","results/trained_eval/deployment.csv, deploy_stats.json",10834,abf614668ca021d9
