@@ -1,6 +1,6 @@
 # Matching-base regeneration + research_materials: STATUS
 
-_Written 2026-10-07 02:58. Start 2026-10-06 21:38:46; checkpoint 2026-10-07 00:33:46; hard limit 2026-10-07 03:38:46._
+_Written 2026-10-07 03:28. Start 2026-10-06 21:38:46; checkpoint 2026-10-07 00:33:46; hard limit 2026-10-07 03:38:46._
 
 | Stage | Result | Minutes | Note |
 |---|---|---|---|
@@ -42,5 +42,5 @@ _Written 2026-10-07 02:58. Start 2026-10-06 21:38:46; checkpoint 2026-10-07 00:3
 - Resume anything unfinished: `bash scripts/resume_regen_after_crash.sh` (skips finished stages). Single steps: `python src/regen.py dequant|gen --model <m>`, `python src/regen.py grade|checks --tier P12|rest`, `python src/regen.py stats`, `python src/build_research_materials.py`.
 - Deployment variants on the matching base (merged AWQ/RTN/GGUF): not run; they need the dequantized checkpoint, llm-compressor (src/trained_quant.py with --model models_dequant/<m>) and a further judge + MiniCheck swap.
 - GPU since start: max 57 °C, max power draw 261 W.
-- Disk free now: 12.9 GB.
+- Disk free now: 12.8 GB.
 - Failed push attempts: 0.
